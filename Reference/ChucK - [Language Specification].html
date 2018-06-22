@@ -1,0 +1,199 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml/DTD/xhtml1-strict.dtd">
+<!-- saved from url=(0043)http://chuck.cs.princeton.edu/doc/language/ -->
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>ChucK - [Language Specification]</title>
+<!--link rel="stylesheet" type="text/css" href="../../style.css"-->
+</head>
+<body bgcolor="#ffffff" text="#000000">
+<font face="verdana, sans-serif" size="2">
+
+<br>
+<center> 
+<table border="0" width="640">
+<tbody><tr><td>
+<font face="verdana, sans-serif" size="2">
+<center>
+<font size="3">
+<strong>ChucK</strong> : Language Specification
+</font>
+<br>
+<br>
+
+  <table bgcolor="#d9d9d9" border="0" cellpadding="1" cellspacing="0"><tbody><tr><td>
+  <table width="100%" bgcolor="#fdfdfd" border="0" cellpadding="1" cellspacing="2">
+  <tbody><tr>
+  <td align="right"><font face="verdana, sans-serif" size="2">
+  version:</font></td><td><font face="verdana, sans-serif" size="2">
+  1.3.x.x (chimera)
+  <br>
+  
+  </font></td>
+  </tr>
+  </tbody></table></td></tr>
+  </tbody></table>
+
+<br>
+<img src="./ChucK - [Language Specification]_files/on-the-fly_50dpi.jpg">
+
+<table width="640" border="0" cellpadding="2" cellspacing="2">
+<tbody><tr><td align="justify"><font face="verdana, sans-serif" size="2">
+
+<hr width="10%">
+
+<br>
+<strong>Overview:</strong>
+<br><p align="justify">
+<a href="http://chuck.cs.princeton.edu/">ChucK</a> is a strongly-typed, 
+<strong><em>strongly-timed</em></strong>, concurrent audio 
+and multimedia programming language.  It is compiled into virtual 
+instructions, which is immediately run in the ChucK Virtual Machine.  
+This guide documents the features of the Language, Compiler, and Virtual 
+Machine for a ChucK programmer.
+</p>
+
+<br>
+<center>
+
+  <table bgcolor="#d9d9d9" border="0" cellpadding="0" cellspacing="1"><tbody><tr><td>
+  <table width="100%" bgcolor="#fdfdfd" border="0" cellpadding="8" cellspacing="2">
+  <tbody><tr>
+  <td align="left"><font face="verdana, sans-serif" size="2">
+
+<a name="lang"></a><center><a name="lang"><strong>language specification</strong></a><br>
+(also see <a href="http://chuck.cs.princeton.edu/doc/program/">programming reference</a>)
+</center>
+<br>
+<ul><li><strong><a href="http://chuck.cs.princeton.edu/doc/language/overview.html">overview</a></strong>
+  <ul>
+  <li><a href="http://chuck.cs.princeton.edu/doc/language/overview.html#run">running chuck</a>
+  </li><li><a href="http://chuck.cs.princeton.edu/doc/language/overview.html#comment">comments</a>
+  </li><li><a href="http://chuck.cs.princeton.edu/doc/language/overview.html#reserve">reserved words</a>
+  </li></ul><br>
+<strong></strong></li><li><strong><a href="http://chuck.cs.princeton.edu/doc/language/type.html">types, values, variables</a></strong>
+  <ul>
+  <li><a href="http://chuck.cs.princeton.edu/doc/language/type.html#prim">primitive types</a><br>
+  </li><li><a href="http://chuck.cs.princeton.edu/doc/language/type.html#value">values</a><br>
+  </li><li><a href="http://chuck.cs.princeton.edu/doc/language/type.html#var">variables</a><br>
+  </li><li><a href="http://chuck.cs.princeton.edu/doc/language/type.html#ref">references</a><br>
+  </li><li><a href="http://chuck.cs.princeton.edu/doc/language/type.html#complex">complex types</a><br>
+  </li></ul><br>
+<strong></strong></li><li><strong><a href="http://chuck.cs.princeton.edu/doc/language/array.html">arrays</a></strong>
+  <ul>
+  <li><a href="http://chuck.cs.princeton.edu/doc/language/array.html#decl">declaring</a>
+  </li><li><a href="http://chuck.cs.princeton.edu/doc/language/array.html#multi">multi-dimensional</a>
+  </li><li><a href="http://chuck.cs.princeton.edu/doc/language/array.html#use">lookup</a>
+  </li><li><a href="http://chuck.cs.princeton.edu/doc/language/array.html#assoc">associative arrays</a>
+  </li><li><a href="http://chuck.cs.princeton.edu/doc/language/array.html#assign">assignment</a>
+  </li></ul><br>
+<strong></strong></li><li><strong><a href="http://chuck.cs.princeton.edu/doc/language/oper.html">operators + operations</a></strong>
+  <ul>
+  <li><a href="http://chuck.cs.princeton.edu/doc/language/oper.html#chuck">=&gt;</a> <font size="1">(chuck)</font><br>
+  </li><li><a href="http://chuck.cs.princeton.edu/doc/language/oper.html#arith">+ - * /</a> <font size="1">(arithmetic)</font><br>
+  </li><li><a href="http://chuck.cs.princeton.edu/doc/language/oper.html#mod">%</a> <font size="1">(modulo)</font><br>
+  </li><li><a href="http://chuck.cs.princeton.edu/doc/language/oper.html#log">&amp;&amp; || == != &gt;= &lt;=" <font size="1">(logic)</font><br>
+  </a></li><li><a href="http://chuck.cs.princeton.edu/doc/language/oper.html#bin">&amp; | ^</a> <font size="1">(bitwise)</font><br>
+  </li><li><a href="http://chuck.cs.princeton.edu/doc/language/oper.html#incdec">++ --</a> <font size="1">(inc / dec)</font><br>
+  </li><li><a href="http://chuck.cs.princeton.edu/doc/language/oper.html#unary">! + - new</a> <font size="1">(unary)</font><br>
+  </li></ul><br>
+<strong></strong></li><li><strong><a href="http://chuck.cs.princeton.edu/doc/language/ctrl.html">control structures</a></strong>
+  <ul>
+  <li><a href="http://chuck.cs.princeton.edu/doc/language/ctrl.html#if">if / else</a><br>
+  </li><li><a href="http://chuck.cs.princeton.edu/doc/language/ctrl.html#while">while</a><br>
+  </li><li><a href="http://chuck.cs.princeton.edu/doc/language/ctrl.html#until">until</a><br>
+  </li><li><a href="http://chuck.cs.princeton.edu/doc/language/ctrl.html#for">for</a><br>
+  </li><li><a href="http://chuck.cs.princeton.edu/doc/language/ctrl.html#break">break / continue</a><br>
+  </li></ul><br>
+<strong></strong></li><li><strong><a href="http://chuck.cs.princeton.edu/doc/language/time.html">manipulating time</a></strong>
+  <ul>
+  <li><a href="http://chuck.cs.princeton.edu/doc/language/time.html#type">time and duration</a> <br>
+  </li><li><a href="http://chuck.cs.princeton.edu/doc/language/time.html#oper">operations</a> <font size="1">(arithmetic)</font><br>
+  </li><li><a href="http://chuck.cs.princeton.edu/doc/language/time.html#now">the keyword 'now'</a><br>
+  </li><li><a href="http://chuck.cs.princeton.edu/doc/language/time.html#advance">advancing time</a><br>
+  </li><li><a href="http://chuck.cs.princeton.edu/doc/language/time.html#properties">properties</a><br>
+  </li></ul><br>
+<strong></strong></li><li><strong><a href="http://chuck.cs.princeton.edu/doc/language/func.html">functions</a></strong>
+  <ul>
+  <li><a href="http://chuck.cs.princeton.edu/doc/language/func.html#write">writing</a>
+  </li><li><a href="http://chuck.cs.princeton.edu/doc/language/func.html#calling">calling</a>
+  </li><li><a href="http://chuck.cs.princeton.edu/doc/language/func.html#over">overloading</a>
+  </li></ul><br>
+<strong></strong></li><li><strong><a href="http://chuck.cs.princeton.edu/doc/language/spork.html">concurrency, processes, shreds</a></strong>
+  <ul>
+  <li><a href="http://chuck.cs.princeton.edu/doc/language/spork.html#spork">sporking shreds</a>
+  </li><li><a href="http://chuck.cs.princeton.edu/doc/language/spork.html#me">the 'me' keyword</a>
+  </li><li><a href="http://chuck.cs.princeton.edu/doc/language/spork.html#add">using machine.add()</a>
+  </li><li><a href="http://chuck.cs.princeton.edu/doc/language/spork.html#com">inter-shred communication</a>
+  </li></ul><br>
+<strong></strong></li><li><strong><a href="http://chuck.cs.princeton.edu/doc/language/class.html">classes and objects</a></strong>
+  <ul>
+  <li><a href="http://chuck.cs.princeton.edu/doc/language/class.html#intro">introduction</a>
+  </li><li><a href="http://chuck.cs.princeton.edu/doc/language/class.html#base">existing classes</a>
+  </li><li><a href="http://chuck.cs.princeton.edu/doc/language/class.html#new">working with objects</a>
+  </li><li><a href="http://chuck.cs.princeton.edu/doc/language/class.html#create">writing a class</a>
+  </li><li><a href="http://chuck.cs.princeton.edu/doc/language/class.html#member">members</a> <font size="1">(data + functions)</font>
+  </li><li><a href="http://chuck.cs.princeton.edu/doc/language/class.html#static">static</a> <font size="1">(data + functions)</font>
+  </li><li><a href="http://chuck.cs.princeton.edu/doc/language/class.html#extend">inheritance</a>
+  </li><li><a href="http://chuck.cs.princeton.edu/doc/language/class.html#overloadation">overloadation</a> <font size="1">(overloading + overriding)</font>
+  </li></ul><br>
+
+<strong></strong></li><li><strong><a href="http://chuck.cs.princeton.edu/doc/language/ugen.html">unit generators</a></strong>
+  <ul>
+  <li><a href="http://chuck.cs.princeton.edu/doc/language/ugen.html#decl">declaring</a>
+  </li><li><a href="http://chuck.cs.princeton.edu/doc/language/ugen.html#connect">connecting</a>
+  </li><li><a href="http://chuck.cs.princeton.edu/doc/language/ugen.html#ctrl">controlling</a> <font size="1">(timing mechanism)</font>
+  </li><li><a href="http://chuck.cs.princeton.edu/doc/language/ugen.html#chan">mono + stereo</a>
+  </li><li>creating <font size="1">(coming soon)</font>
+  </li></ul><br>
+
+<strong></strong></li><li><strong><a href="http://chuck.cs.princeton.edu/doc/language/uana.html">unit analyzers</a></strong> <font color="#999933" size="1"><b>new!!!</b></font>
+  <ul>
+  <li><a href="http://chuck.cs.princeton.edu/doc/language/uana.html#declaring">declaring</a>
+  </li><li><a href="http://chuck.cs.princeton.edu/doc/language/uana.html#connecting">connecting</a>
+  </li><li><a href="http://chuck.cs.princeton.edu/doc/language/uana.html#controlling">controlling over time</a>
+  </li><li><a href="http://chuck.cs.princeton.edu/doc/language/uana.html#representing_metadata">representing metadata: the UAnaBlob</a>
+  </li><li><a href="http://chuck.cs.princeton.edu/doc/language/uana.html#representing_complex">representing complex data</a>
+  </li><li><a href="http://chuck.cs.princeton.edu/doc/language/uana.html#performing">performing analysis in UAna networks</a>
+  </li><li><a href="http://chuck.cs.princeton.edu/doc/language/uana.html#using_events">using events</a>
+  </li><li><a href="http://chuck.cs.princeton.edu/doc/language/uana.html#built-in">built-in unit analyzers</a>
+  </li><li>creating <font size="1">(coming soon)</font>
+  </li></ul><br>
+
+<strong></strong></li><li><strong><a href="http://chuck.cs.princeton.edu/doc/language/event.html">events</a></strong>
+  <ul>
+  <li><a href="http://chuck.cs.princeton.edu/doc/language/event.html#intro">what it is</a>
+  </li><li><a href="http://chuck.cs.princeton.edu/doc/language/event.html#use">using</a>
+  </li><li><a href="http://chuck.cs.princeton.edu/doc/language/event.html#midi">the MIDI event</a>
+  </li><li><a href="http://chuck.cs.princeton.edu/doc/language/event.html#osc">the OSC event</a>
+  </li><li><a href="http://chuck.cs.princeton.edu/doc/language/event.html#extend">creating custom events</a>
+  </li></ul>
+
+</li></ul>
+
+</font></td></tr></tbody></table></td></tr></tbody></table>
+</center>
+</font>
+</td></tr>
+</tbody></table>
+
+</center></font></td></tr></tbody></table>
+
+<br>
+<font size="1">
+<hr width="15%">
+<a href="http://chuck.cs.princeton.edu/">chuck</a> |
+<a href="http://soundlab.cs.princeton.edu/">soundlab</a> |
+<a href="http://www.cs.princeton.edu/">cs</a> |
+<a href="http://www.music.princeton.edu/">music</a> |
+<a href="http://ccrma.stanford.edu/">ccrma</a>
+<br>
+<br>
+</font>
+<script src="./ChucK - [Language Specification]_files/urchin.js.download" type="text/javascript">
+</script>
+<script type="text/javascript">
+_uacct = "UA-3927297-1";
+urchinTracker();
+</script>
+
+
+</center></font><style id="extraClass">.extraClassAspect {-webkit-transform: scaleX(1)!important;}.extraClassCrop {-webkit-transform: scale(1)!important;}</style></body></html>

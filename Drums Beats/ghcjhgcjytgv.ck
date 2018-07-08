@@ -1,64 +1,3 @@
-//recommended args: 70:.6:43
-private class Didgeridoo{
-    int bpm, rootNote;
-    float volume, beat;
-    ADSR adsr;
-    Echo echo;
-    Impulse impulse;
-    Gain gain, volumeGain;
-    UGen output;
-    fun void init(UGen output_, int bpm_, float volume_, int rootNote_) {
-        output => output_;
-        impulse => echo => gain => adsr=> Phasor phasor =>volumeGain => output;
-        1=>phasor.freq;
-        .5=> phasor.sfreq;
-        gain=>echo;
-        bpm_=>bpm;
-        (60/(bpm$float))=>beat;
-        volume_=>volumeGain.gain;
-        rootNote_=>rootNote;
-    }
-    
-    //waits for duration(seconds)
-    fun void wait(float duration) {
-        duration::second=>now;
-    }
-    
-    fun void playNote(int midiNote, float duration, float decay) {
-        //decay 0-1: how fast the note goes quiet
-        decay=>echo.mix;
-        Std.mtof(rootNote + midiNote) => float freq;
-        (1/freq)::second => echo.max;
-        (1/freq)::second => echo.delay;
-        1 =>impulse.next;
-        adsr.keyOn();
-        wait(duration);
-        adsr.keyOff();
-        0::second => echo.delay;
-        0::second => echo.max;
-
-    }
-    
-    fun void pattern2() {
-        rootNote-12=>rootNote;
-        [[0,3,7],   //Gmaj
-        [7,10,14],  //Dmin
-        [5,9,12],   //Cmaj
-        [3,6,10]]   //A#min
-            @=>int chords[][];
-        while(true) {
-            for (0=>int i;i<chords.cap();i++) {
-                //play the chords
-                for (0=>int j;j<chords[i].cap();j++) {
-                    spork~playNote(chords[i][j], 4*beat, .95);
-                }
-                wait(4*beat);
-            }
-        }
-        
-    }
-}
-
 private class Sampler {
 
     //arguements separated by a colon
@@ -82,6 +21,7 @@ private class Sampler {
         volume =>gain.gain;
     }
 
+
     fun void wait(float duration) {
         duration::second=>now;
     }
@@ -97,6 +37,11 @@ private class Sampler {
     there is none
    despacito song
    despacito
+    riff 1
+    waterfall
+    woof
+    open hi hat
+    closed hi hat
    */ 
 	fun void loadSample(string sampleName) {
         SndBuf buf=>gain;
@@ -104,10 +49,12 @@ private class Sampler {
         if (sampleName == "snare") {
             samplesFolder + "Snares/Cymatics - Snare 1.wav" =>filePath;
             filePath =>buf.read;
+            (buf.length()/buf.rate())=>now;
         }
         else if(sampleName == "kick") {
             samplesFolder + "Kicks/Cymatics - Kick 1 - C.wav" =>filePath;
             filePath =>buf.read;
+            (buf.length()/buf.rate())=>now;
         }
         else if(sampleName=="rant") {
             samplesFolder + "rant.wav" =>filePath;
@@ -154,6 +101,21 @@ private class Sampler {
             filePath =>buf.read;
             (buf.length())=>now;
         }
+        else if(sampleName=="woof") {
+            samplesFolder + "woof.wav" =>filePath;
+            filePath =>buf.read;
+            (buf.length())=>now;
+        }
+        else if (sampleName=="open hi hat") {
+            samplesFolder + "271_hi_hat_samples/hihat_015b.wav" =>filePath;
+            filePath =>buf.read;
+            (buf.length()/buf.rate())=>now;
+        }
+        else if (sampleName=="closed hi hat") {
+            samplesFolder + "271_hi_hat_samples/hihat_003a.wav" =>filePath;
+            filePath =>buf.read;
+            (buf.length()/buf.rate())=>now;
+        }
         else {
             <<<"I didn't recognize that option">>>;
         }
@@ -163,7 +125,7 @@ private class Sampler {
     
     fun void pattern1() {
         while(true) {
-            for (0=>int x;x<4;x++) {
+            for (0=>int x;x<2;x++) {
                 for(0=>int i;i<4;i++) {
                     if (i==0) {
                         loadSample("kick");
@@ -176,10 +138,6 @@ private class Sampler {
                         }
                         else if (x==1) {
                             spork~loadSample("there is none");
-                            wait(beat);
-                        }
-                        else if (x==2||x==3) {
-                            spork~loadSample("despacito");
                             wait(beat);
                         }
                     }
@@ -205,27 +163,87 @@ private class Sampler {
             }
         }
     }
-    
-    fun void roll(float initialDuration) {
-        initialDuration=>float duration;
-        while(duration>.0001) {
-            <<<duration,"">>>;
-            loadSample("snare");
-            wait(duration);
-            2/=>duration;
+    fun void pattern2() {
+        while (true) {
+            for (0=>int i;i<4;i++) {
+                if(i==0) {
+                    9=>int repetitions;
+                    (beat/(repetitions+9))=>float gap;
+                    repeat(repetitions/3) {
+                        spork~loadSample("closed hi hat");
+                        wait((beat/repetitions)-(gap/2));
+                        spork~loadSample("closed hi hat");
+                        wait((beat/repetitions)-(gap/2));
+                        spork~loadSample("closed hi hat");
+                        wait((beat/repetitions)+(gap));
+                    }
+                }
+                else if(i==1) {
+                    spork~loadSample("woof");
+                    wait(beat);
+                }
+                else if(i==2) {
+                    wait(beat);
+                }
+                else if(i==3) {
+                    spork~loadSample("you will die");
+                    wait(beat);
+                }
+            }
         }
     }
-    
-    fun void riff1() {
-        while(true) {
-            spork~loadSample("riff 1");
-            wait(16*beat);
+    fun void twoAndFour() {
+        while (true) {
+            for (0=>int j;j<4;j++) {
+                for (0=>int i;i<4;i++) {
+                    if(i==0) {
+                        if(j!=0) {
+                            spork~loadSample("closed hi hat");
+                            wait(beat);
+                        }
+                        else continue;
+                    }
+                    else if(i==1) {
+                        if (j==0||j==2) {
+                            spork~loadSample("kick");
+                            wait(beat);
+                        }
+                        else if(j==1||j==3) {
+                            repeat(2) {
+                                spork~loadSample("kick");
+                                wait(beat/2);
+                            }
+                        }
+                    }
+                    else if(i==2) {
+                        spork~loadSample("closed hi hat");
+                        wait(beat);
+                    }
+                    else if(i==3) {
+                        if(j==3) {
+                            6=>int repetitions;
+                            (2*beat/(repetitions+9))=>float gap;
+                            repeat(repetitions/3) {
+                                spork~loadSample("snare");
+                                wait((2*beat/repetitions)-(gap/2));
+                                spork~loadSample("snare");
+                                wait((2*beat/repetitions)-(gap/2));
+                                spork~loadSample("snare");
+                                wait((2*beat/repetitions)+(gap));
+                            }
+                        }
+                        else {
+                            spork~loadSample("snare");
+                            wait(beat);
+                        }
+                    }
+                }
+            }
         }
     }
-    
 }
-
-
+// 70:.6:43
+//recommended args: (bpm, gain, rootNote)
 //arguements separated by a colon
 int bpm;
 //the time(seconds) of one beat
@@ -240,31 +258,23 @@ if(me.args() == 3) {
     Std.atoi(me.arg(0)) =>bpm;
     60/Std.atof(me.arg(0)) => beat;
     Std.atof(me.arg(1)) => volume;
-    Std.atoi(me.arg(2))=>rootNote;
+    Std.atoi(me.arg(2)) => rootNote;
 }
 else {
     <<<"Fix your args">>>;
     me.exit();
 }
+
 fun void wait(float duration) {
     duration::second=>now;
 }
+Gain gain=> dac;
+volume=>gain.gain;
 
-Gain gain=>dac;
 Sampler sam;
-sam.init(gain, bpm, volume*2, rootNote);
-spork~sam.riff1();
-Sampler sam2;
-Gain sam2Out=>PitShift shift=>PRCRev reverb=>gain;
--.5=>shift.shift;
-.3=>reverb.mix;
-sam2.init(sam2Out, bpm, volume, rootNote);
-spork~sam2.loadSample("waterfall");
-Didgeridoo dig;
-dig.init(gain, bpm, volume, rootNote);
-spork~dig.pattern2();
-while(true) {
-    //sam.roll(beat);
+sam.init(gain, bpm, volume, rootNote);
+//spork~sam.twoAndFour(); 
+spork~sam.twoAndFour(); 
+while (true) {
     wait(beat);
 }
-

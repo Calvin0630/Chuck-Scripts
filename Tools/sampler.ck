@@ -8,12 +8,12 @@ private class Sampler {
     float volume;
     //the midi int of the root note
     int rootNote;
-    string localFolder;
+    string samplesFolder;
     Gain gain;
     
     fun void init(UGen output, int bpm_, float volume_, int rootNote_) {
         gain => output;
-        me.sourceDir() => localFolder;
+        "C:\\Users\\Calvin\\Documents\\Chuck-Scripts\\Samples\\" => samplesFolder;
         bpm_ =>bpm;
         60/(bpm_ $ float)=>beat;
         volume_ => volume;
@@ -36,50 +36,70 @@ private class Sampler {
     there is none
    despacito song
    despacito
+    riff 1
+    waterfall
+    woof
    */ 
-    fun void loadSample(string sampleName) {
+	fun void loadSample(string sampleName) {
         SndBuf buf=>gain;
         string filePath; 
         if (sampleName == "snare") {
-            localFolder + "Samples/Snares/Cymatics - Snare 1.wav" =>filePath;
+            samplesFolder + "Snares/Cymatics - Snare 1.wav" =>filePath;
             filePath =>buf.read;
+            (buf.length()/buf.rate())=>now;
         }
         else if(sampleName == "kick") {
-            localFolder + "Samples/Kicks/Cymatics - Kick 1 - C.wav" =>filePath;
+            samplesFolder + "Kicks/Cymatics - Kick 1 - C.wav" =>filePath;
             filePath =>buf.read;
+            (buf.length()/buf.rate())=>now;
         }
         else if(sampleName=="rant") {
-            localFolder + "Samples/rant.wav" =>filePath;
+            samplesFolder + "rant.wav" =>filePath;
             filePath =>buf.read;
             (buf.length()/buf.rate())=>now;
         }
         else if(sampleName=="pizza time") {
-            localFolder + "Samples/pizza_time.wav" =>filePath;
+            samplesFolder + "pizza_time.wav" =>filePath;
             filePath =>buf.read;
             (buf.length()/buf.rate())=>now;
 
         }
         else if(sampleName=="death") {
-            localFolder + "Samples/death.wav" =>filePath;
+            samplesFolder + "death.wav" =>filePath;
             filePath =>buf.read;
         }
         else if(sampleName=="you will die") {
-            localFolder + "Samples/you_will_die.wav" =>filePath;
+            samplesFolder + "you_will_die.wav" =>filePath;
             filePath =>buf.read;
             (buf.length()/buf.rate())=>now;
         }
         else if(sampleName=="there is none") {
-            localFolder + "Samples/there_is_none.wav" =>filePath;
+            samplesFolder + "there_is_none.wav" =>filePath;
             filePath =>buf.read;
             (buf.length())=>now;
         }
         else if(sampleName=="despacito song") {
-            localFolder + "Samples/despacito_song.wav" =>filePath;
+            samplesFolder + "despacito_song.wav" =>filePath;
             filePath =>buf.read;
             (buf.length())=>now;
         }
         else if(sampleName=="despacito") {
-            localFolder + "Samples/despacito.wav" =>filePath;
+            samplesFolder + "despacito.wav" =>filePath;
+            filePath =>buf.read;
+            (buf.length())=>now;
+        }
+        else if(sampleName=="riff 1") {
+            samplesFolder + "riff_1(70bpm,16beats).wav" =>filePath;
+            filePath =>buf.read;
+            (buf.length())=>now;
+        }
+        else if(sampleName=="waterfall") {
+            samplesFolder + "Allen_gardens_waterfall.wav" =>filePath;
+            filePath =>buf.read;
+            (buf.length())=>now;
+        }
+        else if(sampleName=="woof") {
+            samplesFolder + "woof.wav" =>filePath;
             filePath =>buf.read;
             (buf.length())=>now;
         }
@@ -178,5 +198,5 @@ fun void wait(float duration) {
 Gain gain => dac;
 Sampler sam;
 sam.init(gain, bpm, volume, rootNote);
-sam.roll(beat/2);
+sam.loadSample("waterfall");
 wait(20);

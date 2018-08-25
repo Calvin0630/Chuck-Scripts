@@ -16,9 +16,13 @@ dac => Gain g => WvOut w => blackhole;
 "C:\\Users\\Calvin\\Documents\\Chuck-Scripts\\Recordings\\"=> string folder;
 // this is the output file name
 string fileName;
-if(me.args() ==1)me.args(0)=> fileName
-else "pizza_time.wav"=>fileName;
-folder + filename => w.wavFilename;
+if(me.args() ==1) {
+    me.arg(0)+".wav"=> fileName;
+}
+else {
+    "pizza_time.wav"=>fileName;
+}
+folder + fileName => w.wavFilename;
 
 // print it out
 <<<"writing to file: ", w.filename()>>>;

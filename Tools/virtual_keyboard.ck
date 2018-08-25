@@ -1,4 +1,3 @@
-
 //arguements separated by a colon
 int bpm;
 //the time(seconds) of one beat

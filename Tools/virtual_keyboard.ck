@@ -126,10 +126,9 @@ private class MidiOscillator {
     Gain audioSource;
     Gain phaseOne;
     //lfoRate (hertz)
-    float lfoRate;
     SinOsc lfo;
-    SinOsc lfoTwo;
-    SinOsc lfoThree;
+    //SinOsc lfoTwo;
+    //SinOsc lfoThree;
     Gain gain;
     //a list of all the active notes
     IntArray activeNotes;
@@ -146,15 +145,14 @@ private class MidiOscillator {
         lfo=>phaseOne;
         phaseOne.op(3);
         lfo=>phaseOne;
-        .5=>lfoRate;
         1=>lfo.gain;
-        lfoRate=>lfo.freq;
-        1=>lfoTwo.gain;
-        3*lfoRate=>lfoTwo.freq;
-        1=>lfoThree.gain;
-        5*lfoRate=>lfoThree.freq;
-        lfoThree=>phaseOne;
-        lfoTwo=>phaseOne;
+        .5=>lfo.freq;
+        //1=>lfoTwo.gain;
+        //3*lfoRate=>lfoTwo.freq;
+        //1=>lfoThree.gain;
+        //5*lfoRate=>lfoThree.freq;
+        //lfoThree=>phaseOne;
+        //lfoTwo=>phaseOne;
         volume => gain.gain;
         //an array of adsr settings: AttackTime, DelayTime, Sustain, Release
         [beat/2, beat, beat/8, beat/8] @=> float adsrSettings[];

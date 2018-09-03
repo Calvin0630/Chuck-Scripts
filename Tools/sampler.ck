@@ -197,6 +197,42 @@ fun void wait(float duration) {
 
 Gain gain => dac;
 Sampler sam;
+//numpad 0-9
+int keys[] = {98 ,  89 , 90 ,  91 ,  92 ,  93 ,  94 ,  95 ,  96 ,  97 , };
+// the names of the samples that correspond to their mutally indexed keys
+string sample[] = {};
 sam.init(gain, bpm, volume, rootNote);
-sam.loadSample("waterfall");
-wait(20);
+
+Hid hi;
+HidMsg msg;
+
+// which keyboard
+0 => int device;
+
+// open keyboard (get device number from command line)
+if( !hi.openKeyboard( device ) ) me.exit();
+<<< "keyboard '" + hi.name() + "' ready", "" >>>;
+
+// infinite event loop
+while( true )
+{
+    // wait on event
+    hi => now;
+
+    // get one or more messages
+    while( hi.recv( msg ) )
+    {
+        // check for action type
+        if( msg.isButtonDown() )
+        {
+            //<<< "down:", msg.which, "(code)", msg.key, "(usb key)", msg.ascii, "(ascii)" >>>;
+            //msg.key is unique for each buitton on a qwerty
+            <<<  msg.key, ", " >>>;
+        }
+        
+        else
+        {
+            //<<< "up:", msg.which, "(code)", msg.key, "(usb key)", msg.ascii, "(ascii)" >>>;
+        }
+    }
+}

@@ -34,6 +34,7 @@ HidMsg msg;
 // open keyboard (get device number from command line)
 if( !hi.openKeyboard( device ) ) me.exit();
 <<< "keyboard '" + hi.name() + "' ready", "" >>>;
+<<<bpm+", " +volume+", "+rootNote>>>;
 
 // patch
 Gain midiIn=>PRCRev reverb=>Echo echo=>Gain finalVolume=>dac;

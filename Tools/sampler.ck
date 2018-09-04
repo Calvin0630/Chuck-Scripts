@@ -26,7 +26,10 @@ private class Sampler {
     }
 
 
-    /*Options:
+    /*
+   Loads and plays a sample. The function returns once the sample is done playing
+    
+   Options:
    snare
    kick
    rant: a religious rant with google translate
@@ -40,7 +43,8 @@ private class Sampler {
     waterfall
     woof
    */ 
-	fun void loadSample(string sampleName) {
+	fun void playSample(string sampleName) {
+        
         SndBuf buf=>gain;
         string filePath; 
         if (sampleName == "snare") {
@@ -67,6 +71,7 @@ private class Sampler {
         else if(sampleName=="death") {
             samplesFolder + "death.wav" =>filePath;
             filePath =>buf.read;
+            (buf.length()/buf.rate())=>now;
         }
         else if(sampleName=="you will die") {
             samplesFolder + "you_will_die.wav" =>filePath;
@@ -76,35 +81,35 @@ private class Sampler {
         else if(sampleName=="there is none") {
             samplesFolder + "there_is_none.wav" =>filePath;
             filePath =>buf.read;
-            (buf.length())=>now;
+            (buf.length()/buf.rate())=>now;
         }
         else if(sampleName=="despacito song") {
             samplesFolder + "despacito_song.wav" =>filePath;
             filePath =>buf.read;
-            (buf.length())=>now;
+            (buf.length()/buf.rate())=>now;
         }
         else if(sampleName=="despacito") {
             samplesFolder + "despacito.wav" =>filePath;
             filePath =>buf.read;
-            (buf.length())=>now;
+            (buf.length()/buf.rate())=>now;
         }
         else if(sampleName=="riff 1") {
             samplesFolder + "riff_1(70bpm,16beats).wav" =>filePath;
             filePath =>buf.read;
-            (buf.length())=>now;
+            (buf.length()/buf.rate())=>now;
         }
         else if(sampleName=="waterfall") {
             samplesFolder + "Allen_gardens_waterfall.wav" =>filePath;
             filePath =>buf.read;
-            (buf.length())=>now;
+            (buf.length()/buf.rate())=>now;
         }
         else if(sampleName=="woof") {
             samplesFolder + "woof.wav" =>filePath;
             filePath =>buf.read;
-            (buf.length())=>now;
+            (buf.length()/buf.rate())=>now;
         }
         else {
-            <<<"I didn't recognize that option">>>;
+            <<<"I didn't recognize that option","">>>;
         }
     }
     
@@ -115,37 +120,37 @@ private class Sampler {
             for (0=>int x;x<4;x++) {
                 for(0=>int i;i<4;i++) {
                     if (i==0) {
-                        loadSample("kick");
+                        playSample("kick");
                         wait(beat);
                     }
                     else if(i==1) {
                         if (x==0) {
-                            loadSample("death");
+                            playSample("death");
                             wait(beat);
                         }
                         else if (x==1) {
-                            spork~loadSample("there is none");
+                            spork~playSample("there is none");
                             wait(beat);
                         }
                         else if (x==2||x==3) {
-                            spork~loadSample("despacito");
+                            spork~playSample("despacito");
                             wait(beat);
                         }
                     }
                     else if(i==2) {
                         repeat(2) {
-                            loadSample("kick");
+                            playSample("kick");
                             wait(beat/2);
                         }
                     }
                     else if(i==3) {
                         if(x==0) {
-                            loadSample("snare");
+                            playSample("snare");
                             wait(beat);
                         }
                         else if(x==1) {
                             repeat(8) {
-                                loadSample("snare");
+                                playSample("snare");
                                 wait(beat/8);
                             }
                         }
@@ -159,13 +164,144 @@ private class Sampler {
         initialDuration=>float duration;
         while(duration>.0001) {
             <<<duration,"">>>;
-            loadSample("snare");
+            playSample("snare");
             wait(duration);
             2/=>duration;
         }
     }
     
 }
+
+private class IntArray {
+    /*
+    functions:
+    add: int[] or int
+    remove: int[] or int
+    get: int index
+    indexOf:int element
+    contains returns 0 if no, 1 if yes
+    print: void, prints the array
+    size return the size of the array
+    
+    */
+    int elements[];
+    //add an array of ints
+    fun void add(int newElements[]) {
+        for (0=>int i;i<newElements.cap();i++) {
+            add(newElements[i]);
+        }
+    }
+    //add a single int
+    fun void add(int element) {
+        //if its empty
+        if (elements==null) {
+            [element]@=> elements;
+        }
+        else { //creates a new array and appends the new element
+            elements.cap()+1=>int newArraySize;
+            int newElements[newArraySize];
+            for (0=>int i;i<newArraySize;i++) {
+                //if its at the end
+                if (i==newArraySize-1) {
+                    //append element
+                    element=>newElements[i];
+                }
+                else {
+                    elements[i]=>newElements[i];
+                }
+            }
+            newElements@=>elements;
+        }
+    }
+    //removes a list of numbers
+    fun void remove(int removeThis[]) {
+        for (0=>int i;i<removeThis.cap();i++) {
+            remove(removeThis[i]);
+        }
+    }
+    //removes the element parameter (not the index)
+    fun void remove(int element) {
+        indexOf(element)=> int index;
+        //if the element isnt here
+        if (index==-1) {
+            <<<"the element you're trying to remove isn't here","">>>;
+        }
+        else {//the element is in the array
+            int newElements[];
+            if (elements.cap()>1) { //if the array is bigger than 1
+                int newElements[elements.cap()-1];
+                for (0=>int i;i<elements.cap();i++) {
+                    if (i==index) {
+                        continue;
+                    }
+                    if (i>index) {
+                        elements[i]=>newElements[i-1];
+                    }
+                    else {
+                        elements[i]=>newElements[i];
+                    }
+                }
+                newElements@=>elements;
+            }
+            else if(elements.cap()==1){
+                 null@=>elements;
+            }
+        }
+        
+    }
+    //returns the element @ index
+    fun int get(int index) {
+        if (index >=elements.cap()) <<<"invalid index","">>>;
+        else return elements[index];
+    }
+    //returns the index of the element
+    //if not found returns -1
+    fun int indexOf(int element) {
+        //int
+        -1=>int contains;
+        if (elements!= null) {
+            for (0=>int i;i<elements.cap();i++) {
+                if (elements[i]==element) {
+                    i=>contains;
+                    return contains;
+                }
+            }
+        }
+        return contains;
+    }
+    
+    fun int contains(int element) {
+        indexOf(element)=>int result;
+        if (result ==-1) return 0;
+        else return 1;
+    }
+    fun void print() {
+        ""=>string result;
+        for (0=>int i;i<elements.cap();i++) {
+            //if its the last element
+            if(i==elements.cap()-1) {
+                //dont put a comma
+                elements[i]+"" +=>result;
+            }
+            else {
+                //do
+                elements[i] + "," +=>result;
+            }
+        }
+        <<<("["+result+"]"),"">>>;
+    }
+    fun int size() {
+        if(elements==null) return 0;
+        
+        else return elements.cap(); 
+    }
+}
+IntArray arr;
+arr.add([1]);
+arr.print();
+
+<<<arr.contains(5),"">>>;
+
 
 // 100:.2:60
 //recommended args: (bpm, gain, rootNote)
@@ -186,7 +322,8 @@ if(me.args() == 3) {
     Std.atoi(me.arg(2)) => rootNote;
 }
 else {
-    <<<"Fix your args">>>;
+    <<<"Fix your args","">>>;
+    <<<"","Expected: bpm:volume:rootNote">>>;
     me.exit();
 }
 
@@ -196,11 +333,13 @@ fun void wait(float duration) {
 
 
 Gain gain => dac;
+volume=>gain.gain;
 Sampler sam;
-//numpad 0-9
-int keys[] = {98 ,  89 , 90 ,  91 ,  92 ,  93 ,  94 ,  95 ,  96 ,  97 , };
+//numrow 0-9
+IntArray keys;
+keys.add([30, 31, 32, 33, 34, 35, 36, 37, 38 , 39]);
 // the names of the samples that correspond to their mutally indexed keys
-string sample[] = {};
+["snare", "kick", "rant", "pizza time", "death", "you will die", "there is none", "despacito song", "despacito", "riff 1", "waterfall", "woof"] @=> string sample[];
 sam.init(gain, bpm, volume, rootNote);
 
 Hid hi;
@@ -227,7 +366,13 @@ while( true )
         {
             //<<< "down:", msg.which, "(code)", msg.key, "(usb key)", msg.ascii, "(ascii)" >>>;
             //msg.key is unique for each buitton on a qwerty
-            <<<  msg.key, ", " >>>;
+            //q1<<<  msg.key, ", " >>>;
+            keys.indexOf(msg.key)=>int sample;
+            <<<sample,"">>>;
+            //if the user pressed 0-9 on num row
+            if (sample != -1) {
+                spork~sam.playSample(samples[sample]);
+            }
         }
         
         else

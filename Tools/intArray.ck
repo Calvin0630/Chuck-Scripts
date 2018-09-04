@@ -122,7 +122,7 @@ private class IntArray {
         else return elements.cap(); 
     }
 }
-intArray arr;
+IntArray arr;
 arr.add([1]);
 arr.print();
 

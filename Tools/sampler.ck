@@ -42,6 +42,7 @@ private class Sampler {
     riff 1
     waterfall
     woof
+    boop
    */ 
 	fun void playSample(string sampleName) {
         
@@ -105,6 +106,11 @@ private class Sampler {
         }
         else if(sampleName=="woof") {
             samplesFolder + "woof.wav" =>filePath;
+            filePath =>buf.read;
+            (buf.length()/buf.rate())=>now;
+        }
+        else if(sampleName=="boop") {
+            samplesFolder + "boop.wav" =>filePath;
             filePath =>buf.read;
             (buf.length()/buf.rate())=>now;
         }
@@ -339,7 +345,8 @@ Sampler sam;
 IntArray keys;
 keys.add([30, 31, 32, 33, 34, 35, 36, 37, 38 , 39]);
 // the names of the samples that correspond to their mutally indexed keys
-["snare", "kick", "rant", "pizza time", "death", "you will die", "there is none", "despacito song", "despacito", "riff 1", "waterfall", "woof"] @=> string sample[];
+["snare", "kick", "boop", "pizza time", "death", "you will die", "there is none", "despacito song", "despacito", "riff 1", "waterfall", "woof"]     
+    @=> string sampleStrings[];
 sam.init(gain, bpm, volume, rootNote);
 
 Hid hi;
@@ -371,7 +378,7 @@ while( true )
             <<<sample,"">>>;
             //if the user pressed 0-9 on num row
             if (sample != -1) {
-                spork~sam.playSample(samples[sample]);
+                spork~sam.playSample(sampleStrings[sample]);
             }
         }
         

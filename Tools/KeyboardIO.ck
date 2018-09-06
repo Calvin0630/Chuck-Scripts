@@ -22,8 +22,9 @@ while( true )
         // check for action type
         if( msg.isButtonDown() )
         {
-            <<< "down:", msg.which, "(code)", msg.key, "(usb key)", msg.ascii, "(ascii)" >>>;
+            //<<< "down:", msg.which, "(code)", msg.key, "(usb key)", msg.ascii, "(ascii)" >>>;
             //msg.key is unique for each buitton on a qwerty
+            <<<msg.key,"">>>;
         }
         
         else

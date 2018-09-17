@@ -123,7 +123,7 @@ private class IntArray {
     }
 }
 IntArray arr;
-arr.add([1]);
+arr.add([1,3,7]);
 arr.print();
 
-<<<arr.contains(5),"">>>;
+<<<arr.contains(7),"">>>;

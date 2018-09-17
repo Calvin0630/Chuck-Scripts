@@ -1,5 +1,5 @@
 private class Sampler {
-
+    
     //arguements separated by a colon
     int bpm;
     //the time(seconds) of one beat
@@ -16,7 +16,7 @@ private class Sampler {
         "C:\\Users\\Calvin\\Documents\\Chuck-Scripts\\Samples\\" => samplesFolder;
         bpm_ =>bpm;
         60/(bpm_ $ float)=>beat;
-        volume_ => volume;
+        volume_ => volume;09
         rootNote_ => rootNote;
         volume =>gain.gain;
     }
@@ -43,18 +43,24 @@ private class Sampler {
     waterfall
     woof
     boop
+    hi hat 0open
+    hi hat closed
    */ 
 	fun void playSample(string sampleName) {
         
+        //checks to make sure you initialized the sampler
+         if(samplesFolder=="") {
+            <<<"Did you initialize the sampler?","">>>;
+        }
         SndBuf buf=>gain;
         string filePath; 
         if (sampleName == "snare") {
-            samplesFolder + "Snares/Cymatics - Snare 1.wav" =>filePath;
+            samplesFolder + "Snares\\Cymatics - Snare 1.wav" =>filePath;
             filePath =>buf.read;
             (buf.length()/buf.rate())=>now;
         }
         else if(sampleName == "kick") {
-            samplesFolder + "Kicks/Cymatics - Kick 1 - C.wav" =>filePath;
+            samplesFolder + "Kicks\\Cymatics - Kick 1 - C.wav" =>filePath;
             filePath =>buf.read;
             (buf.length()/buf.rate())=>now;
         }
@@ -111,6 +117,16 @@ private class Sampler {
         }
         else if(sampleName=="boop") {
             samplesFolder + "boop.wav" =>filePath;
+            filePath =>buf.read;
+            (buf.length()/buf.rate())=>now;
+        }
+        else if(sampleName=="hi hat open") {
+            samplesFolder + "271_hi_hat_samples\\hihat_004a.wav" =>filePath;
+            filePath =>buf.read;
+            (buf.length()/buf.rate())=>now;
+        }
+        else if(sampleName=="hi hat closed") {
+            samplesFolder + "271_hi_hat_samples\\hihat_004b.wav" =>filePath;
             filePath =>buf.read;
             (buf.length()/buf.rate())=>now;
         }
@@ -345,7 +361,7 @@ Sampler sam;
 IntArray keys;
 keys.add([30, 31, 32, 33, 34, 35, 36, 37, 38 , 39]);
 // the names of the samples that correspond to their mutally indexed keys
-["snare", "kick", "boop", "pizza time", "death", "you will die", "there is none", "despacito song", "despacito", "riff 1", "waterfall", "woof"]     
+["snare", "kick", "boop", "pizza time", "death", "you will die", "there is none", "despacito song", "hi hat closed", "hi hat open"]     
     @=> string sampleStrings[];
 sam.init(gain, bpm, volume, rootNote);
 

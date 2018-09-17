@@ -1,5 +1,6 @@
+//70:.5:63
 private class Sampler {
-    
+
     //arguements separated by a colon
     int bpm;
     //the time(seconds) of one beat
@@ -16,7 +17,7 @@ private class Sampler {
         "C:\\Users\\Calvin\\Documents\\Chuck-Scripts\\Samples\\" => samplesFolder;
         bpm_ =>bpm;
         60/(bpm_ $ float)=>beat;
-        volume_ => volume;09
+        volume_ => volume;
         rootNote_ => rootNote;
         volume =>gain.gain;
     }
@@ -47,9 +48,7 @@ private class Sampler {
     hi hat closed
    */ 
 	fun void playSample(string sampleName) {
-        
-        //checks to make sure you initialized the sampler
-         if(samplesFolder=="") {
+        if(samplesFolder=="") {
             <<<"Did you initialize the sampler?","">>>;
         }
         SndBuf buf=>gain;
@@ -318,6 +317,11 @@ private class IntArray {
         else return elements.cap(); 
     }
 }
+IntArray arr;
+arr.add([1]);
+arr.print();
+
+<<<arr.contains(5),"">>>;
 
 
 // 100:.2:60
@@ -352,85 +356,16 @@ fun void wait(float duration) {
 Gain gain => dac;
 volume=>gain.gain;
 Sampler sam;
-//numrow 0-9
-IntArray keys;
-keys.add([30, 31, 32, 33, 34, 35, 36, 37, 38 , 39]);
-// the names of the samples that correspond to their mutally indexed keys
-["snare", "kick", "boop", "pizza time", "death", "you will die", "there is none", "despacito song", "hi hat closed", "hi hat open"]     
-    @=> string sampleStrings[];
 sam.init(gain, bpm, volume, rootNote);
-
-Hid hi;
-HidMsg msg;
-
-// which keyboard
-0 => int device;
-
-// open keyboard (get device number from command line)
-if( !hi.openKeyboard( device ) ) me.exit();
-<<< "keyboard '" + hi.name() + "' ready", "" >>>;
-
-// infinite event loop
-while( true )
-{
-    // wait on event
-    hi => now;
-
-    // get one or more messages
-    while( hi.recv( msg ) )
-    {
-        // check for action type
-        if( msg.isButtonDown() )
-        {
-            //<<< "down:", msg.which, "(code)", msg.key, "(usb key)", msg.ascii, "(ascii)" >>>;
-            //msg.key is unique for each buitton on a qwerty
-            //q1<<<  msg.key, ", " >>>;
-            keys.indexOf(msg.key)=>int sample;
-            <<<sample,"">>>;
-            //if the user pressed 0-9 on num row
-            if (sample != -1) {
-                spork~sam.playSample(sampleStrings[sample]);
-            }
-        }
-        
-        else
-        {
-            //<<< "up:", msg.which, "(code)", msg.key, "(usb key)", msg.ascii, "(ascii)" >>>;
-        }
-    }
-}//arguements separated by a colon
-int bpm;
-//the time(seconds) of one beat
-float beat;
-//a number between 0 and 1 that sets the volume
-float volume;
-//the midi int of the root note
-int rootNote;
-
-//take in the command line args
-if(me.args() == 3) {
-    Std.atoi(me.arg(0)) =>bpm;
-    60/Std.atof(me.arg(0)) => beat;
-    Std.atof(me.arg(1)) => volume;
-    Std.atoi(me.arg(2))=>rootNote;
-}
-else {
-    <<<"Fix your args">>>;
-    me.exit();
-}
-fun void wait(float duration) {
-    duration::second=>now;
-}
-
-private class Looper {
-    //tab: start/stops recording loops
-    //msg.key == 43
-    int bpm, rootNote;
-    float volume, beat;
-    "C:\\Users\\Calvin\\Documents\\Chuck-Scripts\\Loops\\"=> string loopsFolder;
-    
-    fun void init(UGen input, int bpm, float volume, int rootNote) {
-        
-    }
+SinOsc osc =>blackhole;
+//SinOsc oscA =>blackhole;
+//1500=>oscA.gain;
+//.5=>oscA.freq;
+9=>osc.gain;
+440=>osc.freq;
+while (true) {
+    spork~sam.playSample("snare");
+    (10+osc.last())::ms=>now;
+    //oscA.last()=>osc.freq;
     
 }

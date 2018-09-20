@@ -8,10 +8,11 @@ float volume;
 int rootNote;
 
 //take in the command line args
-if(me.args() == 2) {
+if(me.args() == 3) {
     Std.atoi(me.arg(0)) =>bpm;
     60/Std.atof(me.arg(0)) => beat;
     Std.atof(me.arg(1)) => volume;
+    Std.atoi(me.arg(2))=>rootNote;
 }
 else {
     <<<"Fix your args">>>;
@@ -21,33 +22,28 @@ fun void wait(float duration) {
     duration::second=>now;
 }
 
-// impulse to filter to dac
-Impulse i => BiQuad f=> Pan2 p  => dac;
-SinOsc osc => blackhole;
-1 => osc.gain;
-2 => osc.freq;
-// set the filter's pole radius
-.99 => f.prad; 
-// set equal gain zeros
-1 => f.eqzs;
-// set filter gain
-volume => f.gain;
+Metronome metro;
+metro.init(dac,bpm, volume, rootNote);
+metro.start();
 
-fun void click(int midiNote) {
-    // set the current sample/impulse
-    1 => i.next;
-    Std.mtof(midiNote) => f.pfreq;
-    0::second =>now;
-}
-0 => int x;
-while (true) {
-    click(rootNote);
-    wait(beat);
-    /*
-    if (x>64)0 => x;
-    osc.last() => p.pan;
-    click(rootNote + x, beat/64);
-    wait(beat/64);
-    x++;
-    */
+class Metronome {
+    float beat, volume;
+    int bpm, rootNote;
+    Impulse i => Gain gain  => dac;
+    fun void init(UGen output, int _bpm, float _volume, int _rootNote) {
+        _bpm =>bpm;
+        60/(_bpm $ float) => beat;
+        _volume => volume;
+        _rootNote => rootNote;
+        volume=>gain.gain;
+    }
+    fun void start() {
+        while(true) {
+            1=>i.next;
+            wait(beat);
+        }
+    }
+    fun void wait(float duration) {
+        duration::second=>now;
+    }
 }

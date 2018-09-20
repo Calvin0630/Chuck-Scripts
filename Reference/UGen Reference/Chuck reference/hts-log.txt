@@ -1,0 +1,29 @@
+HTTrack3.49-2+htsswf+htsjava launched on Thu, 20 Sep 2018 17:37:08 at http://chuck.cs.princeton.edu/doc/program/ugen.html +*.png +*.gif +*.jpg +*.jpeg +*.css +*.js -ad.doubleclick.net/* -mime:application/foobar
+(winhttrack -qwC2%Ps2u1%s%uN0%I0p3DaK0H0%kf2A25000%f#f -F "Mozilla/4.5 (compatible; HTTrack 3.0x; Windows 98)" -%F "<!-- Mirrored from %s%s by HTTrack Website Copier/3.x [XR&CO'2014], %s -->" -%l "en, *" http://chuck.cs.princeton.edu/doc/program/ugen.html -O1 "C:\Users\Calvin\Documents\Chuck-Scripts\Reference\website\Chuck reference" +*.png +*.gif +*.jpg +*.jpeg +*.css +*.js -ad.doubleclick.net/* -mime:application/foobar )
+
+Information, Warnings and Errors reported for this mirror:
+note:	the hts-log.txt file, and hts-cache folder, may contain sensitive information,
+	such as username/password authentication for websites mirrored in this project
+	do not share these files/folders if you want these information to remain private
+
+17:37:19	Error: 	"Not Found" (404) at link chuck.cs.princeton.edu/doc/program/'http://chuck.cs.princeton.edu/doc/examples/otf_01.ck' (from chuck.cs.princeton.edu/doc/program/keywords.html)
+17:37:19	Error: 	"Not Found" (404) at link chuck.cs.princeton.edu/doc/program/'http://chuck.cs.princeton.edu/doc/examples/otf_02.ck' (from chuck.cs.princeton.edu/doc/program/keywords.html)
+17:37:19	Error: 	"Not Found" (404) at link chuck.cs.princeton.edu/doc/program/'http://chuck.cs.princeton.edu/doc/examples/otf_03.ck' (from chuck.cs.princeton.edu/doc/program/keywords.html)
+17:37:19	Error: 	"Not Found" (404) at link chuck.cs.princeton.edu/doc/program/'http://chuck.cs.princeton.edu/doc/examples/otf_04.ck' (from chuck.cs.princeton.edu/doc/program/keywords.html)
+17:37:19	Error: 	"Not Found" (404) at link chuck.cs.princeton.edu/doc/program/'http://chuck.cs.princeton.edu/doc/examples/otf_05.ck' (from chuck.cs.princeton.edu/doc/program/keywords.html)
+17:37:19	Error: 	"Not Found" (404) at link chuck.cs.princeton.edu/doc/program/'http://chuck.cs.princeton.edu/doc/examples/otf_06.ck' (from chuck.cs.princeton.edu/doc/program/keywords.html)
+17:37:19	Error: 	"Not Found" (404) at link chuck.cs.princeton.edu/doc/program/'http://chuck.cs.princeton.edu/doc/examples/otf_07.ck' (from chuck.cs.princeton.edu/doc/program/keywords.html)
+17:37:19	Error: 	"Not Found" (404) at link chuck.cs.princeton.edu/doc/program/'http://on-the-fly.cs.princeton.edu/' (from chuck.cs.princeton.edu/doc/program/keywords.html)
+17:37:20	Error: 	"Not Found" (404) at link chuck.cs.princeton.edu/doc/program/headbg.jpg (from chuck.cs.princeton.edu/doc/program/wiki.css)
+17:37:20	Error: 	"Not Found" (404) at link chuck.cs.princeton.edu/doc/program/bullet.gif (from chuck.cs.princeton.edu/doc/program/wiki.css)
+17:37:20	Error: 	"Not Found" (404) at link chuck.cs.princeton.edu/doc/program/external.png (from chuck.cs.princeton.edu/doc/program/wiki.css)
+17:37:20	Error: 	"Not Found" (404) at link chuck.cs.princeton.edu/doc/program/lock_icon.gif (from chuck.cs.princeton.edu/doc/program/wiki.css)
+17:37:20	Error: 	"Not Found" (404) at link chuck.cs.princeton.edu/doc/program/mail_icon.gif (from chuck.cs.princeton.edu/doc/program/wiki.css)
+17:37:20	Error: 	"Not Found" (404) at link chuck.cs.princeton.edu/doc/program/news_icon.png (from chuck.cs.princeton.edu/doc/program/wiki.css)
+17:37:20	Error: 	"Not Found" (404) at link chuck.cs.princeton.edu/doc/program/file_icon.gif (from chuck.cs.princeton.edu/doc/program/wiki.css)
+17:37:20	Error: 	"Not Found" (404) at link chuck.cs.princeton.edu/doc/program/discussionitem_icon.gif (from chuck.cs.princeton.edu/doc/program/wiki.css)
+17:37:20	Error: 	"Not Found" (404) at link chuck.cs.princeton.edu/doc/program/user.gif (from chuck.cs.princeton.edu/doc/program/wiki.css)
+17:37:20	Error: 	"Not Found" (404) at link chuck.cs.princeton.edu/doc/program/IE60Fixes.css (from chuck.cs.princeton.edu/doc/program/iefixes.css)
+
+HTTrack Website Copier/3.49-2 mirror complete in 12 seconds : 36 links scanned, 17 files written (287970 bytes overall) [304353 bytes received at 25362 bytes/sec], 12.0 requests per connection
+(18 errors, 0 warnings, 0 messages)

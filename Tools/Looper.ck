@@ -1,3 +1,25 @@
+class Metronome {
+    float beat, volume;
+    int bpm, rootNote;
+    Impulse i => Gain gain  => dac;
+    fun void init(UGen output, int _bpm, float _volume, int _rootNote) {
+        _bpm =>bpm;
+        60/(_bpm $ float) => beat;
+        _volume => volume;
+        _rootNote => rootNote;
+        volume=>gain.gain;
+    }
+    fun void start() {
+        while(true) {
+            1=>i.next;
+            wait(beat);
+        }
+    }
+    fun void wait(float duration) {
+        duration::second=>now;
+    }
+}
+
 private class Sampler {
     
     //arguements separated by a colon
@@ -16,9 +38,10 @@ private class Sampler {
         "C:\\Users\\Calvin\\Documents\\Chuck-Scripts\\Samples\\" => samplesFolder;
         bpm_ =>bpm;
         60/(bpm_ $ float)=>beat;
-        volume_ => volume;09
+        volume_ => volume;
         rootNote_ => rootNote;
         volume =>gain.gain;
+        spork~listenOnNumRow();
     }
 
     fun void wait(float duration) {
@@ -73,7 +96,6 @@ private class Sampler {
             samplesFolder + "pizza_time.wav" =>filePath;
             filePath =>buf.read;
             (buf.length()/buf.rate())=>now;
-
         }
         else if(sampleName=="death") {
             samplesFolder + "death.wav" =>filePath;
@@ -134,7 +156,55 @@ private class Sampler {
             <<<"I didn't recognize that option","">>>;
         }
     }
-    
+    fun void listenOnNumRow() {
+        //numrow 0-9
+        IntArray keys;
+        keys.add([30, 31, 32, 33, 34, 35, 36, 37, 38 , 39]);
+        // the names of the samples that correspond to their mutally indexed keys
+        ["snare", "kick", "boop", "pizza time", "death", "you will die", "there is none", "despacito song", "hi hat closed", "hi hat open"]     
+            @=> string sampleStrings[];
+
+        Hid hi;
+        HidMsg msg;
+
+        // which keyboard
+        0 => int device;
+
+        // open keyboard (get device number from command line)
+        if( !hi.openKeyboard( device ) ) {
+            me.exit();
+            <<< "You got a bug in Sampler class","" >>>;
+        }
+
+        // infinite event loop
+        while( true )
+        {
+            // wait on event
+            hi => now;
+
+            // get one or more messages
+            while( hi.recv( msg ) )
+            {
+                // check for action type
+                if( msg.isButtonDown() )
+                {
+                    //<<< "down:", msg.which, "(code)", msg.key, "(usb key)", msg.ascii, "(ascii)" >>>;
+                    //msg.key is unique for each buitton on a qwerty
+                    keys.indexOf(msg.key)=>int sample;
+                    //if the user pressed 0-9 on num row
+                    if (sample != -1) {
+                        spork~playSample(sampleStrings[sample]);
+                    }
+                }
+                
+                else
+                {
+                    //<<< "up:", msg.which, "(code)", msg.key, "(usb key)", msg.ascii, "(ascii)" >>>;
+                }
+            }
+        }
+
+    }
     
     
     fun void pattern1() {
@@ -351,75 +421,16 @@ fun void wait(float duration) {
 
 Gain gain => dac;
 volume=>gain.gain;
+Metronome metro;
+metro.init(dac,bpm, volume, rootNote);
+spork~metro.start();
 Sampler sam;
-//numrow 0-9
-IntArray keys;
-keys.add([30, 31, 32, 33, 34, 35, 36, 37, 38 , 39]);
-// the names of the samples that correspond to their mutally indexed keys
-["snare", "kick", "boop", "pizza time", "death", "you will die", "there is none", "despacito song", "hi hat closed", "hi hat open"]     
-    @=> string sampleStrings[];
 sam.init(gain, bpm, volume, rootNote);
+Looper looper;
+looper.init(gain,dac, bpm, volume, rootNote,"test");
 
-Hid hi;
-HidMsg msg;
-
-// which keyboard
-0 => int device;
-
-// open keyboard (get device number from command line)
-if( !hi.openKeyboard( device ) ) me.exit();
-<<< "keyboard '" + hi.name() + "' ready", "" >>>;
-
-// infinite event loop
-while( true )
-{
-    // wait on event
-    hi => now;
-
-    // get one or more messages
-    while( hi.recv( msg ) )
-    {
-        // check for action type
-        if( msg.isButtonDown() )
-        {
-            //<<< "down:", msg.which, "(code)", msg.key, "(usb key)", msg.ascii, "(ascii)" >>>;
-            //msg.key is unique for each buitton on a qwerty
-            //q1<<<  msg.key, ", " >>>;
-            keys.indexOf(msg.key)=>int sample;
-            <<<sample,"">>>;
-            //if the user pressed 0-9 on num row
-            if (sample != -1) {
-                spork~sam.playSample(sampleStrings[sample]);
-            }
-        }
-        
-        else
-        {
-            //<<< "up:", msg.which, "(code)", msg.key, "(usb key)", msg.ascii, "(ascii)" >>>;
-        }
-    }
-}//arguements separated by a colon
-int bpm;
-//the time(seconds) of one beat
-float beat;
-//a number between 0 and 1 that sets the volume
-float volume;
-//the midi int of the root note
-int rootNote;
-
-//take in the command line args
-if(me.args() == 3) {
-    Std.atoi(me.arg(0)) =>bpm;
-    60/Std.atof(me.arg(0)) => beat;
-    Std.atof(me.arg(1)) => volume;
-    Std.atoi(me.arg(2))=>rootNote;
-}
-else {
-    <<<"Fix your args">>>;
-    me.exit();
-}
-fun void wait(float duration) {
-    duration::second=>now;
+while(true) {
+    10::second=>now;
 }
 
 private class Looper {
@@ -427,10 +438,151 @@ private class Looper {
     //msg.key == 43
     int bpm, rootNote;
     float volume, beat;
-    "C:\\Users\\Calvin\\Documents\\Chuck-Scripts\\Loops\\"=> string loopsFolder;
+    WvOut waveOut;
+    4=>int channelCount;
+    0=>int activeChannel;
+    LoopChannel channels[channelCount];
+    "C:\\Users\\Calvin\\Documents\\Chuck-Scripts\\Loops\\"=>string loopsFolder;
     
-    fun void init(UGen input, int bpm, float volume, int rootNote) {
-        
+    fun void init(UGen input,UGen output, int bpm_, float volume_, int rootNote_, string sessionFolder) {
+        loopsFolder+sessionFolder+"\\"=>loopsFolder;
+        bpm_ =>bpm;
+        60/(bpm_ $ float)=>beat;
+        volume_ => volume;
+        rootNote_ => rootNote;
+        for (0=>int i;i<channelCount;i++) {
+            loopsFolder + "loopChan["+i+"]\\"=>string channelFolder;
+            channels[i].init(input, output, beat, channelFolder, i);
+        }
+        spork~waitForEvents();
+    }
+    fun void waitForEvents() {
+        Hid hi;
+        HidMsg msg;
+
+        // which keyboard
+        0 => int device;
+
+        // iif its unable to open keyboard
+        if( !hi.openKeyboard( device ) ) {
+            me.exit();
+            <<< "You got a bug in Looper class","" >>>;
+        }
+
+        // infinite event loop
+        while( true )
+        {
+            // wait on event
+            hi => now;
+
+            // get one or more messages
+            while( hi.recv( msg ) )
+            {
+                // if the button is pressed (as opposed to released)
+                if( msg.isButtonDown() )
+                {
+                    <<<msg.key,"">>>;
+                    /* 
+                            button    key     action
+                            tab         43      start/stop recording 
+                            Lctrl      224     prints channel stats
+                            Rctrl      228    remove last track on the active channel
+                            alt          226    switches the selected channel
+                            Rshift    229    Wipe the selected channel's loops
+                    */
+                    //tab
+                    if (msg.key==43) {
+                        //start/stop recording
+                        channels[activeChannel].toggleRecord();
+                    }
+                    //ctrl
+                    else if (msg.key==224) {
+                        //print channel stats
+                        getChannelStatus();
+                        
+                    }
+                    //alt
+                    else if (msg.key==226) {
+                        //toggle active channel playing
+                        
+                    }
+                    //Rshift
+                    else if (msg.key==229) {
+                        //clear the channel
+                    }
+                    else {
+                        //not a used key
+                    }
+                }
+                
+                else
+                {
+                    //<<< "up:", msg.which, "(code)", msg.key, "(usb key)", msg.ascii, "(ascii)" >>>;
+                }
+            }
+        }
+    }
+    /*
+    prints the channels, specifies how many loops, and
+    specifies which one is active by a "*"
+    */
+    fun void getChannelStatus() {
+        <<<"---","">>>;
+        for (0=>int i;i<channelCount;i++) {
+            if (i==activeChannel) <<<"Channel: ",i," *">>>;
+            else <<<"Channel: ",i,"">>>;
+        }
+        <<<"---","">>>;
+    }
+}
+
+/*
+a Loop channel has its own folder below the session folder with 0..N wav files inside
+*/
+class LoopChannel {
+    IntArray loops;
+    int channelNum;
+    0=>int loopCount;
+    0=>int isRecording;
+    string channelFolder;
+    UGen input, output;
+    Shred loopShred;
+    fun void init(UGen _input, UGen _output,float beat, string _folder, int _channelNum) {
+        _input=>input;
+        _output=>output;
+        _folder=>channelFolder;
+        _channelNum => channelNum;00900090  090009      
     }
     
+    fun void toggleRecord() {
+        //if it's not already recording
+        if (isRecording==0) {
+            spork~recordLoop((loopCount+""), input)@=>loopShred;
+            loops.add(loopCount);
+            loopCount++;
+            1=>isRecording;
+        }
+        //if it is recording
+        else if (isRecording==1) {
+            loopShred.exit();
+            0=>isRecording;
+        }
+        //ya fucked up
+        else {
+            <<<"error bitch","">>>;
+        }
+    }
+    fun void recordLoop(string name, UGen _input) {
+        WvOut waveOut;
+        channelFolder+name =>waveOut.wavFilename;
+        null @=> waveOut;
+        while(true) {
+            <<<"recording loop # ",name, "on channel ", channelNum>>>;
+            (4*beat)::second=>now;
+        }
+    }
+    //turns the loopChannel on and off
+    fun void togglePlaying() {
+        
+    }
 }

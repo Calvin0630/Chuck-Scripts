@@ -1,0 +1,255 @@
+<html>
+
+<!-- Mirrored from chuck.cs.princeton.edu/doc/program/vm.html by HTTrack Website Copier/3.x [XR&CO'2014], Thu, 20 Sep 2018 21:37:19 GMT -->
+<!-- Added by HTTrack --><meta http-equiv="content-type" content="text/html;charset=UTF-8" /><!-- /Added by HTTrack -->
+<head>
+<title>ChucK - [Programming Guide : Virtual Machine Options]</title>
+</head>
+<body bgcolor="#ffffff" text="#000000">
+<font face="verdana" size="2">
+
+<br />
+<center> 
+<table border="0" width="640">
+<tr><td>
+<font face="verdana" size="2">
+<center>
+<font size="3">
+<b>ChucK</b> : Programming Guide
+</font>
+<br /><br />
+<font color="#33aa33" size="3">Virtual Machine Options</font>
+<br />
+<br />
+
+  <table bgcolor="#d9d9d9" border="0" cellpadding="1" cellspacing="0"><tr><td>
+  <table width="100%" bgcolor="#fdfdfd" border="0" cellpadding="1" cellspacing="2">
+  <tr>
+  <td align="right"><font face="verdana" size="2">
+  version:</td><td><font face="verdana" size="2">
+  1.3.x.x (chimera)
+  <br />
+  
+  </font></td>
+  </tr>
+  </table></td></tr>
+  </table>
+
+<br />
+<!--img src="../images/on-the-fly_50dpi.jpg"-->
+
+<table width="640" border="0" cellpadding="2" cellspacing="2">
+<tr><td align="justify"><font face="verdana" size="2">
+
+<p align="justify">
+<hr width="10%" />
+<b>The ChucK Compiler + Virtual Machine</b>
+<br /><br />
+<p align="justify">
+Let's start with the compiler/virtual machine, both of which runs in the 
+same process.  By now, you should have built/installed ChucK (<a 
+href="http://chuck.cs.princeton.edu/doc/build/">guide</a>), and perhaps taken the <a 
+href="http://chuck.cs.princeton.edu/doc/learn/">tutorial</a>.  This guide is intended to be more 
+complete and referential than the tutorial.  Additionally, see
+the <a href="http://chuck.cs.princeton.edu/doc/language/">language specification</a>.<br />
+<hr width="10%" />
+<br />
+<a name="options"></a>
+<b>SYNOPSIS</b> (a man-esque page)
+<br /><br />
+<center>
+<b>usage</b>:<br />
+  <table width="400" bgcolor="#d9d9d9" border="0" cellpadding="1" cellspacing="0"><tr><td>
+  <table width="100%" bgcolor="#fdfdfd" border="0" cellpadding="1" cellspacing="2">
+  <tr>
+  <td align="left"><pre>chuck --[options|commands] [+-=^] file1 file2 file3 ...
+   [options] = halt|loop|audio|silent|dump|nodump|server|about|probe|
+               channels:<N>|out:<N>|in:<N>|dac:<N>|adc:<N>|
+               srate:<N>|bufsize:<N>|bufnum:<N>|shell|empty|
+               remote:<hostname>|port:<N>|verbose:<N>|level:<N>|
+               blocking|callback|deprecate:{stop|warn|ignore}|
+               chugin-load:{auto|off}|chugin-path:<path>|chugin:<name>
+   [commands] = add|remove|replace|remove.all|status|time|kill
+   [+-=^] = shortcuts for add, remove, replace, status
+
+chuck version: 1.3.1.0 (chimera)<!--  <td align="left"><pre>chuck --[options|commands] [+-=^] file1 file2 file3 ...
+   [options] = halt|loop|audio|silent|dump|nodump|about
+               srate&lt;N&gt;|bufsize&lt;N&gt;|bufnum&lt;N&gt;|dac&lt;N&gt;|adc&lt;N&gt;|
+               remote&lt;hostname&gt;|port&lt;N&gt;|verbose&lt;N&gt;|probe
+   [commands] = add|remove|replace|status|time|kill
+   [+-=^] = shortcuts for add, remove, replace, status
+
+chuck version: 1.2.0.0 (dracula)
+   http://chuck.cs.princeton.edu/-->
+</td></tr></table></td></tr></table>
+</center>
+<br />
+<center>(run '<font face="courier new"><b>chuck --about</b></font>' to print the above information)</center>
+<br /><br />
+
+<b>DESCRIPTION</b>
+<br /><br />
+<p align="justify">
+<b>[source ChucK files]</b>:<br />
+ChucK can run 1 or more processes in parallel and interactively.  The 
+programmer only needs to specify them all on the command line, and they 
+will be compiled and run in the VM.  Each input source file (.ck suffix by 
+convention) will be run as a separate 'shred' (user-level ChucK threads) 
+in the VM.  They can 'spork' additional shreds and interact with 
+existing shreds.  Thanks to the ChucK timing mechanism, shreds don't 
+necessarily need to know about each other in order to be precisely 
+'shreduled' in time - they only need to keep track of they own time, so 
+to speak. <br /><br />
+Addtionally, more shreds can be added/removed/replaced manually at 
+run-time, using on-the-fly programming [Wang and Cook 2004] - (see <a 
+href="http://chuck.cs.princeton.edu/doc/publish/">publications</a> and 
+<a href="http://on-the-fly.cs.princeton.edu/">http://on-the-fly.cs.princeton.edu/</a>).
+<br /><br /><br />
+<b>[options]:</b>
+<br /><br />
+<b>--halt</b> / <b>-h</b><br />
+(on by default) - tells the vm to halt and exit if there are no more 
+shreds in the VM.
+<br /><br />
+<b>--loop</b> / <b>-l</b><br />
+        tells the ChucK VM to continue executing even if there no shreds 
+        currently in the VM.  This is useful because shreds can be added 
+        later on-the-fly.  Furthermore, it is legal to specify this 
+        option without any input files.  For example: <br /><br />
+<center>
+  <table width="400" bgcolor="#d9d9d9" border="0" cellpadding="1" cellspacing="0"><tr><td>
+  <table width="100%" bgcolor="#fdfdfd" border="0" cellpadding="1" cellspacing="2">
+  <tr>
+  <td align="left"><pre> %> chuck --loop</td></tr></table></td></tr></table>
+</center>
+<br />
+
+        the above will 'infinite time-loop' the VM, waiting for incoming 
+shreds. <br /><br />
+<b>--audio</b> / <b>-a</b><br />
+        (on by default) - enable real-time audio output
+<br /><br />
+<b>--silent</b> / <b>-s</b><br /><p align="justify">
+        disable real-time audio output - computations in the VM is not 
+        changed, except that the actual timing is no longer clocked by 
+        the real-time audio engine.  Timing manipulations (such as 
+        operations on 'now') still function fully.  This is useful for 
+        synthesizing audio to disk or network.  Also, it is handy for 
+        running a non-audio program.
+<br /><br />
+<b>--dump</b> / <b>+d</b><br />
+        dump the virtual instructions emitted to stderr, for all the 
+        files after this flag on the command line, until a 'nodump' is 
+        encountered (see below).  For example: <br /><br />
+<center>
+  <table width="400" bgcolor="#d9d9d9" border="0" cellpadding="1" cellspacing="0"><tr><td>
+  <table width="100%" bgcolor="#fdfdfd" border="0" cellpadding="1" cellspacing="2">
+  <tr>
+  <td align="left"><pre> %> chuck foo.ck +d bar.ck</td></tr></table></td></tr></table>
+</center>
+<br /><p align="justify">
+        will dump the virtual ChucK instructions for bar.ck (only), with 
+        argument values, to stderr.  --dump can be used in conjunction 
+        with --nodump to selectively dump files. <br /><br />
+<b>--nodump</b> / <b>-d</b><br />
+        (default state) cease the dumping of virtual instructions for 
+        files that comes after this flag on the command line, until a 
+        'dump' is encountered (see above).  For example:
+<br /><br />
+<center>
+  <table width="400" bgcolor="#d9d9d9" border="0" cellpadding="1" cellspacing="0"><tr><td>
+  <table width="100%" bgcolor="#fdfdfd" border="0" cellpadding="1" cellspacing="2">
+  <tr>
+  <td align="left"><pre> %> chuck +d foo.ck -d bar.ck +d doo.ck</td></tr></table></td></tr></table>
+</center>
+<br /><p align="justify">
+        will dump foo.ck, then doo.ck - but not bar.ck.
+<br /><br />
+        These are useful for debug ChucK itself, and for other 
+        entertainment purposes. <br /><br />
+<b>--srate(N)</b><br />
+        set the internal sample rate to (N) Hz.  by default,
+        ChucK runs at 44100Hz on OS X and Windows, and 48000Hz on 
+        linux/ALSA.  even if the VM is running in --silent mode, the 
+        sample rate is still used by some unit generaters to compute  
+        audio, this is important for computing samples and writing to 
+        file.  Not all sample rates are supported by all devices!
+<br /><br />
+<b>--bufsize(N)</b><br />
+        set the internal audio buffer size to (N) sample frames.  larger 
+        buffer size often reduce audio artifacts due to system/program 
+        timing.  smaller buffers reduce audio latency.  The default is 
+        512.  If (N) is not a power of 2, the next power of 2 larger than 
+        (N) is used.  For example:
+<br /><br />
+<center>
+  <table width="400" bgcolor="#d9d9d9" border="0" cellpadding="1" cellspacing="0"><tr><td>
+  <table width="100%" bgcolor="#fdfdfd" border="0" cellpadding="1" cellspacing="2">
+  <tr>
+  <td align="left"><pre> %> chuck --bufsize950</td></tr></table></td></tr></table> </center> <br />
+
+        sets the buffer size to 1024.
+<br /><br />
+<b>--dac(N)</b><br />
+        opens audio output device #(N) for real-time audio.  by default,
+        (N) is 0.
+<br /><br />
+<b>--adc(N)</b><br />
+        opens audio input device #(N) for real-time audio input.  by 
+        default, (N) is 0.
+<br /><br />
+<b>--chan(N)</b> / <b>-c(N)</b>  <br />
+        opens (N) number of input and output channels on the audio device. by default, (N) is 2. 
+<br /><br />
+<b>--in(N)</b>  / <b>-i(N)</b> <br />
+       opens (N) number of input channels on the audio device. by default (N) is 2. 
+<br /><br />
+<b>--out(N)</b>  / <b>-o(N)</b> <br />
+        opens (N) number of output channels on the audio device. by default (N) is 2. 
+<br /><br />
+<b>--hostname(host)</b> / <b>-h(host)</b><br />
+        sets the hostname to connect to if accompanied by the on-the-fly programming commands.<br />
+        (host) can be name or ip of the host.  default is 127.0.0.1 (localhost).
+<br /><br />
+<b>--port(N)</b> / <b>-p(N)</b><br />
+        sets the port to listen on if not used with on-the-fly programming commands.<br />
+        sets the port to connect to if used with on-the-fly programming commands.
+<br /><br />
+<b>--verbose(N)</b> / <b>-v(N)</b><br />
+        sets the report level to (N). 0 is none, 10 is all, default is 1.
+<br /><br />
+<b>--probe</b><br />
+        probes the system for all audio devices and MIDI devices, and prints them.
+<br /><br />
+<b>--about</b> / <b>--help</b><br />
+        prints the usage message, with the ChucK URL
+<br /><br />
+<b>--callback</b><br />
+        Utilizes a callback for buffering (default). 
+<br /><br />
+<b>--blocking</b><br />
+        Utilizes blocking for buffering.
+
+<center>
+<hr width="15%" />
+
+(from here, we go to)<br /><a href="otfp.html">On-the-fly Programming 
+Commands</a><br /><br /> (or return to the)<br /> <a href="index-2.html">Programmer's 
+Guide</a>
+<br /><br />
+</td></tr></table>
+<font size="1">
+<hr width="15%" />
+<a href="http://chuck.cs.princeton.edu/">chuck</a> |
+<a href="http://soundlab.cs.princeton.edu/">soundlab</a> |
+<a href="http://www.cs.princeton.edu/">cs</a> |
+<a href="http://www.music.princeton.edu/">music</a> |
+<a href="http://ccrma.stanford.edu/">ccrma</a>
+<br />
+<br />
+<br />
+</font>
+</body>
+
+<!-- Mirrored from chuck.cs.princeton.edu/doc/program/vm.html by HTTrack Website Copier/3.x [XR&CO'2014], Thu, 20 Sep 2018 21:37:19 GMT -->
+</html>

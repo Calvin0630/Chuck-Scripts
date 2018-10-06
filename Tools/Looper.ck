@@ -21,7 +21,7 @@ class Metronome {
 }
 
 private class Sampler {
-    
+
     //arguements separated by a colon
     int bpm;
     //the time(seconds) of one beat
@@ -32,7 +32,7 @@ private class Sampler {
     int rootNote;
     string samplesFolder;
     Gain gain;
-    
+
     fun void init(UGen output, int bpm_, float volume_, int rootNote_) {
         gain => output;
         "C:\\Users\\Calvin\\Documents\\Chuck-Scripts\\Samples\\" => samplesFolder;
@@ -51,7 +51,7 @@ private class Sampler {
 
     /*
    Loads and plays a sample. The function returns once the sample is done playing
-    
+
    Options:
    snare
    kick
@@ -68,15 +68,15 @@ private class Sampler {
     boop
     hi hat 0open
     hi hat closed
-   */ 
+   */
 	fun void playSample(string sampleName) {
-        
+
         //checks to make sure you initialized the sampler
          if(samplesFolder=="") {
             <<<"Did you initialize the sampler?","">>>;
         }
         SndBuf buf=>gain;
-        string filePath; 
+        string filePath;
         if (sampleName == "snare") {
             samplesFolder + "Snares\\Cymatics - Snare 1.wav" =>filePath;
             filePath =>buf.read;
@@ -161,7 +161,7 @@ private class Sampler {
         IntArray keys;
         keys.add([30, 31, 32, 33, 34, 35, 36, 37, 38 , 39]);
         // the names of the samples that correspond to their mutally indexed keys
-        ["snare", "kick", "boop", "pizza time", "death", "you will die", "there is none", "despacito song", "hi hat closed", "hi hat open"]     
+        ["snare", "kick", "boop", "pizza time", "death", "you will die", "there is none", "despacito song", "hi hat closed", "hi hat open"]
             @=> string sampleStrings[];
 
         Hid hi;
@@ -196,7 +196,7 @@ private class Sampler {
                         spork~playSample(sampleStrings[sample]);
                     }
                 }
-                
+
                 else
                 {
                     //<<< "up:", msg.which, "(code)", msg.key, "(usb key)", msg.ascii, "(ascii)" >>>;
@@ -205,8 +205,8 @@ private class Sampler {
         }
 
     }
-    
-    
+
+
     fun void pattern1() {
         while(true) {
             for (0=>int x;x<4;x++) {
@@ -251,7 +251,7 @@ private class Sampler {
             }
         }
     }
-    
+
     fun void roll(float initialDuration) {
         initialDuration=>float duration;
         while(duration>.0001) {
@@ -261,7 +261,7 @@ private class Sampler {
             2/=>duration;
         }
     }
-    
+
 }
 
 private class IntArray {
@@ -274,7 +274,7 @@ private class IntArray {
     contains returns 0 if no, 1 if yes
     print: void, prints the array
     size return the size of the array
-    
+
     */
     int elements[];
     //add an array of ints
@@ -339,7 +339,7 @@ private class IntArray {
                  null@=>elements;
             }
         }
-        
+
     }
     //returns the element @ index
     fun int get(int index) {
@@ -361,7 +361,7 @@ private class IntArray {
         }
         return contains;
     }
-    
+
     fun int contains(int element) {
         indexOf(element)=>int result;
         if (result ==-1) return 0;
@@ -384,56 +384,21 @@ private class IntArray {
     }
     fun int size() {
         if(elements==null) return 0;
-        
-        else return elements.cap(); 
+
+        else return elements.cap();
     }
 }
 
-
-// 100:.2:60
-//recommended args: (bpm, gain, rootNote)
-//arguements separated by a colon
-int bpm;
-//the time(seconds) of one beat
-float beat;
-//a number between 0 and 1 that sets the volume
-float volume;
-//the midi int of the root note
-int rootNote;
-
-//take in the command line args
-if(me.args() == 3) {
-    Std.atoi(me.arg(0)) =>bpm;
-    60/Std.atof(me.arg(0)) => beat;
-    Std.atof(me.arg(1)) => volume;
-    Std.atoi(me.arg(2)) => rootNote;
-}
-else {
-    <<<"Fix your args","">>>;
-    <<<"","Expected: bpm:volume:rootNote">>>;
-    me.exit();
-}
-
-fun void wait(float duration) {
-    duration::second=>now;
-}
-
-
-Gain gain => dac;
-volume=>gain.gain;
-Metronome metro;
-metro.init(dac,bpm, volume, rootNote);
-spork~metro.start();
-Sampler sam;
-sam.init(gain, bpm, volume, rootNote);
-Looper looper;
-looper.init(gain,dac, bpm, volume, rootNote,"test");
-
-while(true) {
-    10::second=>now;
-}
-
 private class Looper {
+    //print the contrls
+
+    <<<"   button    key     action
+    tab         43      start/stop recording
+    Lctrl      224     prints channel stats
+    Rctrl      228    remove last track on the active channel
+    alt          226    switches the selected channel
+    Rshift    229    Wipe the selected channel's loops","">>>;
+
     //tab: start/stops recording loops
     //msg.key == 43
     int bpm, rootNote;
@@ -443,7 +408,9 @@ private class Looper {
     0=>int activeChannel;
     LoopChannel channels[channelCount];
     "C:\\Users\\Calvin\\Documents\\Chuck-Scripts\\Loops\\"=>string loopsFolder;
-    
+
+    //looper.init(gain,dac, bpm, volume, rootNote,"test");
+
     fun void init(UGen input,UGen output, int bpm_, float volume_, int rootNote_, string sessionFolder) {
         loopsFolder+sessionFolder+"\\"=>loopsFolder;
         bpm_ =>bpm;
@@ -481,10 +448,10 @@ private class Looper {
                 // if the button is pressed (as opposed to released)
                 if( msg.isButtonDown() )
                 {
-                    <<<msg.key,"">>>;
-                    /* 
+                    //<<<msg.key,"">>>;
+                    /*
                             button    key     action
-                            tab         43      start/stop recording 
+                            tab         43      start/stop recording
                             Lctrl      224     prints channel stats
                             Rctrl      228    remove last track on the active channel
                             alt          226    switches the selected channel
@@ -499,12 +466,12 @@ private class Looper {
                     else if (msg.key==224) {
                         //print channel stats
                         getChannelStatus();
-                        
+
                     }
                     //alt
                     else if (msg.key==226) {
                         //toggle active channel playing
-                        
+
                     }
                     //Rshift
                     else if (msg.key==229) {
@@ -514,7 +481,7 @@ private class Looper {
                         //not a used key
                     }
                 }
-                
+
                 else
                 {
                     //<<< "up:", msg.which, "(code)", msg.key, "(usb key)", msg.ascii, "(ascii)" >>>;
@@ -547,24 +514,45 @@ class LoopChannel {
     string channelFolder;
     UGen input, output;
     Shred loopShred;
-    fun void init(UGen _input, UGen _output,float beat, string _folder, int _channelNum) {
+    //each channel has a file info.txt
+    FileIO fileInOut;
+    float beat;
+
+
+    fun void init(UGen _input, UGen _output, float _beat, string _folder, int _channelNum) {
         _input=>input;
         _output=>output;
+        _beat=>beat;
         _folder=>channelFolder;
-        _channelNum => channelNum;00900090  090009      
+        _channelNum => channelNum;
+        (channelFolder+"info.txt")=>string tmp;
+        fileInOut.open(tmp, FileIO.WRITE);
+        // test
+        if( !fileInOut.good() )
+        {
+            cherr <= "can't open file for writing..." <= IO.newline();
+            me.exit();
+        }
+        // write some stuff
+        fileInOut <= 1 <= " " <= 2 <= " " <= "foo" <= IO.newline();
+        // close the thing
+        fileInOut.close();
+
     }
-    
+
     fun void toggleRecord() {
         //if it's not already recording
         if (isRecording==0) {
             spork~recordLoop((loopCount+""), input)@=>loopShred;
             loops.add(loopCount);
             loopCount++;
+            <<<"Started Recording on channel ", channelNum>>>;
             1=>isRecording;
         }
         //if it is recording
         else if (isRecording==1) {
             loopShred.exit();
+            <<<"Stopped recording on channel ", channelNum>>>;
             0=>isRecording;
         }
         //ya fucked up
@@ -576,13 +564,61 @@ class LoopChannel {
         WvOut waveOut;
         channelFolder+name =>waveOut.wavFilename;
         null @=> waveOut;
+        //so that it records 4 beats at a time
         while(true) {
-            <<<"recording loop # ",name, "on channel ", channelNum>>>;
             (4*beat)::second=>now;
         }
     }
     //turns the loopChannel on and off
     fun void togglePlaying() {
-        
+
     }
+}
+
+//the patch and shit
+
+
+// 100:.2:60
+//recommended args: (bpm, gain, rootNote)
+//arguements separated by a colon
+int bpm;
+//the time(seconds) of one beat
+float beat;
+//a number between 0 and 1 that sets the volume
+float volume;
+//the midi int of the root note
+int rootNote;
+
+//take in the command line args
+if(me.args() == 3) {
+    Std.atoi(me.arg(0)) =>bpm;
+    60/Std.atof(me.arg(0)) => beat;
+    Std.atof(me.arg(1)) => volume;
+    Std.atoi(me.arg(2)) => rootNote;
+}
+else {
+    <<<"Fix your args","">>>;
+    <<<"","Expected: bpm:volume:rootNote">>>;
+    me.exit();
+}
+
+fun void wait(float duration) {
+    duration::second=>now;
+}
+fun void Hello() {
+    <<<"Hello","">>>;
+}
+
+Gain gain => dac;
+volume=>gain.gain;
+Metronome metro;
+metro.init(dac,bpm, volume, rootNote);
+spork~metro.start();
+Sampler sam;
+sam.init(gain, bpm, volume, rootNote);
+Looper looper;
+//looper.init(gain,dac, bpm, volume, rootNote,"test");
+
+while(true) {
+    10::second=>now;
 }

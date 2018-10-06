@@ -16,7 +16,7 @@ private class Sampler {
         "C:\\Users\\Calvin\\Documents\\Chuck-Scripts\\Samples\\" => samplesFolder;
         bpm_ =>bpm;
         60/(bpm_ $ float)=>beat;
-        volume_ => volume;09
+        volume_ => volume;
         rootNote_ => rootNote;
         volume =>gain.gain;
     }

@@ -1,5 +1,5 @@
 private class Sampler {
-    
+
     //arguements separated by a colon
     int bpm;
     //the time(seconds) of one beat
@@ -10,7 +10,7 @@ private class Sampler {
     int rootNote;
     string samplesFolder;
     Gain gain;
-    
+
     fun void init(UGen output, int bpm_, float volume_, int rootNote_) {
         gain => output;
         "C:\\Users\\Calvin\\Documents\\Chuck-Scripts\\Samples\\" => samplesFolder;
@@ -19,8 +19,57 @@ private class Sampler {
         volume_ => volume;
         rootNote_ => rootNote;
         volume =>gain.gain;
+        spork~listenForEvents();
     }
 
+    fun void listenForEvents() {
+        //numrow 0-9
+        IntArray keys;
+        keys.add([30, 31, 32, 33, 34, 35, 36, 37, 38 , 39]);
+        // the names of the samples that correspond to their mutally indexed keys
+        ["snare", "kick", "boop", "pizza time", "death", "you will die", "there is none", "despacito song", "hi hat closed", "hi hat open"]
+            @=> string sampleStrings[];
+
+        Hid hi;
+        HidMsg msg;
+
+        // which keyboard
+        0 => int device;
+
+        // open keyboard (get device number from command line)
+        if( !hi.openKeyboard( device ) ) me.exit();
+        <<< "keyboard '" + hi.name() + "' ready", "" >>>;
+
+        // infinite event loop
+        while( true )
+        {
+            // wait on event
+            hi => now;
+
+            // get one or more messages
+            while( hi.recv( msg ) )
+            {
+                // check for action type
+                if( msg.isButtonDown() )
+                {
+                    //<<< "down:", msg.which, "(code)", msg.key, "(usb key)", msg.ascii, "(ascii)" >>>;
+                    //msg.key is unique for each buitton on a qwerty
+                    //q1<<<  msg.key, ", " >>>;
+                    keys.indexOf(msg.key)=>int sample;
+                    <<<sample,"">>>;
+                    //if the user pressed 0-9 on num row
+                    if (sample != -1) {
+                        spork~playSample(sampleStrings[sample]);
+                    }
+                }
+
+                else
+                {
+                    //<<< "up:", msg.which, "(code)", msg.key, "(usb key)", msg.ascii, "(ascii)" >>>;
+                }
+            }
+        }
+    }
     fun void wait(float duration) {
         duration::second=>now;
     }
@@ -28,7 +77,7 @@ private class Sampler {
 
     /*
    Loads and plays a sample. The function returns once the sample is done playing
-    
+
    Options:
    snare
    kick
@@ -45,15 +94,15 @@ private class Sampler {
     boop
     hi hat 0open
     hi hat closed
-   */ 
+   */
 	fun void playSample(string sampleName) {
-        
+
         //checks to make sure you initialized the sampler
          if(samplesFolder=="") {
             <<<"Did you initialize the sampler?","">>>;
         }
         SndBuf buf=>gain;
-        string filePath; 
+        string filePath;
         if (sampleName == "snare") {
             samplesFolder + "Snares\\Cymatics - Snare 1.wav" =>filePath;
             filePath =>buf.read;
@@ -134,9 +183,9 @@ private class Sampler {
             <<<"I didn't recognize that option","">>>;
         }
     }
-    
-    
-    
+
+
+
     fun void pattern1() {
         while(true) {
             for (0=>int x;x<4;x++) {
@@ -181,7 +230,7 @@ private class Sampler {
             }
         }
     }
-    
+
     fun void roll(float initialDuration) {
         initialDuration=>float duration;
         while(duration>.0001) {
@@ -191,7 +240,7 @@ private class Sampler {
             2/=>duration;
         }
     }
-    
+
 }
 
 private class IntArray {
@@ -204,7 +253,7 @@ private class IntArray {
     contains returns 0 if no, 1 if yes
     print: void, prints the array
     size return the size of the array
-    
+
     */
     int elements[];
     //add an array of ints
@@ -269,7 +318,7 @@ private class IntArray {
                  null@=>elements;
             }
         }
-        
+
     }
     //returns the element @ index
     fun int get(int index) {
@@ -291,7 +340,7 @@ private class IntArray {
         }
         return contains;
     }
-    
+
     fun int contains(int element) {
         indexOf(element)=>int result;
         if (result ==-1) return 0;
@@ -314,16 +363,10 @@ private class IntArray {
     }
     fun int size() {
         if(elements==null) return 0;
-        
-        else return elements.cap(); 
+
+        else return elements.cap();
     }
 }
-IntArray arr;
-arr.add([1]);
-arr.print();
-
-<<<arr.contains(5),"">>>;
-
 
 // 100:.2:60
 //recommended args: (bpm, gain, rootNote)
@@ -357,50 +400,5 @@ fun void wait(float duration) {
 Gain gain => dac;
 volume=>gain.gain;
 Sampler sam;
-//numrow 0-9
-IntArray keys;
-keys.add([30, 31, 32, 33, 34, 35, 36, 37, 38 , 39]);
-// the names of the samples that correspond to their mutally indexed keys
-["snare", "kick", "boop", "pizza time", "death", "you will die", "there is none", "despacito song", "hi hat closed", "hi hat open"]     
-    @=> string sampleStrings[];
-sam.init(gain, bpm, volume, rootNote);
-
-Hid hi;
-HidMsg msg;
-
-// which keyboard
-0 => int device;
-
-// open keyboard (get device number from command line)
-if( !hi.openKeyboard( device ) ) me.exit();
-<<< "keyboard '" + hi.name() + "' ready", "" >>>;
-
-// infinite event loop
-while( true )
-{
-    // wait on event
-    hi => now;
-
-    // get one or more messages
-    while( hi.recv( msg ) )
-    {
-        // check for action type
-        if( msg.isButtonDown() )
-        {
-            //<<< "down:", msg.which, "(code)", msg.key, "(usb key)", msg.ascii, "(ascii)" >>>;
-            //msg.key is unique for each buitton on a qwerty
-            //q1<<<  msg.key, ", " >>>;
-            keys.indexOf(msg.key)=>int sample;
-            <<<sample,"">>>;
-            //if the user pressed 0-9 on num row
-            if (sample != -1) {
-                spork~sam.playSample(sampleStrings[sample]);
-            }
-        }
-        
-        else
-        {
-            //<<< "up:", msg.which, "(code)", msg.key, "(usb key)", msg.ascii, "(ascii)" >>>;
-        }
-    }
-}
+sam.init(gain, bpm, 1, rootNote);
+while (true) 10::second=>now;

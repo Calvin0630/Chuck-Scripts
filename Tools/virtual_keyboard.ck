@@ -1,3 +1,5 @@
+
+
 //recommended args: (bpm, gain, rootNote)
 //arguements separated by a colon
 int bpm;
@@ -8,7 +10,6 @@ float volume;
 //the midi int of the root note
 int rootNote;
 
-//take in the command line args
 if(me.args() == 3) {
     Std.atoi(me.arg(0)) =>bpm;
     60/Std.atof(me.arg(0)) => beat;
@@ -24,17 +25,9 @@ else {
 fun void wait(float duration) {
     duration::second=>now;
 }
-// HID
-Hid hi;
-HidMsg msg;
 
-// which keyboard
-0 => int device;
-
-// open keyboard (get device number from command line)
-if( !hi.openKeyboard( device ) ) me.exit();
-<<< "keyboard '" + hi.name() + "' ready", "" >>>;
 <<<bpm+", " +volume+", "+rootNote>>>;
+
 
 // patch
 Gain midiIn=>PRCRev reverb=>Echo echo=>Gain finalVolume=>dac;
@@ -45,67 +38,11 @@ Gain midiIn=>PRCRev reverb=>Echo echo=>Gain finalVolume=>dac;
 volume=>finalVolume.gain;
 MidiOscillator mOsc;
 mOsc.init(midiIn, bpm, 1, rootNote);
-//spork~mOsc.debug();
-IntArray keys;
-//z,a,q go up by fifths. with 7 frets on each row
-keys.add([16,17,18,19,20,21,22,23,24,25,
-    30,31,32,33,34,35,36,37,38,
-    44,45,46,47,48,49,50]);
-IntArray notes;
-//the notes that's index corresponds to the index of keys
-notes.add([10,11,12,13,14,15,16,17,18,19,
-    5,6,7,8,9,10,11,13,14,
-    0,1,2,3,4,5,6]);
-IntArray activeNotes;
-// infinite event loop
-while( true )
-{
-    //starts at z, a is 1 fifth up, q, a second fifth up.
-    [1]
-    @=>int keyboardLayout[];
-    // wait for event
-    hi => now;
 
-    // get message
-    while( hi.recv( msg ) )
-    {
-        // if the button is pressed down
-        if( msg.isButtonDown() )
-        {
-            keys.indexOf(msg.which)=> int index;
-            //if its a valid key
-            if (index!=-1) {
-                notes.get(index) => int note;
-                //if the note isnt active
-                if (activeNotes.contains(note)==0) {
-                    activeNotes.add(note);
-                    mOsc.notesOn([note]);
-                }
-                //<<<"down "+ notes.get(index),"">>>;
-                
-            }
-            //<<< msg.which,"">>>;
-            
-
-            80::ms => now;
-        }
-        else //its been released
-        {
-            keys.indexOf(msg.which)=> int index;
-            //if its a valid key
-            if (index!=-1) {
-                notes.get(index) => int note;
-                //if the note is active
-                if (activeNotes.contains(note)!=-1) {
-                    activeNotes.remove(note);
-                    mOsc.notesOff([note]);
-                }
-                //<<<"up "+ notes.get(index),"">>>;
-            }
-        }
-        //(1/(mOsc.activeNotes.size() $ float))=>mOsc.gain.gain;
-    }
+while (true) {
+    10::second=>now;
 }
+//spork~mOsc.debug();
 
 
 
@@ -134,15 +71,15 @@ private class MidiOscillator {
     Gain gain;
     //a list of all the active notes
     IntArray activeNotes;
-    
-    
+
+
     fun void init(UGen output, int bpm_, float volume_, int rootNote_) {
 
         bpm_ =>bpm;
         60/(bpm_ $ float) => beat;
         volume_ => volume;
         rootNote_ => rootNote;
-        
+
         audioSource=>phaseOne=>gain=>output;
         lfo=>phaseOne;
         phaseOne.op(3);
@@ -164,24 +101,91 @@ private class MidiOscillator {
         for (0=>int i;i<oscillators.cap();i++) {
             oscillators[i] =>preAdsr[i]=> audioSource;
             //apply setting to the adsr
-            
+
             Std.mtof(i) => oscillators[i].freq;
             1 => oscillators[i].gain;
-            
-        }    
+
+        }
+        spork~listenForEvents();
+    }
+    //a function to set the volume
+    fun void SetVolume(float _volume) {
+        _volume=>volume;
+        volume=>gain.gain;
     }
     //a function for debugging
-    fun void debug() {
-        0=>float max;
-        while (true) {
-            if (gain.last()>max) {
-                gain.last() =>max;
+    fun void listenForEvents() {
+        // which keyboard
+        0 => int device;
+        // HID
+        Hid hi;
+        HidMsg msg;
+        // open keyboard (get device number from command line)
+        if( !hi.openKeyboard( device ) ) me.exit();
+        <<< "keyboard '" + hi.name() + "' ready", "" >>>;
+        IntArray keys;
+        //z,a,q go up by fifths. with 7 frets on each row
+        keys.add([16,17,18,19,20,21,22,23,24,25,
+            30,31,32,33,34,35,36,37,38,
+            44,45,46,47,48,49,50]);
+        IntArray notes;
+        //the notes that's index corresponds to the index of keys
+        notes.add([10,11,12,13,14,15,16,17,18,19,
+            5,6,7,8,9,10,11,13,14,
+            0,1,2,3,4,5,6]);
+        IntArray activeNotes;
+        // infinite event loop
+        while( true )
+        {
+            //starts at z, a is 1 fifth up, q, a second fifth up.
+            [1]
+            @=>int keyboardLayout[];
+            // wait for event
+            hi => now;
+
+            // get message
+            while( hi.recv( msg ) )
+            {
+                // if the button is pressed down
+                if( msg.isButtonDown() )
+                {
+                    keys.indexOf(msg.which)=> int index;
+                    //if its a valid key
+                    if (index!=-1) {
+                        notes.get(index) => int note;
+                        //if the note isnt active
+                        if (activeNotes.contains(note)==0) {
+                            activeNotes.add(note);
+                            mOsc.notesOn([note]);
+                        }
+                        //<<<"down "+ notes.get(index),"">>>;
+
+                    }
+                    //<<< msg.which,"">>>;
+
+
+                    80::ms => now;
+                }
+                else //its been released
+                {
+                    keys.indexOf(msg.which)=> int index;
+                    //if its a valid key
+                    if (index!=-1) {
+                        notes.get(index) => int note;
+                        //if the note is active
+                        if (activeNotes.contains(note)!=-1) {
+                            activeNotes.remove(note);
+                            mOsc.notesOff([note]);
+                        }
+                        //<<<"up "+ notes.get(index),"">>>;
+                    }
+                }
+                //(1/(mOsc.activeNotes.size() $ float))=>mOsc.gain.gain;
             }
-            <<<max,"">>>;
-            50::ms=>now;
         }
+
     }
-    
+
     //notes is an array of ints that are the offset from rootNote of the notes to play
     fun void notesOn(int notes[]) {
         for(0=>int i;i<notes.cap();i++) {
@@ -219,7 +223,7 @@ private class IntArray {
     contains returns 0 if no, 1 if yes
     print: void, prints the array
     size return the size of the array
-    
+
     */
     int elements[];
     //add an array of ints
@@ -284,7 +288,7 @@ private class IntArray {
                  null@=>elements;
             }
         }
-        
+
     }
     //returns the element @ index
     fun int get(int index) {
@@ -306,7 +310,7 @@ private class IntArray {
         }
         return contains;
     }
-    
+
     fun int contains(int element) {
         indexOf(element)=>int result;
         if (result ==-1) return 0;
@@ -333,7 +337,7 @@ private class IntArray {
     }
     fun int size() {
         if(elements==null) return 0;
-        
-        else return elements.cap(); 
+
+        else return elements.cap();
     }
 }

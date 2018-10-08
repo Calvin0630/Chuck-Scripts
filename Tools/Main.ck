@@ -1,5 +1,5 @@
-public class Main {
-    Gain[8]@=>Gain[] channels;
+private class Main {
+    //Gain[8]@=>Gain[] channels;
 }
 
 //recommended args: (bpm, gain, rootNote)
@@ -40,6 +40,12 @@ Gain midiIn=>PRCRev reverb=>Echo echo=>Gain finalVolume=>dac;
 volume=>finalVolume.gain;
 MidiOscillator mOsc;
 mOsc.init(midiIn, bpm, 1, rootNote);
+Sampler sam;
+sam.init(finalVolume, bpm, volume, rootNote);
+SettingsReader reader;
+reader.init(mOsc, sam);
+1::second=>now;
+reader.readData();
 
 while (true) {
     10::second=>now;
@@ -47,10 +53,48 @@ while (true) {
 //spork~mOsc.debug();
 
 //a class to parse settings.txt to update volume, lfoDepth, etc.
-public class SettingsReader {
+private class SettingsReader {
     MidiOscillator synth;
     Sampler sam;
     //
+    fun void init(MidiOscillator synth_, Sampler sam_) {
+        synth_@=>synth;
+        sam_@=>sam;
+        spork~readData();
+    }
+    fun void readData() {
+        while (true) {
+            // default file
+            <<<me.sourceDir(),"">>>;
+            me.sourceDir() + "/settings.txt" => string filename;
+            // instantiate
+            FileIO fio;
+            // open a file
+            fio.open( filename, FileIO.READ );
+            // ensure it's ok
+            if( !fio.good() ) {
+                cherr <= "can't open file: " <= filename <= " for reading..." <= IO.newline();
+                me.exit();
+            }
+
+            // loop until end
+            while( fio.more() ) {
+                //reads the line and separates it into a string for the variable name and value.
+                fio.readLine()=>string line;
+                line.trim();
+                line.find(" ")=>int spaceIndex;
+                line.substring(0,spaceIndex)=>string variableName;
+                //takes a substring from the spaceIndex+1 to end
+                line.substring(spaceIndex+1)=>string variableValue;
+                <<<"start:",variableName, "space",variableValue,":end">>>;
+                if (variableName=="SynthVolume") {
+                    synth.setVolume(Std.atof(variableValue));
+                }
+            }
+            .5::second=>now;
+        }
+    }
+
 
 }
 
@@ -117,7 +161,7 @@ private class MidiOscillator {
         spork~listenForEvents();
     }
     //a function to set the volume
-    fun void SetVolume(float _volume) {
+    fun void setVolume(float _volume) {
         _volume=>volume;
         volume=>gain.gain;
     }
@@ -130,7 +174,6 @@ private class MidiOscillator {
         HidMsg msg;
         // open keyboard (get device number from command line)
         if( !hi.openKeyboard( device ) ) me.exit();
-        <<< "keyboard '" + hi.name() + "' ready", "" >>>;
         IntArray keys;
         //z,a,q go up by fifths. with 7 frets on each row
         keys.add([16,17,18,19,20,21,22,23,24,25,
@@ -260,7 +303,6 @@ private class Sampler {
 
         // open keyboard (get device number from command line)
         if( !hi.openKeyboard( device ) ) me.exit();
-        <<< "keyboard '" + hi.name() + "' ready", "" >>>;
 
         // infinite event loop
         while( true )
@@ -278,7 +320,6 @@ private class Sampler {
                     //msg.key is unique for each buitton on a qwerty
                     //q1<<<  msg.key, ", " >>>;
                     keys.indexOf(msg.key)=>int sample;
-                    <<<sample,"">>>;
                     //if the user pressed 0-9 on num row
                     if (sample != -1) {
                         spork~playSample(sampleStrings[sample]);

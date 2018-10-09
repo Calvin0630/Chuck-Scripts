@@ -31,6 +31,6 @@ while(true) {
     for(1=>int i;i<128;i++) {
         10*i - 10 =>hpf.freq;
         10*i + 10 =>lpf.freq;
-        (beat/16)::second => now;
+        (beat/64)::second => now;
     }
 }

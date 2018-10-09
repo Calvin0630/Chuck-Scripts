@@ -4,9 +4,10 @@
 // pull samples from the dac
 // WvOut2 -> stereo operation
 dac => Gain g => WvOut w => blackhole;
+WvIn w => dac;
 
-MidiOscillator mOsc;
-mOsc.init(dac, 70, .6, 72);
+//MidiOscillator mOsc;
+//mOsc.init(dac, 70, .6, 72);
 // set the prefix, which will prepended to the filename
 // do this if you want the file to appear automatically
 // in another directory.  if this isn't set, the file

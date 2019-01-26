@@ -30,17 +30,21 @@ fun void wait(float duration) {
 
 
 // patch
-Gain midiIn=>PRCRev reverb=>Echo echo=>Gain finalVolume=>dac;
-(beat/2)::second=>echo.delay;
-.5=>echo.mix;
+Gain midiIn=>Gain finalVolume=>dac;
 1=>midiIn.gain;
-.2=>reverb.mix;
 volume=>finalVolume.gain;
 MidiOscillator mOsc;
 mOsc.init(midiIn, bpm, 1, rootNote);
 
 while (true) {
-    10::second=>now;
+    spork~mOsc.playNotes([0,4,7], beat*2);
+    wait(beat*2);
+    spork~mOsc.playNotes([5,9,12], beat*2);
+    wait(beat*2);
+    spork~mOsc.playNotes([7,10,14], beat*2);
+    wait(beat*2);
+    spork~mOsc.playNotes([5,8,12], beat*2);
+    wait(beat*2);
 }
 //spork~mOsc.debug();
 
@@ -60,7 +64,6 @@ private class MidiOscillator {
     //a sin osc for each midi note
     SinOsc oscillators[128];
     //an adsr filter for each note
-    ADSR adsr;
     ADSR preAdsr[128];
     Gain audioSource;
     Gain phaseOne;
@@ -80,11 +83,13 @@ private class MidiOscillator {
         volume_ => volume;
         rootNote_ => rootNote;
 
-        audioSource=>phaseOne=>gain=>output;
+        //audioSource=>phaseOne=>gain=>output;
+        //removing lfo
+        audioSource=>output;
         lfo=>phaseOne;
         phaseOne.op(3);
         lfo=>phaseOne;
-        1=>lfo.gain;
+        0.4=>lfo.gain;
         .5=>lfo.freq;
         //1=>lfoTwo.gain;
         //3*lfoRate=>lfoTwo.freq;
@@ -94,12 +99,13 @@ private class MidiOscillator {
         //lfoTwo=>phaseOne;
         volume => gain.gain;
         //an array of adsr settings: AttackTime, DelayTime, Sustain, Release
-        [beat/2, beat, beat/8, beat/8] @=> float adsrSettings[];
-        adsr.set(adsrSettings[0]::second, adsrSettings[1]::second, adsrSettings[2], adsrSettings[3]::second);
+        [beat/2, beat, 0.25, beat] @=> float adsrSettings[];
 
         //instantiate the elements in the the array
         for (0=>int i;i<oscillators.cap();i++) {
+            preAdsr[i].set(adsrSettings[0]::second, adsrSettings[1]::second, adsrSettings[2], adsrSettings[3]::second);
             oscillators[i] =>preAdsr[i]=> audioSource;
+
             //apply setting to the adsr
 
             Std.mtof(i) => oscillators[i].freq;
@@ -156,7 +162,7 @@ private class MidiOscillator {
                         //if the note isnt active
                         if (activeNotes.contains(note)==0) {
                             activeNotes.add(note);
-                            mOsc.notesOn([note]);
+                            mOsc_chords.notesOn([note]);
                         }
                         //<<<"down "+ notes.get(index),"">>>;
 
@@ -175,12 +181,12 @@ private class MidiOscillator {
                         //if the note is active
                         if (activeNotes.contains(note)!=-1) {
                             activeNotes.remove(note);
-                            mOsc.notesOff([note]);
+                            mOsc_chords.notesOff([note]);
                         }
                         //<<<"up "+ notes.get(index),"">>>;
                     }
                 }
-                //(1/(mOsc.activeNotes.size() $ float))=>mOsc.gain.gain;
+                //(1/(mOsc_chords.activeNotes.size() $ float))=>mOsc_chords.gain.gain;
             }
         }
 
@@ -192,9 +198,9 @@ private class MidiOscillator {
             activeNotes.add(notes[i]);
             preAdsr[rootNote+notes[i]].keyOn();
         }
-        adsr.keyOn();
         activeNotes.print();
-        (1/(activeNotes.size()$float))=>audioSource.gain;
+        if (activeNotes.size()>1)  (1/(activeNotes.size()$float))=>audioSource.gain;
+        else 1=>audioSource.gain;
     }
 
     fun void notesOff(int notes[]) {
@@ -202,11 +208,17 @@ private class MidiOscillator {
             activeNotes.remove(notes[i]);
             preAdsr[rootNote+notes[i]].keyOff();
         }
-        adsr.keyOff();
         activeNotes.print();
-        (1/(activeNotes.size()$float))=>audioSource.gain;
+        if (activeNotes.size()>1)  (1/(activeNotes.size()$float))=>audioSource.gain;
+        else 1=>audioSource.gain;
     }
 
+    //a function that plays a set of notes for a duration
+    fun void playNotes(int notes[], float duration){
+        notesOn(notes);
+        wait(duration);
+        notesOff(notes);
+    }
     fun void wait(float duration) {
         duration::second=>now;
     }

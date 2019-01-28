@@ -85,7 +85,7 @@ private class MidiOscillator {
 
         //audioSource=>phaseOne=>gain=>output;
         //removing lfo
-        audioSource=>output;
+        audioSource=>gain=>output;
         lfo=>phaseOne;
         phaseOne.op(3);
         lfo=>phaseOne;

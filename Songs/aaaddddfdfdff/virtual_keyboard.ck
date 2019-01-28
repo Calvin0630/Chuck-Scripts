@@ -41,22 +41,21 @@ Gain chordsIn=>PRCRev reverb=>Gain finalVolume=>dac;
 .3=>reverb.mix;
 1=>chordsIn.gain;
 volume=>finalVolume.gain;
-MidiOscillator mOsc_chords;
-mOsc_chords.init(chordsIn, bpm, 1, rootNote);
-spork~chords();
-Machine.add("sampler.ck");
+MidiOscillator mOsc;
+mOsc.init(chordsIn, bpm, 0.5, rootNote);
 while (true) {
     wait(beat*2);
 }
+//this sequence goes for 8 beats
 fun void chords() {
     while (true) {
-        spork~mOsc_chords.playNotes([0,4,7], beat*3/2);
+        spork~mOsc.playNotes([0,4,7], beat*3/2);
         wait(beat*2);
-        spork~mOsc_chords.playNotes([5,9,12], beat*3/2);
+        spork~mOsc.playNotes([5,9,12], beat*3/2);
         wait(beat*2);
-        spork~mOsc_chords.playNotes([7,10,14], beat*3/2);
+        spork~mOsc.playNotes([7,10,14], beat*3/2);
         wait(beat*2);
-        spork~mOsc_chords.playNotes([5,8,12], beat*3/2);
+        spork~mOsc.playNotes([5,8,12], beat*3/2);
         wait(beat*2);
     }
 }
@@ -98,7 +97,7 @@ private class MidiOscillator {
 
         //audioSource=>phaseOne=>gain=>output;
         //removing lfo
-        audioSource=>output;
+        audioSource=>gain=>output;
         lfo=>phaseOne;
         phaseOne.op(3);
         lfo=>phaseOne;
@@ -125,7 +124,7 @@ private class MidiOscillator {
             1 => oscillators[i].gain;
 
         }
-        //spork~listenForEvents();
+        spork~listenForEvents();
     }
     //a function to set the volume
     fun void SetVolume(float _volume) {
@@ -175,7 +174,7 @@ private class MidiOscillator {
                         //if the note isnt active
                         if (activeNotes.contains(note)==0) {
                             activeNotes.add(note);
-                            mOsc_chords.notesOn([note]);
+                            mOsc.notesOn([note]);
                         }
                         //<<<"down "+ notes.get(index),"">>>;
 
@@ -194,12 +193,12 @@ private class MidiOscillator {
                         //if the note is active
                         if (activeNotes.contains(note)!=-1) {
                             activeNotes.remove(note);
-                            mOsc_chords.notesOff([note]);
+                            mOsc.notesOff([note]);
                         }
                         //<<<"up "+ notes.get(index),"">>>;
                     }
                 }
-                //(1/(mOsc_chords.activeNotes.size() $ float))=>mOsc_chords.gain.gain;
+                //(1/(mOsc.activeNotes.size() $ float))=>mOsc.gain.gain;
             }
         }
 

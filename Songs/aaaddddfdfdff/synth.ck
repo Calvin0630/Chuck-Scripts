@@ -38,26 +38,18 @@ fun void wait(float duration) {
 
 // patch
 Gain chordsIn=>PRCRev reverb=>Gain finalVolume=>dac;
-.2=>reverb.mix;
+.3=>reverb.mix;
 1=>chordsIn.gain;
 volume=>finalVolume.gain;
 MidiOscillator mOsc;
-mOsc.init(chordsIn, bpm, 1, rootNote);
-//spork~chords();
-spork~swells();
+mOsc.init(chordsIn, bpm, 0.3, rootNote);
+spork~chords();
+Machine.add("sampler.ck");
+Machine.add("swells.ck");
 while (true) {
     wait(beat*2);
 }
-//this goes for 16 beats
-fun void swells() {
-    [0,3,5,7] @=> int notes[];
-    while (true) {
-        for (0=>int i;i<notes.cap();i++) {
-            spork~mOsc.playNotes([notes[i], notes[i]+5], beat*4);
-            wait(beat*4);
-        }
-    }
-}
+//this sequence goes for 8 beats
 fun void chords() {
     while (true) {
         spork~mOsc.playNotes([0,4,7], beat*3/2);
@@ -91,8 +83,7 @@ private class MidiOscillator {
     Gain audioSource;
     Gain phaseOne;
     //lfoRate (hertz)
-    Phasor lfo;
-    Phasor lfoTwo;
+    SinOsc lfo;
     //SinOsc lfoTwo;
     //SinOsc lfoThree;
     Gain gain;
@@ -107,21 +98,23 @@ private class MidiOscillator {
         volume_ => volume;
         rootNote_ => rootNote;
 
-        //with lfo
-        audioSource=>phaseOne=>gain=>output;
-        //without lfo
-        //audioSource=>output;
+        //audioSource=>phaseOne=>gain=>output;
+        //removing lfo
+        audioSource=>gain=>output;
         lfo=>phaseOne;
         phaseOne.op(3);
         lfo=>phaseOne;
-        lfoTwo=>phaseOne;
-        1=>lfo.gain;
-        1/(beat*4)=>lfo.freq;
-        1=>lfoTwo.gain;
-        1/(beat*4)=>lfoTwo.freq;
+        0.4=>lfo.gain;
+        .5=>lfo.freq;
+        //1=>lfoTwo.gain;
+        //3*lfoRate=>lfoTwo.freq;
+        //1=>lfoThree.gain;
+        //5*lfoRate=>lfoThree.freq;
+        //lfoThree=>phaseOne;
+        //lfoTwo=>phaseOne;
         volume => gain.gain;
         //an array of adsr settings: AttackTime, DelayTime, Sustain, Release
-        [0.01, beat, 0.5, beat] @=> float adsrSettings[];
+        [beat/2, beat, 0.25, beat] @=> float adsrSettings[];
 
         //instantiate the elements in the the array
         for (0=>int i;i<oscillators.cap();i++) {

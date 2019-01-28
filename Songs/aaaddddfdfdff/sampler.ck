@@ -39,7 +39,7 @@ Gain gain => dac;
 volume=>gain.gain;
 Sampler sam;
 sam.init(gain, bpm, 1, rootNote);
-spork~hihat();
+//spork~hihat();
 while (true) {
     spork~sam.playSample("kick");
     wait(beat/2);

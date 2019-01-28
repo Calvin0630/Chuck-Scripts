@@ -39,10 +39,11 @@ fun void wait(float duration) {
 // patch
 Gain chordsIn=>PRCRev reverb=>Gain finalVolume=>dac;
 .2=>reverb.mix;
-1=>chordsIn.gain;
+0.8=>chordsIn.gain;
 volume=>finalVolume.gain;
 MidiOscillator mOsc;
 mOsc.init(chordsIn, bpm, 1, rootNote);
+Machine.add("sampler.ck");
 //spork~chords();
 spork~swells();
 while (true) {

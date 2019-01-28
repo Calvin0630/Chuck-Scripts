@@ -39,32 +39,44 @@ Gain gain => dac;
 volume=>gain.gain;
 Sampler sam;
 sam.init(gain, bpm, 1, rootNote);
-//spork~hihat();
+spork~hihat();
+spork~kickAndSnare();
 while (true) {
-    spork~sam.playSample("kick");
-    wait(beat/2);
-    spork~sam.playSample("kick");
-    wait(beat/2);
-    spork~sam.playSample("snare");
     wait(beat);
-    spork~sam.playSample("kick");
-    wait(beat/2);
-    spork~sam.playSample("kick");
-    wait(beat/2);
-    repeat(3) {
-        spork~sam.playSample("snare");
-        wait(beat/3);
-    }
  }
+
+
  fun void hihat () {
      while(true) {
-         spork~sam.playSample("hi hat open");
-         wait(2*beat);
-         spork~sam.playSample("hi hat open");
+         repeat(4) {
+             spork~sam.playSample("hi hat open");
+             wait(beat/2);
+         }
+         repeat(8) {
+             spork~sam.playSample("hi hat open");
+             wait(beat/8);
+         }
+         repeat(2){
+             spork~sam.playSample("hi hat open");
+             wait(beat/2);
+         }
+     }
+ }
+ fun void kickAndSnare() {
+     while(true) {
+         spork~sam.playSample("kick");
+         wait(beat/2);
+         spork~sam.playSample("kick");
+         wait(beat/2);
+         spork~sam.playSample("snare");
          wait(beat);
-         repeat(6) {
-             spork~sam.playSample("hi hat closed");
-             wait(beat/6);
+         spork~sam.playSample("kick");
+         wait(beat/2);
+         spork~sam.playSample("kick");
+         wait(beat/2);
+         repeat(3) {
+             spork~sam.playSample("snare");
+             wait(beat/3);
          }
      }
  }

@@ -40,7 +40,7 @@ volume=>gain.gain;
 Sampler sam;
 sam.init(gain, bpm, 1, rootNote);
 spork~hihat();
-spork~kickAndSnare();
+//spork~kickAndSnare();
 while (true) {
     wait(beat);
  }

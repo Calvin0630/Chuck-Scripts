@@ -1,6 +1,5 @@
 
 
-// 100:.2:60
 //recommended args: (bpm, gain, rootNote)
 //arguements separated by a colon
 int bpm;
@@ -38,11 +37,14 @@ fun void wait(float duration) {
 Didgeridoo dig;
 dig.init(dac, bpm, volume, rootNote);
 
-int duration;
+//spork~playNotes();
 while (true) {
+    wait(beat);
+}
+fun void playNotes() {
+    int duration;
     [0,4,5,0,4,7] @=> int notes[];
     for (0=>int i;i<notes.cap();i++) {
-        <<<i>>>;
         2=>duration;
         if(i==2||i==5) {
             4=>duration;
@@ -50,7 +52,6 @@ while (true) {
         dig.playNote(notes[i], duration*beat/2);
     }
 }
-
 
 private class Didgeridoo{
     int bpm, rootNote;
@@ -63,7 +64,7 @@ private class Didgeridoo{
     Gain volumeGain;
     UGen output;
     //decay 0-1: how fast the note goes quiet
-    0.4=>float decay;
+    0.7=>float decay;
     fun void init(UGen output_, int bpm_, float volume_, int rootNote_) {
         output => output_;
         //impulse => echo => gain => adsr =>volumeGain => output;
@@ -75,11 +76,12 @@ private class Didgeridoo{
         volume=>volumeGain.gain;
         rootNote_=>rootNote;
         //an array of adsr settings: AttackTime, DelayTime, Sustain, Release
-        [0.1, 0.1, 0.5, 0.1] @=> float adsrSettings[];
+        [beat/2, 0.1, 0.5, 0.1] @=> float adsrSettings[];
         //set up each of the notes
         for (0=>int i;i<128;i++) {
             impulse[i]=>echo[i]=> gain[i]=>adsr[i]=>volumeGain;
             gain[i]=>echo[i];
+            1=>gain[i].gain;
             adsr[i].set(adsrSettings[0]::second, adsrSettings[1]::second, adsrSettings[2], adsrSettings[3]::second);
             decay=>echo[i].mix;
             Std.mtof(i) => float freq;
@@ -87,14 +89,14 @@ private class Didgeridoo{
             (1/freq)::second => echo[i].delay;
 
         }
-        spork~listenForEvents();
+        spork~listenToKeyboard();
     }
 
     //waits for duration(seconds)
     fun void wait(float duration) {
         duration::second=>now;
     }
-    fun void listenForEvents() {
+    fun void listenToKeyboard() {
         // which keyboard
         0 => int device;
         // HID
@@ -191,12 +193,14 @@ private class Didgeridoo{
     fun void notesOn(int notes[]) {
         for(0=>int i;i<notes.cap();i++) {
             activeNotes.add(notes[i]);
-            1=>impulse[i].next;
+            1=>impulse[rootNote+notes[i]].next;
             adsr[rootNote+notes[i]].keyOn();
         }
-        activeNotes.print();
+        <<<"notesOn:"," ">>>;activeNotes.print();
+        /*
         if (activeNotes.size()>1)  (volume/(activeNotes.size()$float))=>volumeGain.gain;
         else 1=>volumeGain.gain;
+        */
     }
 
     fun void notesOff(int notes[]) {
@@ -204,9 +208,12 @@ private class Didgeridoo{
             activeNotes.remove(notes[i]);
             adsr[rootNote+notes[i]].keyOff();
         }
+        //<<<"notesOff:"," ">>>;
         activeNotes.print();
-        if (activeNotes.size()>1)  (1/(activeNotes.size()$float))=>volumeGain.gain;
+        /*
+        if (/activeNotes.size()>1)  (1/(activeNotes.size()$float))=>volumeGain.gain;
         else 1=>volumeGain.gain;
+        */
     }
 }
 private class IntArray {

@@ -158,7 +158,7 @@ private class MidiOscillator {
             1 => oscillators[i].gain;
 
         }
-        spork~listenForEvents();
+        spork~listenToKeyboard();
     }
     //a function to set the volume
     fun void setVolume(float _volume) {
@@ -166,7 +166,7 @@ private class MidiOscillator {
         volume=>gain.gain;
     }
     //a function for debugging
-    fun void listenForEvents() {
+    fun void listenToKeyboard() {
         // which keyboard
         0 => int device;
         // HID
@@ -284,10 +284,10 @@ private class Sampler {
         volume_ => volume;
         rootNote_ => rootNote;
         volume =>gain.gain;
-        spork~listenForEvents();
+        spork~listenToKeyboard();
     }
 
-    fun void listenForEvents() {
+    fun void listenToKeyboard() {
         //numrow 0-9
         IntArray keys;
         keys.add([30, 31, 32, 33, 34, 35, 36, 37, 38 , 39]);

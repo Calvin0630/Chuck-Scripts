@@ -51,7 +51,7 @@ while (true) {
 }
 //this goes for 16 beats
 fun void swells() {
-    [0,3,5,7] @=> int notes[];
+    [0,3,5,7,12,10,7,5] @=> int notes[];
     while (true) {
         for (0=>int i;i<notes.cap();i++) {
             spork~mOsc.playNotes([notes[i], notes[i]+5], beat*4);

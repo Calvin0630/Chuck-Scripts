@@ -19,10 +19,10 @@ private class Sampler {
         volume_ => volume;
         rootNote_ => rootNote;
         volume =>gain.gain;
-        spork~listenForEvents();
+        spork~listenToKeyboard();
     }
 
-    fun void listenForEvents() {
+    fun void listenToKeyboard() {
         //numrow 0-9
         IntArray keys;
         keys.add([30, 31, 32, 33, 34, 35, 36, 37, 38 , 39]);

@@ -37,26 +37,11 @@ fun void wait(float duration) {
 
 
 // patch
-//Gain chordsIn=>PRCRev reverb=>Gain finalVolume=>dac;
-Gain chordsIn=>Chorus chorus=>PRCRev reverb=>PitShift pitShift=>Gain finalVolume=>dac;
-chorus=>Gain bypass=>finalVolume;
-0.5=>bypass.gain;
-0.8=>pitShift.mix;
-0=>pitShift.shift;
-spork~varyPitShift();
-fun void varyPitShift() {
-    SinOsc a=>blackhole;
-    1.2=>a.gain;
-    (1/(beat/8))=>a.freq;
-    while (true) {
-        a.last()=>pitShift.shift;
-        wait(beat/128);
-    }
-
-}
-beat=>chorus.modFreq;
-1=>chorus.modDepth;
-0.4=>chorus.mix;
+Gain chordsIn=>PRCRev reverb=>Gain finalVolume=>dac;
+//Gain chordsIn=>Chorus chorus=>PRCRev reverb=>Gain finalVolume=>dac;
+//beat=>chorus.modFreq;
+//1=>chorus.modDepth;
+//0.7=>chorus.mix;
 /*
 (beat/3)::second=>echo.delay;
 1=>echo.mix;
@@ -66,10 +51,25 @@ beat=>chorus.modFreq;
 0.7=>chordsIn.gain;
 volume=>finalVolume.gain;
 MidiOscillator mOsc;
-mOsc.init(chordsIn, bpm, 0.5, rootNote);
-spork~mainVoice();
+mOsc.init(chordsIn, bpm, 0.2, rootNote);
+//spork~mainVoice();
+spork ~ heal();
 while (true) {
     wait(beat*2);
+}
+fun void heal() {
+    mOsc.notesOn(0);
+    wait(beat/4);
+    mOsc.notesOff(0);
+    
+    mOsc.notesOn(4);
+    wait(beat/4);
+    mOsc.notesOff(4);
+    
+    mOsc.notesOn(5);
+    wait(beat/4);
+    mOsc.notesOff(5);
+    
 }
 fun void mainVoice() {
     //if a note is -1 that represents a break
@@ -115,7 +115,7 @@ private class MidiOscillator {
     Gain audioSource;
     Gain phaseOne;
     //lfoRate (hertz)
-    TriOsc lfo;
+    SawOsc lfo;
     //SinOsc lfoTwo;
     //SinOsc lfoThree;
     Gain gain;
@@ -131,14 +131,14 @@ private class MidiOscillator {
         rootNote_ => rootNote;
 
         //with lfo
-        audioSource=>phaseOne=>gain=>output;
+        //audioSource=>phaseOne=>gain=>output;
         //removing lfo
-        //audioSource=>gain=>output;
+        audioSource=>gain=>output;
         lfo=>phaseOne;
         phaseOne.op(3);
         lfo=>phaseOne;
         1=>lfo.gain;
-        1/(beat/4)=>lfo.freq;
+        1/(beat)=>lfo.freq;
         //1=>lfoTwo.gain;
         //3*lfoRate=>lfoTwo.freq;
         //1=>lfoThree.gain;
@@ -147,7 +147,7 @@ private class MidiOscillator {
         //lfoTwo=>phaseOne;
         volume => gain.gain;
         //an array of adsr settings: AttackTime, DelayTime, Sustain, Release
-        [beat/2, beat, 0.25, beat] @=> float adsrSettings[];
+        [beat/8, beat, 0.2, beat/2] @=> float adsrSettings[];
 
         //instantiate the elements in the the array
         for (0=>int i;i<oscillators.cap();i++) {
@@ -246,17 +246,36 @@ private class MidiOscillator {
             activeNotes.add(notes[i]);
             preAdsr[rootNote+notes[i]].keyOn();
         }
+        <<<"on:","">>>;
+        activeNotes.print();
+        if (activeNotes.size()>1)  (1/(activeNotes.size()$float))=>audioSource.gain;
+        else 1=>audioSource.gain;
+    }
+    //overriding so you can pass a single int as parameter
+    fun void notesOn(int note) {
+        activeNotes.add(note);
+        preAdsr[rootNote+note].keyOn();
+        <<<"on:","">>>;
         activeNotes.print();
         if (activeNotes.size()>1)  (1/(activeNotes.size()$float))=>audioSource.gain;
         else 1=>audioSource.gain;
     }
 
     fun void notesOff(int notes[]) {
+        <<<"off:","">>>;
+        activeNotes.print();
         for(0=>int i;i<notes.cap();i++) {
             activeNotes.remove(notes[i]);
             preAdsr[rootNote+notes[i]].keyOff();
         }
-        activeNotes.print();
+        if (activeNotes.size()>1)  (1/(activeNotes.size()$float))=>audioSource.gain;
+        else 1=>audioSource.gain;
+    }
+    //overriding so you can pass a single int as parameter
+    fun void notesOff(int note) {
+        <<<"off:","">>>;
+        activeNotes.remove(note);
+        preAdsr[rootNote+note].keyOff();
         if (activeNotes.size()>1)  (1/(activeNotes.size()$float))=>audioSource.gain;
         else 1=>audioSource.gain;
     }

@@ -162,7 +162,7 @@ private class MidiOscillator {
                         //if the note isnt active
                         if (activeNotes.contains(note)==0) {
                             activeNotes.add(note);
-                            mOsc_chords.notesOn([note]);
+                            notesOn([note]);
                         }
                         //<<<"down "+ notes.get(index),"">>>;
 
@@ -181,7 +181,7 @@ private class MidiOscillator {
                         //if the note is active
                         if (activeNotes.contains(note)!=-1) {
                             activeNotes.remove(note);
-                            mOsc_chords.notesOff([note]);
+                            notesOff([note]);
                         }
                         //<<<"up "+ notes.get(index),"">>>;
                     }

@@ -1,3 +1,6 @@
+
+// 100:.2:60
+//recommended args: (bpm, gain, rootNote)
 //arguements separated by a colon
 int bpm;
 //the time(seconds) of one beat
@@ -8,58 +11,215 @@ float volume;
 int rootNote;
 
 //take in the command line args
-if(me.args() == 1) {
+if(me.args() == 3) {
     Std.atoi(me.arg(0)) =>bpm;
     60/Std.atof(me.arg(0)) => beat;
-    1 => volume;
-    69=>rootNote;
+    Std.atof(me.arg(1)) => volume;
+    Std.atoi(me.arg(2)) => rootNote;
+}
+else if (me.args()==0) {
+    //set the default arguements
+    70 =>bpm;
+    60/70 $ float => beat;
+    0.3 => volume;
+    57 => rootNote;
 }
 else {
-    <<<"Fix your args">>>;
+    <<<"Fix your args","">>>;
+    <<<"","Expected: bpm:volume:rootNote">>>;
     me.exit();
 }
+
 fun void wait(float duration) {
     duration::second=>now;
 }
 
-Metronome metro;
-metro.init(dac,bpm, volume, rootNote);
-metro.start();
 
-class Metronome {
-    float beat, volume;
-    int bpm, rootNote;
-    //Impulse i => Gain gain  => dac;
-    Gain gain  => dac;
-    Sampler sam;
-    fun void init(UGen output, int _bpm, float _volume, int _rootNote) {
-        _bpm =>bpm;
-        60/(_bpm $ float) => beat;
-        _volume => volume;
-        _rootNote => rootNote;
-        volume=>gain.gain;
-        sam.init(gain, bpm, 0.5, rootNote);
-    }
-    fun void start() {
-        while(true) {
-            //1=>i.next;
-            spork~sam.playSample("snare");
-            wait(beat);
+PitShift shift=>Gain gain => dac;
+1=> shift.shift;
+1=>shift.mix;
+volume=>gain.gain;
+Sampler sam;
+sam.init(shift, bpm, 0.2, rootNote);
+//spork~hihat();
+//spork~kickAndSnare();
+//spork~guitarScale();
+GuitarPitchBender pit;
+pit.init(gain,bpm,0.7);
+while (true) {
+    wait(beat);
+ }
+
+
+ fun void hihat () {
+     while(true) {
+         repeat(4) {
+             spork~sam.playSample("hi hat open");
+             wait(beat/2);
+         }
+         repeat(8) {
+             spork~sam.playSample("hi hat open");
+             wait(beat/8);
+         }
+         repeat(2){
+             spork~sam.playSample("hi hat open");
+             wait(beat/2);
+         }
+     }
+ }
+ fun void kickAndSnare() {
+     while(true) {
+         //ONE
+         repeat(2) {
             spork~sam.playSample("kick");
-            wait(beat);
+            wait(beat/2);
+         }
+         //TWO
+         spork~sam.playSample("kick");
+         wait(beat/4);
+         spork~sam.playSample("snare");
+         wait(beat/4);
+         spork~sam.playSample("kick");
+         wait(beat/2);
+         //THREE
+         repeat(4) {
             spork~sam.playSample("kick");
-            wait(beat);
-            spork~sam.playSample("kick");
-            wait(beat);
-        }
-    }
-    fun void wait(float duration) {
-        duration::second=>now;
+            wait(beat/4);
+         }
+         //FOUR
+         spork~sam.playSample("kick");
+         wait(beat/4);
+         spork~sam.playSample("snare");
+         wait(beat/4);
+         spork~sam.playSample("kick");
+         wait(beat/2);
+         /*
+         spork~sam.playSample("kick");
+         wait(beat/2);
+         spork~sam.playSample("kick");
+         wait(beat/2);
+         repeat(3) {
+             spork~sam.playSample("snare");
+             wait(beat/3);
+         }
+         */
+     }
+ }
+ 
+fun void guitarScale() {
+    //[4.0,2.0,1.0,0.5,0.25,0.125,0.0625,-0.0625,-0.125,-0.25,-0.5,-1.0,-2.0,-4.0]@=> float scale[];
+    [0,2,4,5,7,9,10,11,12]@=> int scale[];
+    0=> int i;
+    while (true) {
+        if (i>=scale.cap()) 0 => i;
+        <<<"scale[i] ", scale[i]>>>;
+        //ratio is the ratio from the tone of the guitar sample (root) note 69 (rootNote)
+        Std.mtof(rootNote+scale[i])/Std.mtof(rootNote) => float ratio;
+        <<<"ratio: ",ratio>>>;
+        ratio=>shift.shift;
+        spork~sam.playSample("guitar e5");
+        wait(beat);
+        i++;
     }
 }
+private class GuitarPitchBender {
+    Sampler samplers[128];
+    PitShift shift[128];
+    Gain source;
+    IntArray activeNotes;
+    //the note of the sample is A3 midi: 57 (rootNote)
+    57=>int rootNote;
+    int bpm;
+    float volume, beat;
+    for (0=>int i;i<128;i++) {
+        Std.mtof(i) / Std.mtof(rootNote) => float ratio;
+        ratio=>shift[i].shift;
+        1=>shift[i].mix;
+        shift[i] => source;
+
+    
+    }
+    fun void init(UGen output, int bpm_, float volume_) {
+        bpm_ =>bpm;
+        60/(bpm_ $ float)=>beat;
+        volume_ => volume;
+        volume=>source.gain;
+        source=> output;
+        for (0=>int i;i<128;i++) {
+            samplers[i].init(shift[i],bpm,volume, rootNote);
+        }
+        spork~listenForEvents();
+    }
+    //a function for debugging
+    fun void listenForEvents() {
+        // which keyboard
+        0 => int device;
+        // HID
+        Hid hi;
+        HidMsg msg;
+        // open keyboard (get device number from command line)
+        if( !hi.openKeyboard( device ) ) me.exit();
+        <<< "keyboard '" + hi.name() + "' ready", "" >>>;
+        IntArray keys;
+        //z,a,q go up by fifths. with 7 frets on each row
+        keys.add([16,17,18,19,20,21,22,23,24,25,
+            30,31,32,33,34,35,36,37,38,
+            44,45,46,47,48,49,50]);
+        IntArray notes;
+        //the notes that's index corresponds to the index of keys
+        notes.add([10,11,12,13,14,15,16,17,18,19,
+            5,6,7,8,9,10,11,13,14,
+            0,1,2,3,4,5,6]);
+        // infinite event loop
+        while( true )
+        {
+            //starts at z, a is 1 fifth up, q, a second fifth up.
+            [1]
+            @=>int keyboardLayout[];
+            // wait for event
+            hi => now;
+
+            // get message
+            while( hi.recv( msg ) )
+            {
+                // if the button is pressed down
+                if( msg.isButtonDown() )
+                {
+                    keys.indexOf(msg.which)=> int index;
+                    //if its a valid key
+                    if (index!=-1) {
+                        notes.get(index) => int note;
+                        //if the note isnt active
+                        if (activeNotes.contains(note)==0) {
+                            activeNotes.add(note);
+                            spork~playNote(note);
+                            activeNotes.print();
+                        }
+                        //<<<"down "+ notes.get(index),"">>>;
+
+                    }
+                    //<<< msg.which,"">>>;
 
 
-private class Sampler {
+                    80::ms => now;
+                    
+                }
+                else //its been released
+                {
+                    
+                }
+                //(1/(mOsc.activeNotes.size() $ float))=>mOsc.gain.gain;
+            }
+        }
+
+    }
+    fun void playNote(int midiIndex) {
+        samplers[rootNote+midiIndex].playSample("guitar e5");
+        activeNotes.remove(midiIndex);
+
+    }
+}
+ private class Sampler {
 
     //arguements separated by a colon
     int bpm;
@@ -80,10 +240,10 @@ private class Sampler {
         volume_ => volume;
         rootNote_ => rootNote;
         volume =>gain.gain;
-        //spork~listenForEvents();
+        spork~listenToKeyboard();
     }
 
-    fun void listenForEvents() {
+    fun void listenToKeyboard() {
         //numrow 0-9
         IntArray keys;
         keys.add([30, 31, 32, 33, 34, 35, 36, 37, 38 , 39]);
@@ -117,7 +277,7 @@ private class Sampler {
                     //msg.key is unique for each buitton on a qwerty
                     //q1<<<  msg.key, ", " >>>;
                     keys.indexOf(msg.key)=>int sample;
-                    <<<sample,"">>>;
+                    //<<<sample,"">>>;
                     //if the user pressed 0-9 on num row
                     if (sample != -1) {
                         spork~playSample(sampleStrings[sample]);
@@ -155,9 +315,10 @@ private class Sampler {
     boop
     hi hat 0open
     hi hat closed
+    guitar e5
    */
 	fun void playSample(string sampleName) {
-        //<<<"playing ",sampleName>>>;
+
         //checks to make sure you initialized the sampler
          if(samplesFolder=="") {
             <<<"Did you initialize the sampler?","">>>;
@@ -240,6 +401,11 @@ private class Sampler {
             filePath =>buf.read;
             (buf.length()/buf.rate())=>now;
         }
+        else if(sampleName=="guitar e5") {
+            samplesFolder + "Phone Recordings\\guitar e-5 (A) note.wav" =>filePath;
+            filePath =>buf.read;
+            (buf.length()/buf.rate())=>now;
+        }
         else {
             <<<"I didn't recognize that option","">>>;
         }
@@ -294,7 +460,7 @@ private class Sampler {
 
     fun void roll(float initialDuration) {
         initialDuration=>float duration;
-        while(duration>beat/64) {
+        while(duration>.0001) {
             <<<duration,"">>>;
             playSample("snare");
             wait(duration);

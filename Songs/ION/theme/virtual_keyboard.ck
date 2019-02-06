@@ -229,6 +229,7 @@ private class MidiOscillator {
                         //if the note is active
                         if (activeNotes.contains(note)!=-1) {
                             activeNotes.remove(note);
+                            <<<"NotesOff()","">>>;
                             mOsc.notesOff([note]);
                         }
                         //<<<"up "+ notes.get(index),"">>>;
@@ -274,6 +275,7 @@ private class MidiOscillator {
     //overriding so you can pass a single int as parameter
     fun void notesOff(int note) {
         <<<"off:","">>>;
+        activeNotes.print();
         activeNotes.remove(note);
         preAdsr[rootNote+note].keyOff();
         if (activeNotes.size()>1)  (1/(activeNotes.size()$float))=>audioSource.gain;

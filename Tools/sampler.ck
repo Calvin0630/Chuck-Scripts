@@ -94,6 +94,7 @@ private class Sampler {
     boop
     hi hat 0open
     hi hat closed
+    guitar e5
    */
 	fun void playSample(string sampleName) {
 
@@ -176,6 +177,11 @@ private class Sampler {
         }
         else if(sampleName=="hi hat closed") {
             samplesFolder + "271_hi_hat_samples\\hihat_004b.wav" =>filePath;
+            filePath =>buf.read;
+            (buf.length()/buf.rate())=>now;
+        }
+        else if(sampleName=="guitar e5") {
+            samplesFolder + "Phone Recordings\\guitar e-5 (A) note.wav" =>filePath;
             filePath =>buf.read;
             (buf.length()/buf.rate())=>now;
         }
@@ -386,6 +392,15 @@ if(me.args() == 3) {
     Std.atof(me.arg(1)) => volume;
     Std.atoi(me.arg(2)) => rootNote;
 }
+else if (me.args()==0) {
+    <<<"using default args","">>>;
+    //set the default arguements
+    70 =>bpm;
+    60/70 $ float => beat;
+    2 => volume;
+    //69 -3 so the rootNote is on the 'v' key
+    69-3 => rootNote;
+}
 else {
     <<<"Fix your args","">>>;
     <<<"","Expected: bpm:volume:rootNote">>>;
@@ -401,4 +416,5 @@ Gain gain => dac;
 volume=>gain.gain;
 Sampler sam;
 sam.init(gain, bpm, 1, rootNote);
+sam.playSample("guitar e5");
 while (true) 10::second=>now;

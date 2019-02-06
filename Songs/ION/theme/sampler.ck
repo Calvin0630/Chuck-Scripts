@@ -99,9 +99,7 @@ while (true) {
          }
          */
      }
- }
-
-private class Sampler {
+ }private class Sampler {
 
     //arguements separated by a colon
     int bpm;
@@ -122,10 +120,10 @@ private class Sampler {
         volume_ => volume;
         rootNote_ => rootNote;
         volume =>gain.gain;
-        //spork~listenForEvents();
+        spork~listenToKeyboard();
     }
 
-    fun void listenForEvents() {
+    fun void listenToKeyboard() {
         //numrow 0-9
         IntArray keys;
         keys.add([30, 31, 32, 33, 34, 35, 36, 37, 38 , 39]);
@@ -197,9 +195,10 @@ private class Sampler {
     boop
     hi hat 0open
     hi hat closed
+    guitar e5
    */
 	fun void playSample(string sampleName) {
-        //<<<"playing ",sampleName>>>;
+
         //checks to make sure you initialized the sampler
          if(samplesFolder=="") {
             <<<"Did you initialize the sampler?","">>>;
@@ -282,6 +281,11 @@ private class Sampler {
             filePath =>buf.read;
             (buf.length()/buf.rate())=>now;
         }
+        else if(sampleName=="guitar e5") {
+            samplesFolder + "Phone Recordings\\guitar e-5 (A) note.wav" =>filePath;
+            filePath =>buf.read;
+            (buf.length()/buf.rate())=>now;
+        }
         else {
             <<<"I didn't recognize that option","">>>;
         }
@@ -336,7 +340,7 @@ private class Sampler {
 
     fun void roll(float initialDuration) {
         initialDuration=>float duration;
-        while(duration>beat/64) {
+        while(duration>.0001) {
             <<<duration,"">>>;
             playSample("snare");
             wait(duration);

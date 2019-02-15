@@ -147,7 +147,7 @@ private class MidiOscillator {
         //lfoTwo=>phaseOne;
         volume => gain.gain;
         //an array of adsr settings: AttackTime, DelayTime, Sustain, Release
-        [beat/8, beat, 0.2, beat/2] @=> float adsrSettings[];
+        [0.0, beat, 0.7, beat/2] @=> float adsrSettings[];
 
         //instantiate the elements in the the array
         for (0=>int i;i<oscillators.cap();i++) {

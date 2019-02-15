@@ -19,11 +19,11 @@ if(me.args() == 3) {
 }
 else if (me.args()==0) {
     //set the default arguements
-    160 =>bpm;
-    60/169 $ float => beat;
+    70 =>bpm;
+    60/70 $ float => beat;
     0.3 => volume;
-    57 => rootNote;
-    //32 => rootNote;
+    //57 => rootNote;
+    28 => rootNote;
 }
 else {
     <<<"Fix your args","">>>;
@@ -47,8 +47,6 @@ sam.init(shift, bpm, 0.2, rootNote);
 //spork~guitarScale();
 GuitarPitchBender pit;
 pit.init(gain,bpm,0.7, rootNote);
-spork~adamsSong();
-//spork~guitarScale();
 while (true) {
     wait(beat);
  }
@@ -111,59 +109,20 @@ while (true) {
  
 fun void guitarScale() {
     //[4.0,2.0,1.0,0.5,0.25,0.125,0.0625,-0.0625,-0.125,-0.25,-0.5,-1.0,-2.0,-4.0]@=> float scale[];
-    //[0,2,4,5,7,9,10,11,12]@=> int scale[];
-    [-12,0,12]@=> int scale[];
+    [0,2,4,5,7,9,10,11,12]@=> int scale[];
     0=> int i;
     while (true) {
         if (i>=scale.cap()) 0 => i;
         <<<"scale[i] ", scale[i]>>>;
         //ratio is the ratio from the tone of the guitar sample (root) note 69 (rootNote)
-        Std.mtof(rootNote+scale[i])/Std.mtof(rootNote) => float ratio1;
-        <<<"ratio1: ",ratio1>>>;
-        ratio1=>shift.shift;
+        Std.mtof(rootNote+scale[i])/Std.mtof(rootNote) => float ratio;
+        <<<"ratio: ",ratio>>>;
+        ratio=>shift.shift;
         spork~sam.playSample("guitar e5");
         wait(beat);
         i++;
     }
 }
-
-fun void adamsSong() {
-
-    <<<"adams ","song">>>;
-    <<<"bpm ",bpm>>>;
-
-    //notes stores each of the triplets that are played
-    [[7,14,10],[5,14,10],[3,14,10],[0,14,10,3,14,10]]@=>int notes[][];
-    while (true) {
-        for (0=>int i;i<notes.cap();i++) {
-            //if its not the last array
-            if (i!=notes.cap()-1 ) {
-                //play the triplet twice
-                repeat(2) {
-                    for (0=>int j;j<notes[i].cap();j++) {
-                        spork~pit.playNote(notes[i][j]);
-                        wait(beat);
-                        if ((j+1) % 3==0) {
-                            wait(beat);
-                        }
-                    }
-                }
-            }
-            else {
-                //play all six notes once
-                for (0=>int j;j<notes[i].cap();j++) {
-                    spork~pit.playNote(notes[i][j]);
-                    wait(beat);
-                    if ((j+1) % 3 ==0) {
-                        wait(beat);
-                    }
-                }
-            }
-        }
-    }
-}
-
-
 private class GuitarPitchBender {
     Sampler samplers[128];
     PitShift shift[128];
@@ -185,7 +144,7 @@ private class GuitarPitchBender {
             float ratio;
             if(i==rootNote) 1=>ratio;
             else Math.sgn(i-rootNote)*Std.mtof(Math.max(rootNote,i))/Std.mtof(Math.min(rootNote,i))=> ratio;
-            //<<<"i, ratio: ",i," , ",ratio>>>;
+            <<<"i, ratio: ",i," , ",ratio>>>;
             ratio=>shift[i].shift;
             1=>shift[i].mix;
             shift[i] => source;
@@ -255,7 +214,7 @@ private class GuitarPitchBender {
     }
     fun void playNote(int midiIndex) {
         <<<"midiIndex: ", midiIndex>>>;
-        samplers[rootNote+midiIndex].playSample("guitar e5");
+        samplers[rootNote+midiIndex].playSample("guitar E5 chord");
         activeNotes.remove(midiIndex);
 
     }
@@ -289,18 +248,18 @@ private class GuitarPitchBender {
 
 
     /*
-   Loads and plays a sample. The function returns once the sample is done playing
+    Loads and plays a sample. The function returns once the sample is done playing
 
-   Options:
-   snare
-   kick
-   rant: a religious rant with google translate
-   pizza time
-   death
-   you will die
+    Options:
+    snare
+    kick
+    rant: a religious rant with google translate
+    pizza time
+    death
+    you will die
     there is none
-   despacito song
-   despacito
+    despacito song
+    despacito
     riff 1
     waterfall
     woof
@@ -411,60 +370,6 @@ private class GuitarPitchBender {
 
 
 
-    fun void pattern1() {
-        while(true) {
-            for (0=>int x;x<4;x++) {
-                for(0=>int i;i<4;i++) {
-                    if (i==0) {
-                        playSample("kick");
-                        wait(beat);
-                    }
-                    else if(i==1) {
-                        if (x==0) {
-                            playSample("death");
-                            wait(beat);
-                        }
-                        else if (x==1) {
-                            spork~playSample("there is none");
-                            wait(beat);
-                        }
-                        else if (x==2||x==3) {
-                            spork~playSample("despacito");
-                            wait(beat);
-                        }
-                    }
-                    else if(i==2) {
-                        repeat(2) {
-                            playSample("kick");
-                            wait(beat/2);
-                        }
-                    }
-                    else if(i==3) {
-                        if(x==0) {
-                            playSample("snare");
-                            wait(beat);
-                        }
-                        else if(x==1) {
-                            repeat(8) {
-                                playSample("snare");
-                                wait(beat/8);
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    fun void roll(float initialDuration) {
-        initialDuration=>float duration;
-        while(duration>.0001) {
-            <<<duration,"">>>;
-            playSample("snare");
-            wait(duration);
-            2/=>duration;
-        }
-    }
 
 }
 

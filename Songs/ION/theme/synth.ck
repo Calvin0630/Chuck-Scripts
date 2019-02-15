@@ -46,6 +46,8 @@ mOsc.init(chordsIn, bpm, 0.3, rootNote);
 spork~chords();
 Machine.add("sampler.ck");
 Machine.add("swells.ck");
+<<<me.dir(),"">>>;
+me.exit();
 while (true) {
     wait(beat*2);
 }

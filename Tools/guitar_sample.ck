@@ -1,4 +1,266 @@
-private class Sampler {
+
+// 100:.2:60
+//recommended args: (bpm, gain, rootNote)
+//arguements separated by a colon
+int bpm;
+//the time(seconds) of one beat
+float beat;
+//a number between 0 and 1 that sets the volume
+float volume;
+//the midi int of the root note
+int rootNote;
+
+//take in the command line args
+if(me.args() == 3) {
+    Std.atoi(me.arg(0)) =>bpm;
+    60/Std.atof(me.arg(0)) => beat;
+    Std.atof(me.arg(1)) => volume;
+    Std.atoi(me.arg(2)) => rootNote;
+}
+else if (me.args()==0) {
+    //set the default arguements
+    160 =>bpm;
+    60/169 $ float => beat;
+    0.3 => volume;
+    57 => rootNote;
+    //32 => rootNote;
+}
+else {
+    <<<"Fix your args","">>>;
+    <<<"","Expected: bpm:volume:rootNote">>>;
+    me.exit();
+}
+
+fun void wait(float duration) {
+    duration::second=>now;
+}
+
+
+PitShift shift=>Gain gain => dac;
+1=> shift.shift;
+1=>shift.mix;
+volume=>gain.gain;
+Sampler sam;
+sam.init(shift, bpm, 0.2, rootNote);
+//spork~hihat();
+//spork~kickAndSnare();
+//spork~guitarScale();
+GuitarPitchBender pit;
+pit.init(gain,bpm,0.7, rootNote);
+spork~adamsSong();
+//spork~guitarScale();
+while (true) {
+    wait(beat);
+ }
+
+
+ fun void hihat () {
+     while(true) {
+         repeat(4) {
+             spork~sam.playSample("hi hat open");
+             wait(beat/2);
+         }
+         repeat(8) {
+             spork~sam.playSample("hi hat open");
+             wait(beat/8);
+         }
+         repeat(2){
+             spork~sam.playSample("hi hat open");
+             wait(beat/2);
+         }
+     }
+ }
+ fun void kickAndSnare() {
+     while(true) {
+         //ONE
+         repeat(2) {
+            spork~sam.playSample("kick");
+            wait(beat/2);
+         }
+         //TWO
+         spork~sam.playSample("kick");
+         wait(beat/4);
+         spork~sam.playSample("snare");
+         wait(beat/4);
+         spork~sam.playSample("kick");
+         wait(beat/2);
+         //THREE
+         repeat(4) {
+            spork~sam.playSample("kick");
+            wait(beat/4);
+         }
+         //FOUR
+         spork~sam.playSample("kick");
+         wait(beat/4);
+         spork~sam.playSample("snare");
+         wait(beat/4);
+         spork~sam.playSample("kick");
+         wait(beat/2);
+         /*
+         spork~sam.playSample("kick");
+         wait(beat/2);
+         spork~sam.playSample("kick");
+         wait(beat/2);
+         repeat(3) {
+             spork~sam.playSample("snare");
+             wait(beat/3);
+         }
+         */
+     }
+ }
+ 
+fun void guitarScale() {
+    //[4.0,2.0,1.0,0.5,0.25,0.125,0.0625,-0.0625,-0.125,-0.25,-0.5,-1.0,-2.0,-4.0]@=> float scale[];
+    //[0,2,4,5,7,9,10,11,12]@=> int scale[];
+    [-12,0,12]@=> int scale[];
+    0=> int i;
+    while (true) {
+        if (i>=scale.cap()) 0 => i;
+        <<<"scale[i] ", scale[i]>>>;
+        //ratio is the ratio from the tone of the guitar sample (root) note 69 (rootNote)
+        Std.mtof(rootNote+scale[i])/Std.mtof(rootNote) => float ratio1;
+        <<<"ratio1: ",ratio1>>>;
+        ratio1=>shift.shift;
+        spork~sam.playSample("guitar e5");
+        wait(beat);
+        i++;
+    }
+}
+
+fun void adamsSong() {
+
+    <<<"adams ","song">>>;
+    <<<"bpm ",bpm>>>;
+
+    //notes stores each of the triplets that are played
+    [[7,14,10],[5,14,10],[3,14,10],[0,14,10,3,14,10]]@=>int notes[][];
+    while (true) {
+        for (0=>int i;i<notes.cap();i++) {
+            //if its not the last array
+            if (i!=notes.cap()-1 ) {
+                //play the triplet twice
+                repeat(2) {
+                    for (0=>int j;j<notes[i].cap();j++) {
+                        spork~pit.playNote(notes[i][j]);
+                        wait(beat);
+                        if ((j+1) % 3==0) {
+                            wait(beat);
+                        }
+                    }
+                }
+            }
+            else {
+                //play all six notes once
+                for (0=>int j;j<notes[i].cap();j++) {
+                    spork~pit.playNote(notes[i][j]);
+                    wait(beat);
+                    if ((j+1) % 3 ==0) {
+                        wait(beat);
+                    }
+                }
+            }
+        }
+    }
+}
+
+
+private class GuitarPitchBender {
+    Sampler samplers[128];
+    PitShift shift[128];
+    Gain source;
+    IntArray activeNotes;
+    //the note of the sample is A3 midi: 57 (rootNote)
+    int rootNote;
+    int bpm;
+    float volume, beat;
+    
+    fun void init(UGen output, int bpm_, float volume_, int rootNote_) {
+        bpm_ =>bpm;
+        60/(bpm_ $ float)=>beat;
+        volume_ => volume;
+        rootNote_ => rootNote;
+        volume=>source.gain;
+        source=> output;
+        for (0=>int i;i<128;i++) {
+            float ratio;
+            if(i==rootNote) 1=>ratio;
+            else Math.sgn(i-rootNote)*Std.mtof(Math.max(rootNote,i))/Std.mtof(Math.min(rootNote,i))=> ratio;
+            //<<<"i, ratio: ",i," , ",ratio>>>;
+            ratio=>shift[i].shift;
+            1=>shift[i].mix;
+            shift[i] => source;
+            samplers[i].init(shift[i],bpm,volume, rootNote);
+        }
+        spork~listenForEvents();
+    }
+    //a function for debugging
+    fun void listenForEvents() {
+        // which keyboard
+        0 => int device;
+        // HID
+        Hid hi;
+        HidMsg msg;
+        // open keyboard (get device number from command line)
+        if( !hi.openKeyboard( device ) ) me.exit();
+        <<< "keyboard '" + hi.name() + "' ready", "" >>>;
+        IntArray keys;
+        //z,a,q go up by fifths. with 7 frets on each row
+        keys.add([16,17,18,19,20,21,22,23,24,25,
+            30,31,32,33,34,35,36,37,38,
+            44,45,46,47,48,49,50]);
+        IntArray notes;
+        //the notes that's index corresponds to the index of keys
+        notes.add([10,11,12,13,14,15,16,17,18,19,
+            5,6,7,8,9,10,11,13,14,
+            0,1,2,3,4,5,6]);
+        // infinite event loop
+        while( true )
+        {
+            //starts at z, a is 1 fifth up, q, a second fifth up.
+            [1]
+            @=>int keyboardLayout[];
+            // wait for event
+            hi => now;
+
+            // get message
+            while( hi.recv( msg ) )
+            {
+                // if the button is pressed down
+                if( msg.isButtonDown() )
+                {
+                    keys.indexOf(msg.which)=> int index;
+                    //if its a valid key
+                    if (index!=-1) {
+                        notes.get(index) => int note;
+                        activeNotes.add(note);
+                        spork~playNote(note);
+                        activeNotes.print();
+                        //<<<"down "+ notes.get(index),"">>>;
+
+                    }
+                    //<<< msg.which,"">>>;
+
+
+                    80::ms => now;
+                    
+                }
+                else //its been released
+                {
+                    
+                }
+                //(1/(mOsc.activeNotes.size() $ float))=>mOsc.gain.gain;
+            }
+        }
+
+    }
+    fun void playNote(int midiIndex) {
+        <<<"midiIndex: ", midiIndex>>>;
+        samplers[rootNote+midiIndex].playSample("guitar e5");
+        activeNotes.remove(midiIndex);
+
+    }
+}
+ private class Sampler {
 
     //arguements separated by a colon
     int bpm;
@@ -19,57 +281,8 @@ private class Sampler {
         volume_ => volume;
         rootNote_ => rootNote;
         volume =>gain.gain;
-        spork~listenToKeyboard();
     }
 
-    fun void listenToKeyboard() {
-        //numrow 0-9
-        IntArray keys;
-        keys.add([30, 31, 32, 33, 34, 35, 36, 37, 38 , 39]);
-        // the names of the samples that correspond to their mutally indexed keys
-        ["snare", "kick", "boop", "pizza time", "death", "you will die", "there is none", "despacito song", "hi hat closed", "hi hat open"]
-            @=> string sampleStrings[];
-
-        Hid hi;
-        HidMsg msg;
-
-        // which keyboard
-        0 => int device;
-
-        // open keyboard (get device number from command line)
-        if( !hi.openKeyboard( device ) ) me.exit();
-        <<< "keyboard '" + hi.name() + "' ready", "" >>>;
-
-        // infinite event loop
-        while( true )
-        {
-            // wait on event
-            hi => now;
-
-            // get one or more messages
-            while( hi.recv( msg ) )
-            {
-                // check for action type
-                if( msg.isButtonDown() )
-                {
-                    //<<< "down:", msg.which, "(code)", msg.key, "(usb key)", msg.ascii, "(ascii)" >>>;
-                    //msg.key is unique for each buitton on a qwerty
-                    //q1<<<  msg.key, ", " >>>;
-                    keys.indexOf(msg.key)=>int sample;
-                    <<<sample,"">>>;
-                    //if the user pressed 0-9 on num row
-                    if (sample != -1) {
-                        spork~playSample(sampleStrings[sample]);
-                    }
-                }
-
-                else
-                {
-                    //<<< "up:", msg.which, "(code)", msg.key, "(usb key)", msg.ascii, "(ascii)" >>>;
-                }
-            }
-        }
-    }
     fun void wait(float duration) {
         duration::second=>now;
     }
@@ -95,20 +308,7 @@ private class Sampler {
     hi hat 0open
     hi hat closed
     guitar e5
-    Acoustic Chord 140 BPM D Maj
-    Acoustic Chord 160 BPM A Maj
-    Acoustic Chord 180 BPM D# Maj
-    Acoustic Chord 180 BPM E Min
-    Acoustic Chord 180 BPM F# Min
-    Acoustic Chord 180 BPM G Min
-    Acoustic Chord 140 BPM E Maj
-    Acoustic Chord 140 BPM E Maj
-    Acoustic Chord 140 BPM F# Min
-    Acoustic Chord 160 BPM E Maj
-    Acoustic Chord 160 BPM E Min
-    Acoustic Chord 160 BPM G Maj
-    Acoustic Chord 160 BPM G# Min
-    Acoustic Chord 160 BPM A Maj
+    guitar E5 chord
    */
 	fun void playSample(string sampleName) {
 
@@ -199,75 +399,10 @@ private class Sampler {
             filePath =>buf.read;
             (buf.length()/buf.rate())=>now;
         }
-         else if(sampleName=="Acoustic Chord 140 BPM D Maj") {
-        samplesFolder + "guitarloops\\Chord Loops\\Cymatics - Acoustic Chord Loop 1 - 140 BPM D Maj.wav" =>filePath;
-        filePath =>buf.read;
-        (buf.length()/buf.rate())=>now;
-        }
-        else if(sampleName=="Acoustic Chord 160 BPM A Maj") {
-                samplesFolder + "guitarloops\\Chord Loops\\Cymatics - Acoustic Chord Loop 10 - 160 BPM A Maj.wav" =>filePath;
-                filePath =>buf.read;
-                (buf.length()/buf.rate())=>now;
-        }
-        else if(sampleName=="Acoustic Chord 180 BPM D# Maj") {
-                samplesFolder + "guitarloops\\Chord Loops\\Cymatics - Acoustic Chord Loop 11 - 180 BPM D# Maj.wav" =>filePath;
-                filePath =>buf.read;
-                (buf.length()/buf.rate())=>now;
-        }
-        else if(sampleName=="Acoustic Chord 180 BPM E Min") {
-                samplesFolder + "guitarloops\\Chord Loops\\Cymatics - Acoustic Chord Loop 12 - 180 BPM E Min.wav" =>filePath;
-                filePath =>buf.read;
-                (buf.length()/buf.rate())=>now;
-        }
-        else if(sampleName=="Acoustic Chord 180 BPM F# Min") {
-                samplesFolder + "guitarloops\\Chord Loops\\Cymatics - Acoustic Chord Loop 13 - 180 BPM F# Min.wav" =>filePath;
-                filePath =>buf.read;
-                (buf.length()/buf.rate())=>now;
-        }
-        else if(sampleName=="Acoustic Chord 180 BPM G Min") {
-                samplesFolder + "guitarloops\\Chord Loops\\Cymatics - Acoustic Chord Loop 14 - 180 BPM G Min.wav" =>filePath;
-                filePath =>buf.read;
-                (buf.length()/buf.rate())=>now;
-        }
-        else if(sampleName=="Acoustic Chord 140 BPM E Maj") {
-                samplesFolder + "guitarloops\\Chord Loops\\Cymatics - Acoustic Chord Loop 2 - 140 BPM E Maj.wav" =>filePath;
-                filePath =>buf.read;
-                (buf.length()/buf.rate())=>now;
-        }
-        else if(sampleName=="Acoustic Chord 140 BPM E Maj") {
-                samplesFolder + "guitarloops\\Chord Loops\\Cymatics - Acoustic Chord Loop 3 - 140 BPM E Maj.wav" =>filePath;
-                filePath =>buf.read;
-                (buf.length()/buf.rate())=>now;
-        }
-        else if(sampleName=="Acoustic Chord 140 BPM F# Min") {
-                samplesFolder + "guitarloops\\Chord Loops\\Cymatics - Acoustic Chord Loop 4 - 140 BPM F# Min.wav" =>filePath;
-                filePath =>buf.read;
-                (buf.length()/buf.rate())=>now;
-        }
-        else if(sampleName=="Acoustic Chord 160 BPM E Maj") {
-                samplesFolder + "guitarloops\\Chord Loops\\Cymatics - Acoustic Chord Loop 5 - 160 BPM E Maj.wav" =>filePath;
-                filePath =>buf.read;
-                (buf.length()/buf.rate())=>now;
-        }
-        else if(sampleName=="Acoustic Chord 160 BPM E Min") {
-                samplesFolder + "guitarloops\\Chord Loops\\Cymatics - Acoustic Chord Loop 6 - 160 BPM E Min.wav" =>filePath;
-                filePath =>buf.read;
-                (buf.length()/buf.rate())=>now;
-        }
-        else if(sampleName=="Acoustic Chord 160 BPM G Maj") {
-                samplesFolder + "guitarloops\\Chord Loops\\Cymatics - Acoustic Chord Loop 7 - 160 BPM G Maj.wav" =>filePath;
-                filePath =>buf.read;
-                (buf.length()/buf.rate())=>now;
-        }
-        else if(sampleName=="Acoustic Chord 160 BPM G# Min") {
-                samplesFolder + "guitarloops\\Chord Loops\\Cymatics - Acoustic Chord Loop 8 - 160 BPM G# Min.wav" =>filePath;
-                filePath =>buf.read;
-                (buf.length()/buf.rate())=>now;
-        }
-        else if(sampleName=="Acoustic Chord 160 BPM A Maj") {
-                samplesFolder + "guitarloops\\Chord Loops\\Cymatics - Acoustic Chord Loop 9 - 160 BPM A Maj.wav" =>filePath;
-                filePath =>buf.read;
-                (buf.length()/buf.rate())=>now;
+        else if(sampleName=="guitar E5 chord") {
+            samplesFolder + "Phone Recordings\\guitar E5 chord.wav" =>filePath;
+            filePath =>buf.read;
+            (buf.length()/buf.rate())=>now;
         }
         else {
             <<<"I didn't recognize that option","">>>;
@@ -457,48 +592,3 @@ private class IntArray {
         else return elements.cap();
     }
 }
-
-// 100:.2:60
-//recommended args: (bpm, gain, rootNote)
-//arguements separated by a colon
-int bpm;
-//the time(seconds) of one beat
-float beat;
-//a number between 0 and 1 that sets the volume
-float volume;
-//the midi int of the root note
-int rootNote;
-
-//take in the command line args
-if(me.args() == 3) {
-    Std.atoi(me.arg(0)) =>bpm;
-    60/Std.atof(me.arg(0)) => beat;
-    Std.atof(me.arg(1)) => volume;
-    Std.atoi(me.arg(2)) => rootNote;
-}
-else if (me.args()==0) {
-    <<<"using default args","">>>;
-    //set the default arguements
-    70 =>bpm;
-    60/70 $ float => beat;
-    2 => volume;
-    //69 -3 so the rootNote is on the 'v' key
-    69-3 => rootNote;
-}
-else {
-    <<<"Fix your args","">>>;
-    <<<"","Expected: bpm:volume:rootNote">>>;
-    me.exit();
-}
-
-fun void wait(float duration) {
-    duration::second=>now;
-}
-
-
-Gain gain => dac;
-volume=>gain.gain;
-Sampler sam;
-sam.init(gain, bpm, 1, rootNote);
-sam.playSample("guitar e5");
-while (true) 10::second=>now;

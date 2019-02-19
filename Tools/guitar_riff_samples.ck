@@ -499,6 +499,13 @@ fun void wait(float duration) {
 Gain gain => dac;
 volume=>gain.gain;
 Sampler sam;
-sam.init(gain, bpm, 1, rootNote);
+sam.init(gain, bpm, 0.7, rootNote);
 sam.playSample("guitar e5");
-while (true) 10::second=>now;
+["Acoustic Chord 140 BPM D Maj", "Acoustic Chord 160 BPM A Maj", "Acoustic Chord 180 BPM D# Maj", "Acoustic Chord 180 BPM E Min", "Acoustic Chord 180 BPM F# Min", "Acoustic Chord 180 BPM G Min", "Acoustic Chord 140 BPM E Maj", "Acoustic Chord 140 BPM E Maj", "Acoustic Chord 140 BPM F# Min", "Acoustic Chord 160 BPM E Maj", "Acoustic Chord 160 BPM E Min", "Acoustic Chord 160 BPM G Maj", "Acoustic Chord 160 BPM G# Min", "Acoustic Chord 160 BPM A Maj"]
+@=> string chordParams[];
+int i;
+while (true) {
+    Math.random2(0,chordParams.cap()-1)=> i;
+    sam.playSample(chordParams[i]);
+    
+}

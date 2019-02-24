@@ -16,6 +16,15 @@ if(me.args() == 3) {
     Std.atof(me.arg(1)) => volume;
     Std.atoi(me.arg(2)) => rootNote;
 }
+else if (me.args()==0) {
+    <<<"using default args","">>>;
+    //set the default arguements
+    70 =>bpm;
+    60/70 $ float => beat;
+    0.7 => volume;
+    //6c9 -3 so the rootNote is on the 'v' key
+    69-3 => rootNote;
+}
 else {
     <<<"Fix your args","">>>;
     <<<"","Expected: bpm:volume:rootNote">>>;
@@ -34,9 +43,10 @@ Gain midiIn=>Gain finalVolume=>dac;
 1=>midiIn.gain;
 volume=>finalVolume.gain;
 MidiOscillator mOsc;
-mOsc.init(midiIn, bpm, 1, rootNote);
+mOsc.init(midiIn, bpm, 0.5, rootNote);
 
 while (true) {
+    /*
     spork~mOsc.playNotes([0,4,7], beat*2);
     wait(beat*2);
     spork~mOsc.playNotes([5,9,12], beat*2);
@@ -44,6 +54,7 @@ while (true) {
     spork~mOsc.playNotes([7,10,14], beat*2);
     wait(beat*2);
     spork~mOsc.playNotes([5,8,12], beat*2);
+    */
     wait(beat*2);
 }
 //spork~mOsc.debug();
@@ -88,7 +99,7 @@ private class MidiOscillator {
         audioSource=>gain=>output;
         lfo=>phaseOne;
         phaseOne.op(3);
-        lfo=>phaseOne;
+        //lfo=>phaseOne;
         0.4=>lfo.gain;
         .5=>lfo.freq;
         //1=>lfoTwo.gain;

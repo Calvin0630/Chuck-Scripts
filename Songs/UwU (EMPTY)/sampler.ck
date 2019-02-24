@@ -78,7 +78,7 @@ private class Sampler {
     /*
    Loads and plays a sample. The function returns once the sample is done playing
 
-   Options:
+   Sample names:
    snare
    kick
    rant: a religious rant with google translate
@@ -111,170 +111,113 @@ private class Sampler {
     Acoustic Chord 160 BPM A Maj
    */
 	fun void playSample(string sampleName) {
+        //sampleNames have the same index in fileNames 
+        //The purpose was to make the parameters easier instead of typing BleBleBleUdergroundSample.wav
 
-        //checks to make sure you initialized the sampler
-         if(samplesFolder=="") {
-            <<<"Did you initialize the sampler?","">>>;
-        }
-        SndBuf buf=>gain;
-        string filePath;
-        if (sampleName == "snare") {
-            samplesFolder + "Snares\\Cymatics - Snare 1.wav" =>filePath;
-            filePath =>buf.read;
-            (buf.length()/buf.rate())=>now;
-        }
-        else if(sampleName == "kick") {
-            samplesFolder + "Kicks\\Cymatics - Kick 1 - C.wav" =>filePath;
-            filePath =>buf.read;
-            (buf.length()/buf.rate())=>now;
-        }
-        else if(sampleName=="rant") {
-            samplesFolder + "rant.wav" =>filePath;
-            filePath =>buf.read;
-            (buf.length()/buf.rate())=>now;
-        }
-        else if(sampleName=="pizza time") {
-            samplesFolder + "pizza_time.wav" =>filePath;
-            filePath =>buf.read;
-            (buf.length()/buf.rate())=>now;
 
+        
+        ["snare", 
+        "kick", 
+        "rant: a religious rant with google translate", 
+        "pizza time", 
+        "death", 
+        "you will die", 
+        "there is none", 
+        "despacito song", 
+        "despacito", 
+        "riff 1", 
+        "waterfall", 
+        "woof", 
+        "boop", 
+        "hi hat 0open", 
+        "hi hat closed", 
+        "guitar e5", 
+        "Acoustic Chord 140 BPM D Maj", 
+        "Acoustic Chord 160 BPM A Maj", 
+        "Acoustic Chord 180 BPM D# Maj", 
+        "Acoustic Chord 180 BPM E Min", 
+        "Acoustic Chord 180 BPM F# Min", 
+        "Acoustic Chord 180 BPM G Min", 
+        "Acoustic Chord 140 BPM E Maj", 
+        "Acoustic Chord 140 BPM E Maj", 
+        "Acoustic Chord 140 BPM F# Min", 
+        "Acoustic Chord 160 BPM E Maj", 
+        "Acoustic Chord 160 BPM E Min", 
+        "Acoustic Chord 160 BPM G Maj", 
+        "Acoustic Chord 160 BPM G# Min", 
+        "Acoustic Chord 160 BPM A Maj"] @=> string sampleNames[];
+        ["Snares\\Cymatics - Snare 1.wav",
+        "Kicks\\Cymatics - Kick 1 - C.wav",
+        "rant.wav",
+        "pizza_time.wav",
+        "death.wav",
+        "you_will_die.wav",
+        "there_is_none.wav",
+        "despacito_song.wav",
+        "despacito.wav",
+        "riff_1(70bpm,16beats).wav",
+        "Allen_gardens_waterfall.wav",
+        "woof.wav",
+        "boop.wav",
+        "271_hi_hat_samples\\hihat_004a.wav",
+        "271_hi_hat_samples\\hihat_004b.wav",
+        "Phone Recordings\\guitar e-5 (A) note.wav",
+        "guitarloops\\Chord Loops\\Cymatics - Acoustic Chord Loop 1 - 140 BPM D Maj.wav",
+        "guitarloops\\Chord Loops\\Cymatics - Acoustic Chord Loop 10 - 160 BPM A Maj.wav",
+        "guitarloops\\Chord Loops\\Cymatics - Acoustic Chord Loop 11 - 180 BPM D# Maj.wav",
+        "guitarloops\\Chord Loops\\Cymatics - Acoustic Chord Loop 12 - 180 BPM E Min.wav",
+        "guitarloops\\Chord Loops\\Cymatics - Acoustic Chord Loop 13 - 180 BPM F# Min.wav",
+        "guitarloops\\Chord Loops\\Cymatics - Acoustic Chord Loop 14 - 180 BPM G Min.wav",
+        "guitarloops\\Chord Loops\\Cymatics - Acoustic Chord Loop 2 - 140 BPM E Maj.wav",
+        "guitarloops\\Chord Loops\\Cymatics - Acoustic Chord Loop 3 - 140 BPM E Maj.wav",
+        "guitarloops\\Chord Loops\\Cymatics - Acoustic Chord Loop 4 - 140 BPM F# Min.wav",
+        "guitarloops\\Chord Loops\\Cymatics - Acoustic Chord Loop 5 - 160 BPM E Maj.wav",
+        "guitarloops\\Chord Loops\\Cymatics - Acoustic Chord Loop 6 - 160 BPM E Min.wav",
+        "guitarloops\\Chord Loops\\Cymatics - Acoustic Chord Loop 7 - 160 BPM G Maj.wav",
+        "guitarloops\\Chord Loops\\Cymatics - Acoustic Chord Loop 8 - 160 BPM G# Min.wav",
+        "guitarloops\\Chord Loops\\Cymatics - Acoustic Chord Loop 9 - 160 BPM A Maj.wav"] @=> string fileNames[];
+        //find the index of sampleName in the list of sampleNames
+        -1 =>int index;
+        0=> int i;
+        for(i;i<sampleNames.cap();i++) {
+            if (sampleName == sampleNames[i]) {
+                i=> index;
+                break;
+            }
         }
-        else if(sampleName=="death") {
-            samplesFolder + "death.wav" =>filePath;
-            filePath =>buf.read;
-            (buf.length()/buf.rate())=>now;
-        }
-        else if(sampleName=="you will die") {
-            samplesFolder + "you_will_die.wav" =>filePath;
-            filePath =>buf.read;
-            (buf.length()/buf.rate())=>now;
-        }
-        else if(sampleName=="there is none") {
-            samplesFolder + "there_is_none.wav" =>filePath;
-            filePath =>buf.read;
-            (buf.length()/buf.rate())=>now;
-        }
-        else if(sampleName=="despacito song") {
-            samplesFolder + "despacito_song.wav" =>filePath;
-            filePath =>buf.read;
-            (buf.length()/buf.rate())=>now;
-        }
-        else if(sampleName=="despacito") {
-            samplesFolder + "despacito.wav" =>filePath;
-            filePath =>buf.read;
-            (buf.length()/buf.rate())=>now;
-        }
-        else if(sampleName=="riff 1") {
-            samplesFolder + "riff_1(70bpm,16beats).wav" =>filePath;
-            filePath =>buf.read;
-            (buf.length()/buf.rate())=>now;
-        }
-        else if(sampleName=="waterfall") {
-            samplesFolder + "Allen_gardens_waterfall.wav" =>filePath;
-            filePath =>buf.read;
-            (buf.length()/buf.rate())=>now;
-        }
-        else if(sampleName=="woof") {
-            samplesFolder + "woof.wav" =>filePath;
-            filePath =>buf.read;
-            (buf.length()/buf.rate())=>now;
-        }
-        else if(sampleName=="boop") {
-            samplesFolder + "boop.wav" =>filePath;
-            filePath =>buf.read;
-            (buf.length()/buf.rate())=>now;
-        }
-        else if(sampleName=="hi hat open") {
-            samplesFolder + "271_hi_hat_samples\\hihat_004a.wav" =>filePath;
-            filePath =>buf.read;
-            (buf.length()/buf.rate())=>now;
-        }
-        else if(sampleName=="hi hat closed") {
-            samplesFolder + "271_hi_hat_samples\\hihat_004b.wav" =>filePath;
-            filePath =>buf.read;
-            (buf.length()/buf.rate())=>now;
-        }
-        else if(sampleName=="guitar e5") {
-            samplesFolder + "Phone Recordings\\guitar e-5 (A) note.wav" =>filePath;
-            filePath =>buf.read;
-            (buf.length()/buf.rate())=>now;
-        }
-         else if(sampleName=="Acoustic Chord 140 BPM D Maj") {
-        samplesFolder + "guitarloops\\Chord Loops\\Cymatics - Acoustic Chord Loop 1 - 140 BPM D Maj.wav" =>filePath;
-        filePath =>buf.read;
-        (buf.length()/buf.rate())=>now;
-        }
-        else if(sampleName=="Acoustic Chord 160 BPM A Maj") {
-                samplesFolder + "guitarloops\\Chord Loops\\Cymatics - Acoustic Chord Loop 10 - 160 BPM A Maj.wav" =>filePath;
-                filePath =>buf.read;
-                (buf.length()/buf.rate())=>now;
-        }
-        else if(sampleName=="Acoustic Chord 180 BPM D# Maj") {
-                samplesFolder + "guitarloops\\Chord Loops\\Cymatics - Acoustic Chord Loop 11 - 180 BPM D# Maj.wav" =>filePath;
-                filePath =>buf.read;
-                (buf.length()/buf.rate())=>now;
-        }
-        else if(sampleName=="Acoustic Chord 180 BPM E Min") {
-                samplesFolder + "guitarloops\\Chord Loops\\Cymatics - Acoustic Chord Loop 12 - 180 BPM E Min.wav" =>filePath;
-                filePath =>buf.read;
-                (buf.length()/buf.rate())=>now;
-        }
-        else if(sampleName=="Acoustic Chord 180 BPM F# Min") {
-                samplesFolder + "guitarloops\\Chord Loops\\Cymatics - Acoustic Chord Loop 13 - 180 BPM F# Min.wav" =>filePath;
-                filePath =>buf.read;
-                (buf.length()/buf.rate())=>now;
-        }
-        else if(sampleName=="Acoustic Chord 180 BPM G Min") {
-                samplesFolder + "guitarloops\\Chord Loops\\Cymatics - Acoustic Chord Loop 14 - 180 BPM G Min.wav" =>filePath;
-                filePath =>buf.read;
-                (buf.length()/buf.rate())=>now;
-        }
-        else if(sampleName=="Acoustic Chord 140 BPM E Maj") {
-                samplesFolder + "guitarloops\\Chord Loops\\Cymatics - Acoustic Chord Loop 2 - 140 BPM E Maj.wav" =>filePath;
-                filePath =>buf.read;
-                (buf.length()/buf.rate())=>now;
-        }
-        else if(sampleName=="Acoustic Chord 140 BPM E Maj") {
-                samplesFolder + "guitarloops\\Chord Loops\\Cymatics - Acoustic Chord Loop 3 - 140 BPM E Maj.wav" =>filePath;
-                filePath =>buf.read;
-                (buf.length()/buf.rate())=>now;
-        }
-        else if(sampleName=="Acoustic Chord 140 BPM F# Min") {
-                samplesFolder + "guitarloops\\Chord Loops\\Cymatics - Acoustic Chord Loop 4 - 140 BPM F# Min.wav" =>filePath;
-                filePath =>buf.read;
-                (buf.length()/buf.rate())=>now;
-        }
-        else if(sampleName=="Acoustic Chord 160 BPM E Maj") {
-                samplesFolder + "guitarloops\\Chord Loops\\Cymatics - Acoustic Chord Loop 5 - 160 BPM E Maj.wav" =>filePath;
-                filePath =>buf.read;
-                (buf.length()/buf.rate())=>now;
-        }
-        else if(sampleName=="Acoustic Chord 160 BPM E Min") {
-                samplesFolder + "guitarloops\\Chord Loops\\Cymatics - Acoustic Chord Loop 6 - 160 BPM E Min.wav" =>filePath;
-                filePath =>buf.read;
-                (buf.length()/buf.rate())=>now;
-        }
-        else if(sampleName=="Acoustic Chord 160 BPM G Maj") {
-                samplesFolder + "guitarloops\\Chord Loops\\Cymatics - Acoustic Chord Loop 7 - 160 BPM G Maj.wav" =>filePath;
-                filePath =>buf.read;
-                (buf.length()/buf.rate())=>now;
-        }
-        else if(sampleName=="Acoustic Chord 160 BPM G# Min") {
-                samplesFolder + "guitarloops\\Chord Loops\\Cymatics - Acoustic Chord Loop 8 - 160 BPM G# Min.wav" =>filePath;
-                filePath =>buf.read;
-                (buf.length()/buf.rate())=>now;
-        }
-        else if(sampleName=="Acoustic Chord 160 BPM A Maj") {
-                samplesFolder + "guitarloops\\Chord Loops\\Cymatics - Acoustic Chord Loop 9 - 160 BPM A Maj.wav" =>filePath;
-                filePath =>buf.read;
-                (buf.length()/buf.rate())=>now;
+         if (index==-1) {
+            <<<"I didn't recognize that option","">>>;
+            return;
         }
         else {
-            <<<"I didn't recognize that option","">>>;
+            //the option was recognized
+            SndBuf buf=>gain;
+            samplesFolder + fileNames[i]=> string filePath;
+            filePath =>buf.read;
+            (buf.length()/buf.rate())=>now;
         }
+        
+       
     }
 
-
+    /*
+    rhythm modulation will play a not at different intervals depending on the parameter
+    UGen is the actual oscillator that changes things
+    freq is the number of times the osc goes through an oscilation per seronc (hz)
+    gain is the difference between the highest and the lowest gaps in time
+    offset is a constant that is added to the time
+    */
+    fun void RhythmModulation(SinOsc osc, float freq, float gain, float offset) {
+        gain/2=>gain;
+        freq=>osc.freq;
+        gain=> osc.gain;
+        beat => offset;
+        float R;
+        while (true) {
+            spork~playSample("boop");
+            Std.fabs((osc.last()+offset))::second=>now;
+        }
+    }
 
     fun void pattern1() {
         while(true) {
@@ -479,10 +422,10 @@ if(me.args() == 3) {
 else if (me.args()==0) {
     <<<"using default args","">>>;
     //set the default arguements
-    70 =>bpm;
+    100 =>bpm;
     60/70 $ float => beat;
-    2 => volume;
-    //69 -3 so the rootNote is on the 'v' key
+    0.7 => volume;
+    //6c9 -3 so the rootNote is on the 'v' key
     69-3 => rootNote;
 }
 else {
@@ -500,5 +443,43 @@ Gain gain => dac;
 volume=>gain.gain;
 Sampler sam;
 sam.init(gain, bpm, 1, rootNote);
-sam.playSample("guitar e5");
-while (true) 10::second=>now;
+Sampler sam2;
+sam2.init(gain, bpm, 1, rootNote);
+spork~drum();
+SinOsc a=>blackhole;
+spork~sam2.RhythmModulation(a,2*beat, 2,2);
+
+while (true) {
+    sam.playSample("Acoustic Chord 180 BPM G Min");
+}
+
+fun void drum() {
+    while (true) {
+        spork~sam2.playSample("kick");
+        wait(beat);
+        spork~sam2.playSample("snare");
+        wait(beat);
+        spork~sam2.playSample("kick");
+        wait(beat);
+        repeat(2) {
+            spork~sam2.playSample("woof");
+            wait(beat/2);
+        }
+        spork~sam2.playSample("kick");
+        wait(beat);
+        repeat(2){ 
+            spork~sam2.playSample("snare");
+            wait(beat/4);
+        }
+        repeat(4){ 
+            spork~sam2.playSample("snare");
+            wait(beat/8);
+        }
+        spork~sam2.playSample("kick");
+        wait(beat);
+        repeat(2) {
+            spork~sam2.playSample("woof");
+            wait(beat/2);
+        }
+    }
+}

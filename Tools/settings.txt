@@ -1,1 +1,11 @@
-SynthVolume 0
+SynthVolume 0.5
+attack 0.1
+delay 0.1
+sustain 1
+release 0.1
+reverbActive
+reverbMix
+delayActive
+delayTime
+delayMax
+synthRootNote

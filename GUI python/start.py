@@ -1,20 +1,19 @@
-import tkinter as tk
+import UIManager
+import ChuckManager
+import atexit
 
-def write_slogan():
-    print("Tkinter is easy to use!")
+#an onClose function
+def exit_handler():
+    print('My application is ending!')
+    #chuck.close()
+    ui.close()
+atexit.register(exit_handler)
 
-root = tk.Tk()
-frame = tk.Frame(root)
-frame.pack()
+#start the various managers
+print("starting UI Manager")
+ui = UIManager.UIManager()
+print("Done\n...\nstarting ChucK Manager")
+chuck = ChuckManager.ChuckManager()
+print("Done")
 
-button = tk.Button(frame,
-                   text="QUIT",
-                   fg="red",
-                   command=quit)
-button.pack(side=tk.LEFT)
-slogan = tk.Button(frame,
-                   text="Hello",
-                   command=write_slogan)
-slogan.pack(side=tk.LEFT)
 
-root.mainloop()

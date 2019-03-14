@@ -1,0 +1,2 @@
+import GUI
+GUI.initWindow()

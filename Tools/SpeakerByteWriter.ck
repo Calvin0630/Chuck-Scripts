@@ -1,10 +1,17 @@
 
 //a class to parse settings.txt to update volume, lfoDepth, etc.
 private class ByteWriter {
+    dac=>Gain gain=>blackhole;
+    1=>gain.gain;
     FileIO fout;
+    0=>int chunkSize;
+    10::second=>dur recordDuration;
+    time start;
     fun void init() {
         // open for write
         fout.open( "Byte_Data.txt", FileIO.WRITE );
+        now=>start;
+        spork~writeData();
     }
     fun void writeData() {
 
@@ -18,8 +25,8 @@ private class ByteWriter {
             me.exit();
         }
 
-        while (true) {
-            fout <=dac.last()<= " ";
+        while (now<start+recordDuration) {
+            fout <=gain.last()<= "\n";
             10::samp=>now;
         }
 
@@ -30,3 +37,9 @@ private class ByteWriter {
 
 
 }
+
+ByteWriter w;
+w.init();
+<<<"writing","">>>;
+w.recordDuration +1::second=> now;
+<<<"Done writing","">>>;

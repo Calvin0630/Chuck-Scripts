@@ -1,7 +1,77 @@
-private class Main {
-    //Gain[8]@=>Gain[] channels;
-}
+/*
+This is an explanation of the classes in this ChucK file.
 
+Main: a general class for miscelaneous functions. eg. exit on escape, print6 keyboard nums
+
+MidiOscillator: A virtual note synthesizer
+
+EffectsChain: An instance variable in MidiOscillator that manages the connecting and disconnecting of effects.
+
+Effect: EffectsChain contains an arrays of Effect elements that are mostly referenced using a string of the effects name. eg.
+    "reverb"
+    "delay"
+    "phasor"
+
+SettingsReader: This class reads variables from settings.txt. Unity-GameManager.cs writes the variables and this script reads them
+and communicates with the relevant chuck classes (MidiOscillator, Sampler)
+
+Sampler: A chuck class that plays samples (drums, recording, etc.)
+
+IntArray: an array class that I wrote that has some helpful functions that are not available with sdefault chuck arrays
+
+Note: Loops are mostly done through calling chuck scripts from C#
+*/
+
+private class Main {
+    //prints key.which
+    fun void debug_printKeyNum() {
+
+        // which keyboard
+        0 => int device;
+        // HID
+        Hid hi;
+        HidMsg msg;
+        // open keyboard (get device number from command line)
+        if( !hi.openKeyboard( device ) ) me.exit();
+        // infinite event loop
+        while( true ){
+            // wait for event
+            hi => now;
+
+            // get message
+            while( hi.recv( msg ) ) {
+                if (msg.isButtonDown()) {
+                    <<<msg.which,"">>>;
+                }
+
+                    80::ms => now;
+            }
+        }
+    }
+    fun void exitOnEsc() {
+        // which keyboard
+        0 => int device;
+        // HID
+        Hid hi;
+        HidMsg msg;
+        // open keyboard (get device number from command line)
+        if( !hi.openKeyboard( device ) ) me.exit();
+        // infinite event loop
+        while( true ){
+            // wait for event
+            hi => now;
+
+            // get message
+            while( hi.recv( msg ) ) {
+                if (msg.isButtonDown()) {
+                    if(msg.which==1)Machine.remove(1);
+                }
+
+                    80::ms => now;
+            }
+        }
+    }
+}
 //recommended args: (bpm, gain, rootNote)
 //arguements separated by a colon
 int bpm;
@@ -18,6 +88,14 @@ if(me.args() == 3) {
     Std.atof(me.arg(1)) => volume;
     Std.atoi(me.arg(2)) => rootNote;
 }
+else if (me.args()==0) {
+    <<<"Using default arguments","">>>;
+    70=>bpm;
+    60/(bpm $ float)=>beat;
+    0.5=>volume;
+    55=>rootNote;
+
+}
 else {
     <<<"Fix your args","">>>;
     <<<"","Expected: bpm:volume:rootNote">>>;
@@ -28,76 +106,29 @@ fun void wait(float duration) {
     duration::second=>now;
 }
 
-<<<bpm+", " +volume+", "+rootNote>>>;
+<<<"BPM: "+bpm+", Volume: " +volume+", rootNote: "+rootNote,"">>>;
 
 
 // patch
-Gain midiIn=>PRCRev reverb=>Echo echo=>Gain finalVolume=>dac;
-(beat/2)::second=>echo.delay;
-.5=>echo.mix;
-1=>midiIn.gain;
-.2=>reverb.mix;
+Gain input=>Gain finalVolume=>dac;
+1=>input.gain;
 volume=>finalVolume.gain;
 MidiOscillator mOsc;
-mOsc.init(midiIn, bpm, 1, rootNote);
 Sampler sam;
-sam.init(finalVolume, bpm, volume, rootNote);
+//initialize settingReader first so settings get read first
 SettingsReader reader;
 reader.init(mOsc, sam);
-1::second=>now;
-reader.readData();
+
+
+mOsc.init(input, bpm, volume, rootNote);
+sam.init(input, bpm, volume, rootNote);
+Main main;
+spork~main.exitOnEsc();
 
 while (true) {
-    10::second=>now;
+    <<<"Running_","">>>;
+    2::second=>now;
 }
-//spork~mOsc.debug();
-
-//a class to parse settings.txt to update volume, lfoDepth, etc.
-private class SettingsReader {
-    MidiOscillator synth;
-    Sampler sam;
-    //
-    fun void init(MidiOscillator synth_, Sampler sam_) {
-        synth_@=>synth;
-        sam_@=>sam;
-        spork~readData();
-    }
-    fun void readData() {
-        while (true) {
-            // default file
-            <<<me.sourceDir(),"">>>;
-            me.sourceDir() + "/settings.txt" => string filename;
-            // instantiate
-            FileIO fio;
-            // open a file
-            fio.open( filename, FileIO.READ );
-            // ensure it's ok
-            if( !fio.good() ) {
-                cherr <= "can't open file: " <= filename <= " for reading..." <= IO.newline();
-                me.exit();
-            }
-
-            // loop until end
-            while( fio.more() ) {
-                //reads the line and separates it into a string for the variable name and value.
-                fio.readLine()=>string line;
-                line.trim();
-                line.find(" ")=>int spaceIndex;
-                line.substring(0,spaceIndex)=>string variableName;
-                //takes a substring from the spaceIndex+1 to end
-                line.substring(spaceIndex+1)=>string variableValue;
-                <<<"start:",variableName, "space",variableValue,":end">>>;
-                if (variableName=="SynthVolume") {
-                    synth.setVolume(Std.atof(variableValue));
-                }
-            }
-            .5::second=>now;
-        }
-    }
-
-
-}
-
 private class MidiOscillator {
     // 100:.2:60
     //recommended args: (bpm, gain, rootNote)
@@ -112,15 +143,16 @@ private class MidiOscillator {
     //a sin osc for each midi note
     SinOsc oscillators[128];
     //an adsr filter for each note
-    ADSR adsr;
+    //finalEnvolope used to be an adsr and proceeds preADSR which is why it is named that way
     ADSR preAdsr[128];
+    Envelope finalEnvelope;
     Gain audioSource;
     Gain phaseOne;
-    //lfoRate (hertz)
-    SinOsc lfo;
-    //SinOsc lfoTwo;
-    //SinOsc lfoThree;
+    NRev reverbEffect;
+    Delay delayEffect;
     Gain gain;
+    float attack, delay, sustain, release;
+    int reverbActive, delayActive;
     //a list of all the active notes
     IntArray activeNotes;
 
@@ -131,42 +163,91 @@ private class MidiOscillator {
         60/(bpm_ $ float) => beat;
         volume_ => volume;
         rootNote_ => rootNote;
-
-        audioSource=>phaseOne=>gain=>output;
-        lfo=>phaseOne;
-        phaseOne.op(3);
-        lfo=>phaseOne;
-        1=>lfo.gain;
-        .5=>lfo.freq;
-        //1=>lfoTwo.gain;
-        //3*lfoRate=>lfoTwo.freq;
-        //1=>lfoThree.gain;
-        //5*lfoRate=>lfoThree.freq;
-        //lfoThree=>phaseOne;
-        //lfoTwo=>phaseOne;
+        //audioSource=>phaseOne=>finalEnvelope=>gain=>output;
+        audioSource=>phaseOne;
+        //phaseOne goes into effectsChain
+        //initialize effectsChain
+        EffectsChain effectsChain;
+        phaseOne =>gain;
+        //effectsChain.init(phaseOne,gain);
+        //
+        gain=>output;
         volume => gain.gain;
+        if (volume==0)<<<"VOLUME IS ZERO","">>>;
         //an array of adsr settings: AttackTime, DelayTime, Sustain, Release
-        [beat/2, beat, beat/8, beat/8] @=> float adsrSettings[];
-        adsr.set(adsrSettings[0]::second, adsrSettings[1]::second, adsrSettings[2], adsrSettings[3]::second);
+        [beat/2, beat, beat/8, beat/8] @=> float preAdsrSettings[];
+        //adsr.set(adsrSettings[0]::second, adsrSettings[1]::second, adsrSettings[2], adsrSettings[3]::second);
 
         //instantiate the elements in the the array
         for (0=>int i;i<oscillators.cap();i++) {
             oscillators[i] =>preAdsr[i]=> audioSource;
             //apply setting to the adsr
-
             Std.mtof(i) => oscillators[i].freq;
             1 => oscillators[i].gain;
 
         }
-        spork~listenToKeyboard();
+        //listens for key presses to play notes
+        spork~listenForEvents();
+        //sets adsr values every 20 ms
+        spork~setADSR();
     }
     //a function to set the volume
     fun void setVolume(float _volume) {
         _volume=>volume;
         volume=>gain.gain;
     }
+    //uses public variables to change the value instead of passing the var in the func
+    fun void setADSR() {
+        if (sustain ==0)<<<"Sustain is zero!! you wont get any sound from the Osc","">>>;
+        //<<<"ADSR: ",attack, " ", delay," ", sustain, " ", release>>>;
+        for (0=>int i;i<preAdsr.cap();i++) {
+            preAdsr[i].set(attack::second, delay::second, sustain, release::second);
+        }
+
+        .2::second=>now;
+        setADSR();
+    }
+    //im using a float as a boolean cause im dumb
+    fun void setReverbActive(int f) {
+        if (f!=reverbActive) {
+            if (f==0) {
+                <<<"disconnecting"," reverb">>>;
+            }
+            else if (f==1) {
+                <<<"connecting"," reverb">>>;
+            }
+        }
+        f=>reverbActive;
+    }
+    fun void setReverbMix(float f) {
+        //f=>reverb.mix;
+    }
+    fun void setRootNote(int rootNote_) {
+        if (rootNote==rootNote_) return;
+        else {
+            rootNote_=>rootNote;
+            <<<"rootNote is now: ",rootNote>>>;
+            for (0=>int i;i<oscillators.cap();i++) {
+                //apply setting to the adsr
+                Std.mtof(i) => oscillators[i].freq;
+                1 => oscillators[i].gain;
+
+            }
+        }
+    }
+
+    fun void setDelayActive(int active) {
+        if (delayActive==1){
+
+        }
+        else if (delayActive==0) {
+
+        }
+    }
+    fun void setDelayTime(float delayTime){}
+    fun void setDelayMax(float delayMax){}
     //a function for debugging
-    fun void listenToKeyboard() {
+    fun void listenForEvents() {
         // which keyboard
         0 => int device;
         // HID
@@ -243,7 +324,7 @@ private class MidiOscillator {
             activeNotes.add(notes[i]);
             preAdsr[rootNote+notes[i]].keyOn();
         }
-        adsr.keyOn();
+        //if (activeNotes.size()>0)finalEnvelope.keyOn();
         activeNotes.print();
         (1/(activeNotes.size()$float))=>audioSource.gain;
     }
@@ -253,13 +334,236 @@ private class MidiOscillator {
             activeNotes.remove(notes[i]);
             preAdsr[rootNote+notes[i]].keyOff();
         }
-        adsr.keyOff();
+        if (activeNotes.size() == 0) {
+            //finalEnvelope.keyOff();
+        }
         activeNotes.print();
-        (1/(activeNotes.size()$float))=>audioSource.gain;
+        if (activeNotes.size()>1) (1/(activeNotes.size()+1)$float)=>audioSource.gain;
+        else 1=>audioSource.gain;
     }
 
     fun void wait(float duration) {
         duration::second=>now;
+    }
+}
+
+private class EffectsChain {
+    /*
+    LIST OF EFFECT UGENS AND THEIR ATTRIBUTES
+    */
+    UGen effects[8];
+    PRCRev reverb@=> effects["reverb"];
+    Delay delay@=> effects["delay"];
+    Gain gain@=> effects["gain"];
+    Phasor phasor@=> effects["phasor"];
+    Chorus chorus@=> effects["chorus"];
+    PitShift pitShift@=> effects["pitShift"];
+    LPF lowPass@=> effects["LPF"];
+    HPF highPass@=> effects["HPF"];
+    UGen input, output;
+    //stores the indices of active EffectsChain
+    //0: effect that is after input
+    //last element: effect before to output
+    IntArray activeEffects;
+    fun void init(UGen input_, UGen output_) {
+        input_@=>input;
+        output_@=>output;
+        input=>output;
+
+        /*
+        //reverb
+        Effect e;
+        e.init("reverb");
+        //delay
+        Effect e;
+        e.init("delay");
+        //phasor
+        Effect e;
+        e.init("phasor");
+        //chorus
+        Effect e;
+        e.init("chorus");
+
+        //pitShift
+        Effect e;
+        e.init("pitShift");
+
+        //LPF
+        Effect e;
+        e.init("LPF");
+
+        //HPF
+        Effect e;
+        e.init("HPF");
+        */
+    }
+    fun void add(string effectName){
+        /*
+        //if the effect with that name is already in the effects chain return
+        if (if (activeEffects.contains)) {
+            <<<"the effects chain already contains an effect with that name. returning...","">>>;
+            return;
+        }
+        //unhook the relevent effects
+        if (effects.cap()==0) {
+            input=<output;
+        }
+        else {
+            effects@=>UGen tmp[];
+        }
+        */
+    }
+
+    fun void remove(string name) {
+
+    }
+    //since chuck has a wierd thing against booleans, this function returns 1 if the effect is found. Otherwise 0
+    fun int contains(string name) {
+        for (0=>int i;i<effects.cap();i++) {
+            //if (effects[i].name == name) return 1;
+        }
+        //if it didnt find the loop w/ that name:
+        return 0;
+    }
+
+    fun void SetEffectVariable(string effectName, string effectVariable, float effectValue) {
+
+    }
+
+}
+private class Effect{
+    string name;
+    UGen generator;
+    //before and after are the ugen that lead into and recieve output from the effect;
+    UGen before, after;
+    fun void init(string name_) {
+        if (name =="reverb") {
+            name_=>name;
+            PRCRev r ;
+            0.2=>r.mix;
+            r@=> generator;
+        }
+        else if (name =="delay") {
+            name_=>name;
+            Delay d;
+            d@=>generator;
+        }
+        else if (name =="phasor") {
+            name_=>name;
+            Phasor p;
+            p@=>generator;
+        }
+        else if (name =="chorus") {
+            name_=>name;
+            Chorus c;
+            c@=>generator;
+        }
+        else if (name =="pitShift") {
+            name_=>name;
+            PitShift p;
+            p@=>generator;
+        }
+        else if (name =="LPF") {
+            name_=>name;
+            LPF f;
+            f@=>generator;
+        }
+        else if (name =="HPF") {
+            name_=>name;
+            HPF h;
+            h@=>generator;
+        }
+        else {
+            <<<"Didnt recognize that effect name","">>>;
+            return;
+        }
+        name_=>name;
+    }
+    fun void setEffectParam() {
+
+    }
+}
+//a class to parse settings.txt to update volume, lfoDepth, etc.
+private class SettingsReader {
+    MidiOscillator synth;
+    Sampler sam;
+
+    ["SynthVolume",
+    "attack",
+    "delay",
+    "sustain",
+    "release",
+    "reverbActive",
+    "reverbMix",
+    "delayActive",
+    "delayTime",
+    "delayMax",
+    "synthRootNote"] @=> string varNames[];
+    fun void init(MidiOscillator synth_, Sampler sam_) {
+        synth_@=>synth;
+        sam_@=>sam;
+        spork~readData();
+    }
+    fun void readData() {
+        while (true) {
+            // default file
+            me.sourceDir() + "/settings.txt" => string filename;
+            // instantiate
+            FileIO fio;
+            // open a file
+            fio.open( filename, FileIO.READ );
+            // ensure it's ok
+            if( !fio.good() ) {
+                cherr <= "can't open file: " <= filename <= " for reading..." <= IO.newline();
+                me.exit();
+            }
+
+            // loop until end
+            while( fio.more() ) {
+                //reads the line and separates it into a string for the variable name and value.
+                fio.readLine()=>string line;
+                if (line.length()==0) continue;
+                line.trim();
+                line.find(" ")=>int spaceIndex;
+                line.substring(0,spaceIndex)=>string variableName;
+                //takes a substring from the spaceIndex+1 to end
+                line.substring(spaceIndex+1)=>string variableValue;
+                if (variableName=="SynthVolume") {
+                    synth.setVolume(Std.atof(variableValue));
+                }
+                else if (variableName=="attack") {
+                    Std.atof(variableValue)=>synth.attack;
+                }
+                else if (variableName=="delay") {
+                    Std.atof(variableValue)=>synth.delay;
+                }
+                else if (variableName=="sustain") {
+                    Std.atof(variableValue)=>synth.sustain;
+                }
+                else if (variableName=="release") {
+                    Std.atof(variableValue)=>synth.release;
+                }
+                else if (variableName=="reverbActive") {
+                    synth.setReverbActive(Std.atoi(variableValue));
+                }
+                else if (variableName=="reverbMix") {
+                    synth.setReverbMix(Std.atof(variableValue));
+                }
+                else if (variableName=="delayActive") {
+                    synth.setDelayActive(Std.atoi(variableValue));
+                }
+                else if (variableName=="delayTime") {
+                    synth.setDelayTime(Std.atof(variableValue));
+                }
+                else if (variableName=="delayMax") {
+                    synth.setDelayMax(Std.atof(variableValue));
+                }
+                else if (variableName=="synthRootNote") {
+                    synth.setRootNote(Std.atoi(variableValue));
+                }
+            }
+            .1::second=>now;
+        }
     }
 }
 
@@ -284,10 +588,10 @@ private class Sampler {
         volume_ => volume;
         rootNote_ => rootNote;
         volume =>gain.gain;
-        spork~listenToKeyboard();
+        spork~listenForEvents();
     }
 
-    fun void listenToKeyboard() {
+    fun void listenForEvents() {
         //numrow 0-9
         IntArray keys;
         keys.add([30, 31, 32, 33, 34, 35, 36, 37, 38 , 39]);
@@ -355,7 +659,7 @@ private class Sampler {
     waterfall
     woof
     boop
-    hi hat 0open
+    hi hat open
     hi hat closed
    */
 	fun void playSample(string sampleName) {
@@ -503,10 +807,7 @@ private class Sampler {
             2/=>duration;
         }
     }
-
 }
-
-
 
 private class IntArray {
     /*

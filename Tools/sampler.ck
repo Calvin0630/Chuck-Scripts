@@ -1,64 +1,3 @@
-//arguements separated by a colon
-int bpm;
-//the time(seconds) of one beat
-float beat;
-//a number between 0 and 1 that sets the volume
-float volume;
-//the midi int of the root note
-int rootNote;
-
-//take in the command line args
-if(me.args() == 1) {
-    Std.atoi(me.arg(0)) =>bpm;
-    60/Std.atof(me.arg(0)) => beat;
-    1 => volume;
-    69=>rootNote;
-}
-else {
-    <<<"Fix your args">>>;
-    me.exit();
-}
-fun void wait(float duration) {
-    duration::second=>now;
-}
-
-Metronome metro;
-metro.init(dac,bpm, volume, rootNote);
-metro.start();
-
-class Metronome {
-    float beat, volume;
-    int bpm, rootNote;
-    //Impulse i => Gain gain  => dac;
-    Gain gain  => dac;
-    Sampler sam;
-    fun void init(UGen output, int _bpm, float _volume, int _rootNote) {
-        _bpm =>bpm;
-        60/(_bpm $ float) => beat;
-        _volume => volume;
-        _rootNote => rootNote;
-        volume=>gain.gain;
-        sam.init(gain, bpm, 0.5, rootNote);
-    }
-    fun void start() {
-        while(true) {
-            //1=>i.next;
-            spork~sam.playSample("kick");
-            wait(beat);
-            spork~sam.playSample("kick 2");
-            wait(beat);
-            spork~sam.playSample("kick 2");
-            wait(beat);
-            spork~sam.playSample("kick 2");
-            wait(beat);
-        }
-    }
-    fun void wait(float duration) {
-        duration::second=>now;
-    }
-}
-
-
 private class Sampler {
 
     //arguements separated by a colon
@@ -71,7 +10,70 @@ private class Sampler {
     int rootNote;
     string samplesFolder;
     Gain gain;
-
+    //sample names
+    ["snare", 
+        "kick", 
+        "kick 2",
+        "rant: a religious rant with google translate", 
+        "pizza time", 
+        "death", 
+        "you will die", 
+        "there is none", 
+        "despacito song", 
+        "despacito", 
+        "riff 1", 
+        "waterfall", 
+        "woof", 
+        "boop", 
+        "hi hat 0open", 
+        "hi hat closed", 
+        "guitar e5", 
+        "Acoustic Chord 140 BPM D Maj", 
+        "Acoustic Chord 160 BPM A Maj", 
+        "Acoustic Chord 180 BPM D# Maj", 
+        "Acoustic Chord 180 BPM E Min", 
+        "Acoustic Chord 180 BPM F# Min", 
+        "Acoustic Chord 180 BPM G Min", 
+        "Acoustic Chord 140 BPM E Maj", 
+        "Acoustic Chord 140 BPM E Maj", 
+        "Acoustic Chord 140 BPM F# Min", 
+        "Acoustic Chord 160 BPM E Maj", 
+        "Acoustic Chord 160 BPM E Min", 
+        "Acoustic Chord 160 BPM G Maj", 
+        "Acoustic Chord 160 BPM G# Min", 
+        "Acoustic Chord 160 BPM A Maj"] @=> string sampleNames[];
+    //filNames that correspond to sampleNames (used as aliases)
+    ["Snares\\Cymatics - Snare 1.wav",
+        "Kicks\\Cymatics - Kick 1 - C.wav",
+        "Kicks\\Cymatics - Kick 18 - G.wav",
+        "rant.wav",
+        "pizza_time.wav",
+        "death.wav",
+        "you_will_die.wav",
+        "there_is_none.wav",
+        "despacito_song.wav",
+        "despacito.wav",
+        "riff_1(70bpm,16beats).wav",
+        "Allen_gardens_waterfall.wav",
+        "woof.wav",
+        "boop.wav",
+        "271_hi_hat_samples\\hihat_004a.wav",
+        "271_hi_hat_samples\\hihat_004b.wav",
+        "Phone Recordings\\guitar e-5 (A) note.wav",
+        "guitarloops\\Chord Loops\\Cymatics - Acoustic Chord Loop 1 - 140 BPM D Maj.wav",
+        "guitarloops\\Chord Loops\\Cymatics - Acoustic Chord Loop 10 - 160 BPM A Maj.wav",
+        "guitarloops\\Chord Loops\\Cymatics - Acoustic Chord Loop 11 - 180 BPM D# Maj.wav",
+        "guitarloops\\Chord Loops\\Cymatics - Acoustic Chord Loop 12 - 180 BPM E Min.wav",
+        "guitarloops\\Chord Loops\\Cymatics - Acoustic Chord Loop 13 - 180 BPM F# Min.wav",
+        "guitarloops\\Chord Loops\\Cymatics - Acoustic Chord Loop 14 - 180 BPM G Min.wav",
+        "guitarloops\\Chord Loops\\Cymatics - Acoustic Chord Loop 2 - 140 BPM E Maj.wav",
+        "guitarloops\\Chord Loops\\Cymatics - Acoustic Chord Loop 3 - 140 BPM E Maj.wav",
+        "guitarloops\\Chord Loops\\Cymatics - Acoustic Chord Loop 4 - 140 BPM F# Min.wav",
+        "guitarloops\\Chord Loops\\Cymatics - Acoustic Chord Loop 5 - 160 BPM E Maj.wav",
+        "guitarloops\\Chord Loops\\Cymatics - Acoustic Chord Loop 6 - 160 BPM E Min.wav",
+        "guitarloops\\Chord Loops\\Cymatics - Acoustic Chord Loop 7 - 160 BPM G Maj.wav",
+        "guitarloops\\Chord Loops\\Cymatics - Acoustic Chord Loop 8 - 160 BPM G# Min.wav",
+        "guitarloops\\Chord Loops\\Cymatics - Acoustic Chord Loop 9 - 160 BPM A Maj.wav"] @=> string fileNames[];
     fun void init(UGen output, int bpm_, float volume_, int rootNote_) {
         gain => output;
         "C:\\Users\\Calvin\\Documents\\Chuck-Scripts\\Samples\\" => samplesFolder;
@@ -80,10 +82,10 @@ private class Sampler {
         volume_ => volume;
         rootNote_ => rootNote;
         volume =>gain.gain;
-        //spork~listenForEvents();
+        //spork~listenToKeyboard();
     }
 
-    fun void listenForEvents() {
+    fun void listenToKeyboard() {
         //numrow 0-9
         IntArray keys;
         keys.add([30, 31, 32, 33, 34, 35, 36, 37, 38 , 39]);
@@ -134,12 +136,11 @@ private class Sampler {
     fun void wait(float duration) {
         duration::second=>now;
     }
-
-
+    
     /*
    Loads and plays a sample. The function returns once the sample is done playing
 
-   Options:
+   Sample names:
    snare
    kick
    rant: a religious rant with google translate
@@ -155,102 +156,55 @@ private class Sampler {
     boop
     hi hat 0open
     hi hat closed
+    guitar e5
+    Acoustic Chord 140 BPM D Maj
+    Acoustic Chord 160 BPM A Maj
+    Acoustic Chord 180 BPM D# Maj
+    Acoustic Chord 180 BPM E Min
+    Acoustic Chord 180 BPM F# Min
+    Acoustic Chord 180 BPM G Min
+    Acoustic Chord 140 BPM E Maj
+    Acoustic Chord 140 BPM E Maj
+    Acoustic Chord 140 BPM F# Min
+    Acoustic Chord 160 BPM E Maj
+    Acoustic Chord 160 BPM E Min
+    Acoustic Chord 160 BPM G Maj
+    Acoustic Chord 160 BPM G# Min
+    Acoustic Chord 160 BPM A Maj
    */
 	fun void playSample(string sampleName) {
-        //<<<"playing ",sampleName>>>;
-        //checks to make sure you initialized the sampler
-         if(samplesFolder=="") {
-            <<<"Did you initialize the sampler?","">>>;
-        }
-        SndBuf buf=>gain;
-        string filePath;
-        if (sampleName == "snare") {
-            samplesFolder + "Snares\\Cymatics - Snare 1.wav" =>filePath;
-            filePath =>buf.read;
-            (buf.length()/buf.rate())=>now;
-        }
-        else if(sampleName == "kick") {
-            samplesFolder + "Kicks\\Cymatics - Kick 1 - C.wav" =>filePath;
-            filePath =>buf.read;
-            (buf.length()/buf.rate())=>now;
-        }
-        else if(sampleName=="kick 2") {
-            samplesFolder + "Kicks\\Cymatics - Kick 18 - G.wav" =>filePath;
-            filePath =>buf.read;
-            (buf.length()/buf.rate())=>now;
-        }
-        else if(sampleName=="rant") {
-            samplesFolder + "rant.wav" =>filePath;
-            filePath =>buf.read;
-            (buf.length()/buf.rate())=>now;
-        }
-        else if(sampleName=="pizza time") {
-            samplesFolder + "pizza_time.wav" =>filePath;
-            filePath =>buf.read;
-            (buf.length()/buf.rate())=>now;
+        //sampleNames have the same index in fileNames 
+        //The purpose was to make the parameters easier instead of typing BleBleBleUdergroundSample.wav
 
+
+        
+        
+        //find the index of sampleName in the list of sampleNames
+        -1 =>int index;
+        0=> int i;
+        for(i;i<sampleNames.cap();i++) {
+            if (sampleName == sampleNames[i]) {
+                i=> index;
+                break;
+            }
         }
-        else if(sampleName=="death") {
-            samplesFolder + "death.wav" =>filePath;
-            filePath =>buf.read;
-            (buf.length()/buf.rate())=>now;
-        }
-        else if(sampleName=="you will die") {
-            samplesFolder + "you_will_die.wav" =>filePath;
-            filePath =>buf.read;
-            (buf.length()/buf.rate())=>now;
-        }
-        else if(sampleName=="there is none") {
-            samplesFolder + "there_is_none.wav" =>filePath;
-            filePath =>buf.read;
-            (buf.length()/buf.rate())=>now;
-        }
-        else if(sampleName=="despacito song") {
-            samplesFolder + "despacito_song.wav" =>filePath;
-            filePath =>buf.read;
-            (buf.length()/buf.rate())=>now;
-        }
-        else if(sampleName=="despacito") {
-            samplesFolder + "despacito.wav" =>filePath;
-            filePath =>buf.read;
-            (buf.length()/buf.rate())=>now;
-        }
-        else if(sampleName=="riff 1") {
-            samplesFolder + "riff_1(70bpm,16beats).wav" =>filePath;
-            filePath =>buf.read;
-            (buf.length()/buf.rate())=>now;
-        }
-        else if(sampleName=="waterfall") {
-            samplesFolder + "Allen_gardens_waterfall.wav" =>filePath;
-            filePath =>buf.read;
-            (buf.length()/buf.rate())=>now;
-        }
-        else if(sampleName=="woof") {
-            samplesFolder + "woof.wav" =>filePath;
-            filePath =>buf.read;
-            (buf.length()/buf.rate())=>now;
-        }
-        else if(sampleName=="boop") {
-            samplesFolder + "boop.wav" =>filePath;
-            filePath =>buf.read;
-            (buf.length()/buf.rate())=>now;
-        }
-        else if(sampleName=="hi hat open") {
-            samplesFolder + "271_hi_hat_samples\\hihat_004a.wav" =>filePath;
-            filePath =>buf.read;
-            (buf.length()/buf.rate())=>now;
-        }
-        else if(sampleName=="hi hat closed") {
-            samplesFolder + "271_hi_hat_samples\\hihat_004b.wav" =>filePath;
-            filePath =>buf.read;
-            (buf.length()/buf.rate())=>now;
+        
+        <<<"Index: ",index>>>;
+         if (index==-1) {
+            <<<"I didn't recognize that option","">>>;
+            return;
         }
         else {
-            <<<"I didn't recognize that option","">>>;
+            //the option was recognized
+            //play the sound
+            SndBuf buf=>gain;
+            samplesFolder + fileNames[i]=> string filePath;
+            filePath =>buf.read;
+            (buf.length()/buf.rate())=>now;
         }
+        
+       
     }
-
-
 
     fun void pattern1() {
         while(true) {
@@ -299,7 +253,7 @@ private class Sampler {
 
     fun void roll(float initialDuration) {
         initialDuration=>float duration;
-        while(duration>beat/64) {
+        while(duration>.0001) {
             <<<duration,"">>>;
             playSample("snare");
             wait(duration);
@@ -431,5 +385,86 @@ private class IntArray {
         if(elements==null) return 0;
 
         else return elements.cap();
+    }
+}
+
+// 100:.2:60
+//recommended args: (bpm, gain, rootNote)
+//arguements separated by a colon
+int bpm;
+//the time(seconds) of one beat
+float beat;
+//a number between 0 and 1 that sets the volume
+float volume;
+//the midi int of the root note
+int rootNote;
+
+//take in the command line args
+if(me.args() == 3) {
+    Std.atoi(me.arg(0)) =>bpm;
+    60/Std.atof(me.arg(0)) => beat;
+    Std.atof(me.arg(1)) => volume;
+    Std.atoi(me.arg(2)) => rootNote;
+}
+else if (me.args()==0) {
+    <<<"using default args","">>>;
+    //set the default arguements
+    80 =>bpm;
+    60/70 $ float => beat;
+    0.7 => volume;
+    //6c9 -3 so the rootNote is on the 'v' key
+    69-3 => rootNote;
+}
+else {
+    <<<"Fix your args","">>>;
+    <<<"","Expected: bpm:volume:rootNote">>>;
+    me.exit();
+}
+
+fun void wait(float duration) {
+    duration::second=>now;
+}
+
+
+Gain gain => dac;
+volume=>gain.gain;
+Sampler sam;
+sam.init(gain, bpm, 1, rootNote);
+Sampler sam2;
+sam2.init(gain, bpm, 1, rootNote);
+spork~drum();
+
+while (true) {
+    sam.playSample("Acoustic Chord 160 BPM E Min");
+}
+
+fun void drum() {
+    while (true) {
+        spork~sam2.playSample("kick");
+        wait(beat);
+        spork~sam2.playSample("snare");
+        wait(beat);
+        spork~sam2.playSample("kick");
+        wait(beat);
+        repeat(2) {
+            spork~sam2.playSample("woof");
+            wait(beat/2);
+        }
+        spork~sam2.playSample("kick");
+        wait(beat);
+        repeat(2){ 
+            spork~sam2.playSample("snare");
+            wait(beat/4);
+        }
+        repeat(4){ 
+            spork~sam2.playSample("snare");
+            wait(beat/8);
+        }
+        spork~sam2.playSample("kick");
+        wait(beat);
+        repeat(2) {
+            spork~sam2.playSample("woof");
+            wait(beat/2);
+        }
     }
 }

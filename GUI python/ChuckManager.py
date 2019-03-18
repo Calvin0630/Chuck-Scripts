@@ -11,7 +11,7 @@ import threading
 
 class ChuckManager :
     def __init__(self) :
-        self.i = 0
+        self.number = 0
         self.settingsThread = threading.Thread(target=self.writeToSettings, args=[])
         self.chuckVars = {
             "SynthVolume" : 0.7,
@@ -26,23 +26,31 @@ class ChuckManager :
             "delayMax" : 0,
             "synthRootNote" : 69
         }
-        self.settingsThread.start()
         os.chdir('..\\Tools\\')
         os.system('start chuck -l')
         os.system('chuck + Main.ck:70:.5:69')
+        self.settingsFilePath = os.getcwd()+'\\settings.txt'
+        self.settingsFile = open(self.settingsFilePath, 'w+')
+        #a boolean that tells the setting thread when it should exit
+        self.settingsThreadExitCondition = False
+        self.settingsThread.start()
 
     def writeToSettings(self) :
         while (True) :
-            print(str(self.i)+": "+self.chuckVars)
-            self.i+=1
-            '''
+            self.settingsFile = open(self.settingsFilePath, 'w').close()
+            self.settingsFile = open(self.settingsFilePath, 'w+')
+            print(str(self.number))
+            self.number+=1
+            print('writing to file')
             for x in self.chuckVars : 
-            print(x)
-            '''
+                self.settingsFile.write(x+' '+str(self.chuckVars[x])+'\n')
+            if (self.settingsThreadExitCondition) :
+                self.settingsFile.close()
+                exit()
             time.sleep(1)
 
 
     def close(self) :
-        self.settingsThread.join()
+        self.settingsThreadExitCondition = True
         os.system('chuck --kill')
 

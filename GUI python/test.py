@@ -3,7 +3,7 @@ class Dog:
     @staticmethod
     def uwu() :
         print("UwU")
-        owo()
+        Dog.owo()
     @staticmethod
     def owo() :
         print("OwO")

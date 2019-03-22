@@ -7,6 +7,7 @@ import subprocess
 import time
 import atexit
 import threading
+import UIManager
 
 
 class ChuckManager :
@@ -26,29 +27,33 @@ class ChuckManager :
             "delayMax" : 0,
             "synthRootNote" : 69
         }
-        os.chdir('..\\Tools\\')
         os.system('start chuck -l')
         os.system('chuck + Main.ck:70:.5:69')
         self.settingsFilePath = os.getcwd()+'\\settings.txt'
         self.settingsFile = open(self.settingsFilePath, 'w+')
         #a boolean that tells the setting thread when it should exit
         self.settingsThreadExitCondition = False
-        self.settingsThread.start()
+        #must start the settings thread after the UI Manager has been set up
 
     def writeToSettings(self) :
         while (True) :
-            self.settingsFile = open(self.settingsFilePath, 'w').close()
-            self.settingsFile = open(self.settingsFilePath, 'w+')
+            #self.settingsFile = open(self.settingsFilePath, 'w').close()
+            #self.settingsFile = open(self.settingsFilePath, 'w+')
+            print('ChucK')
+            print(os.getcwd())
             print(str(self.number))
             self.number+=1
-            print('writing to file')
+            UIManager.HelloWorld()
+            self.chuckVars = UIManager.getChuckVariables()
+            print('writing:')
+            print (self.chuckVars)
+            print('to file')
             for x in self.chuckVars : 
                 self.settingsFile.write(x+' '+str(self.chuckVars[x])+'\n')
             if (self.settingsThreadExitCondition) :
                 self.settingsFile.close()
                 exit()
             time.sleep(1)
-
 
     def close(self) :
         self.settingsThreadExitCondition = True

@@ -1,3 +1,4 @@
+'''
 from tkinter import *
 
 def sel():
@@ -16,3 +17,12 @@ label = Label(root)
 label.pack()
 
 root.mainloop()
+'''
+class UwU:
+   @staticmethod
+   def uwu() :
+      print("UwU")
+      UwU.owo()
+   @staticmethod
+   def owo() :
+      print("OwO")

@@ -10,7 +10,7 @@ atexit.register(exit_handler)
 #start the various managers
 print("starting ChucK Manager")
 chuck = ChuckManager.ChuckManager()
-print("Done\n...\nstarting UI Manager")
+print("Done\n...\nstarting UI Loop")
 ui = UIManager.UIManager(chuck)
 print("Done!!")
 print('cleaning up...')

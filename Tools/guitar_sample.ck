@@ -47,7 +47,7 @@ sam.init(shift, bpm, 0.2, rootNote);
 //spork~guitarScale();
 GuitarPitchBender pit;
 pit.init(gain,bpm,0.7, rootNote);
-spork~adamsSong();
+//spork~adamsSong();
 //spork~guitarScale();
 while (true) {
     wait(beat);

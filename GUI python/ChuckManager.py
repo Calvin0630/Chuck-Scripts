@@ -8,6 +8,7 @@ import time
 import atexit
 import threading
 import UIManager
+#from UIManager import UIManager
 
 
 class ChuckManager :
@@ -37,22 +38,19 @@ class ChuckManager :
 
     def writeToSettings(self) :
         while (True) :
-            #self.settingsFile = open(self.settingsFilePath, 'w').close()
-            #self.settingsFile = open(self.settingsFilePath, 'w+')
-            print('ChucK')
-            print(os.getcwd())
-            print(str(self.number))
-            self.number+=1
-            UIManager.HelloWorld()
-            self.chuckVars = UIManager.getChuckVariables()
-            print('writing:')
-            print (self.chuckVars)
-            print('to file')
-            for x in self.chuckVars : 
-                self.settingsFile.write(x+' '+str(self.chuckVars[x])+'\n')
             if (self.settingsThreadExitCondition) :
                 self.settingsFile.close()
                 exit()
+            #self.settingsFile = open(self.settingsFilePath, 'w').close()
+            #self.settingsFile = open(self.settingsFilePath, 'w+')
+            print(str(self.number))
+            self.number+=1
+            self.chuckVars = UIManager.UIManager.getChuckVariables(UIManager)
+            self.settingsFile.close()
+            self.settingsFile = open(self.settingsFilePath, 'w')
+            for x in self.chuckVars : 
+                self.settingsFile.write(x+' '+str(self.chuckVars[x])+'\n')
+            
             time.sleep(1)
 
     def close(self) :

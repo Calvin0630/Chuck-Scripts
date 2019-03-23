@@ -9,4 +9,4 @@ class Dog:
         print("OwO")
 
 
-Dog.uwu()
+

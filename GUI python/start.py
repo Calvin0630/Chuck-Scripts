@@ -1,7 +1,10 @@
 import UIManager
+#from UIManager import *
 import ChuckManager
-import atexit
+#from ChuckManager import *
 '''
+import atexit
+
 #an onClose function
 def exit_handler():
    

@@ -20,9 +20,9 @@ root.mainloop()
 '''
 class UwU:
    @staticmethod
-   def uwu() :
+   def uwu(cls) :
       print("UwU")
-      UwU.owo()
+      UwU.owo(UwU)
    @staticmethod
-   def owo() :
+   def owo(cls) :
       print("OwO")

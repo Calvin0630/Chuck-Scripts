@@ -1,0 +1,11 @@
+SynthVolume 0.75
+attack 0.71
+delay 0.9
+sustain 0.82
+release 0.81
+reverbActive 0.0
+reverbMix 0.0
+delayActive 0.0
+delayTime 0.0
+delayMax 0.0
+synthRootNote 0.0

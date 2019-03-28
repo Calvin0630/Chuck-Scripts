@@ -5,9 +5,8 @@ import time
 def printVars() :
     i=0
     while(i<10) :
-        #print(vars)
         print(str(i))
-
+        print(vars)
         i+=1
         time.sleep(1)
     settingsThread.join()
@@ -23,5 +22,5 @@ def init() :
 
 
 
-def trace(name,var) :
+def callback(name,var) :
     vars[name] = var

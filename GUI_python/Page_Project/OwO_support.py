@@ -39,11 +39,11 @@ def set_Tk_var():
     set up trace functions
     '''
 
-    synth_Volume.trace('w',printVars.trace('SynthVolume', synth_Volume.get()))
-    synth_Attack.trace('w',printVars.trace('attack', synth_Attack.get()))
-    synth_Delay.trace('w',printVars.trace('delay', synth_Delay.get()))
-    synth_Sustain.trace('w',printVars.trace('sustain', synth_Sustain.get()))
-    synth_Release.trace('w',printVars.trace('release', synth_Release.get()))
+    synth_Volume.trace('w',printVars.callback('SynthVolume', synth_Volume.get()))
+    synth_Attack.trace('w',printVars.callback('attack', synth_Attack.get()))
+    synth_Delay.trace('w',printVars.callback('delay', synth_Delay.get()))
+    synth_Sustain.trace('w',printVars.callback('sustain', synth_Sustain.get()))
+    synth_Release.trace('w',printVars.callback('release', synth_Release.get()))
 
 
 

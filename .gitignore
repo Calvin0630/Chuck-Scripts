@@ -125,3 +125,12 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+
+#for VSCode
+
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json

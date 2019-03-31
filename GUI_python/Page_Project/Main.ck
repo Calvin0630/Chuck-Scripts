@@ -125,7 +125,6 @@ Main main;
 spork~main.exitOnEsc();
 
 while (true) {
-    <<<"Running_","">>>;
     2::second=>now;
 }
 private class MidiOscillator {

@@ -6,7 +6,8 @@
 #    Mar 28, 2019 03:18:12 PM EDT  platform: Windows NT
 
 import sys
-import printVars
+import ChuckManager
+
 
 try:
     import Tkinter as tk
@@ -20,6 +21,7 @@ except ImportError:
     import tkinter.ttk as ttk
     py3 = True
 
+#initializes tkVars
 def set_Tk_var():
     global synth_Volume
     synth_Volume = tk.DoubleVar()
@@ -34,18 +36,27 @@ def set_Tk_var():
     global activeEffectPanel
     activeEffectPanel = tk.StringVar()
     activeEffectPanel.set(('Delay','Reverb','LFO','HPF/LPF','Gain','Pan Osc'))
-    printVars.init()
-    '''
-    set up trace functions
-    '''
+    
+    #initialize chuckManager
+    global chuck
+    chuck = ChuckManager.ChuckManager()
 
-    synth_Volume.trace('w',printVars.callback('SynthVolume', synth_Volume.get()))
-    synth_Attack.trace('w',printVars.callback('attack', synth_Attack.get()))
-    synth_Delay.trace('w',printVars.callback('delay', synth_Delay.get()))
-    synth_Sustain.trace('w',printVars.callback('sustain', synth_Sustain.get()))
-    synth_Release.trace('w',printVars.callback('release', synth_Release.get()))
+    #set up trace functions
+    synth_Volume.trace('w',callback_synth_Volume)
+    synth_Attack.trace('w',callback_synth_Attack)
+    synth_Delay.trace('w',callback_synth_Delay)
+    synth_Sustain.trace('w',callback_synth_Sustain)
+    synth_Release.trace('w',callback_synth_Release)
 
-
+# a function to track the selected value in the effects listbox
+# it must be bound to the listbox in OwO.py with the following line of code
+# self.effects_ListBox.bind('<<ListboxSelect>>',OwO_support.CurSelet)
+def CurSelet(event):
+    widget = event.widget
+    selection=widget.curselection()
+    picked = widget.get(selection)
+    #prints the name of the selection
+    print(picked)
 
 def init(top, gui, *args, **kwargs):
     global w, top_level, root
@@ -63,6 +74,33 @@ if __name__ == '__main__':
     import OwO
     OwO.vp_start_gui()
 
+
+#callbacks
+
+def callback_synth_Volume(*args) :
+    value = float(root.globalgetvar(args[0]))
+    #name = root.globalgetvar(args[0]).name
+    chuck.chuckVars['SynthVolume'] = value
+
+def callback_synth_Attack(*args) :
+    value = float(root.globalgetvar(args[0]))
+    #name = root.globalgetvar(args[0]).name
+    chuck.chuckVars['attack']=value
+
+def callback_synth_Delay(*args) :
+    value = float(root.globalgetvar(args[0]))
+    #name = root.globalgetvar(args[0]).name
+    chuck.chuckVars['delay']=value
+
+def callback_synth_Sustain(*args) :
+    value = float(root.globalgetvar(args[0]))
+    #name = root.globalgetvar(args[0]).name
+    chuck.chuckVars['sustain']=value
+
+def callback_synth_Release(*args) :
+    value = float(root.globalgetvar(args[0]))
+    #name = root.globalgetvar(args[0]).name
+    chuck.chuckVars['release']=value
 
 
 

@@ -1,0 +1,5 @@
+C:\Python36\Lib\site-packages\pyqt5_tools
+
+to compile a ui file to python:
+** -x puts the main function inside output.txt**
+cmd: pyuic5 qtD_project.ui -o output.py -x

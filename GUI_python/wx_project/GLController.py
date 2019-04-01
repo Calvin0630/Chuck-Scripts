@@ -3,10 +3,10 @@ import sys
 import math
 from OpenGL.GL import *
 
-from glglue.basecontroller import BaseController
+from glglue import BaseController
 from glglue.sample import targetview
 from glglue.sample import triangle
-from glglue.sample import cube as cube
+from glglue.sample import cube
 from glglue.sample import coord
 
 DELEGATE_PATTERN=re.compile('^on[A-Z]')
@@ -39,7 +39,7 @@ class Scene(object):
         self.cube.draw()
 
 
-class CustomGLController(object):
+class GLController(object):
     def __init__(self, view=None, root=None):
         view=view or targetview.TargetView()
         self.view=view
@@ -94,5 +94,6 @@ class CustomGLController(object):
         self.view.updateView()
         # 描画
         self.root.draw()
-        #cube.draw()
-        glFlush() 
+
+        glFlush()
+

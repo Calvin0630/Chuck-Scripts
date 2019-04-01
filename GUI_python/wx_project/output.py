@@ -9,6 +9,9 @@
 from PyQt5 import QtCore, QtGui, QtWidgets
 import atexit
 import ChuckManager
+import GLController
+import GLController
+import glglue.qgl
 
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
@@ -23,7 +26,11 @@ class Ui_MainWindow(object):
         self.frame.setFrameShape(QtWidgets.QFrame.StyledPanel)
         self.frame.setFrameShadow(QtWidgets.QFrame.Raised)
         self.frame.setObjectName("frame")
-        self.openGLWidget = QtWidgets.QOpenGLWidget(self.frame)
+        #set up GL controller
+        self.controller=GLController.GLController()
+        #create the widget with the controller attached
+        self.openGLWidget = glglue.qgl.Widget(self.frame, self.controller)
+        #self.openGLWidget = QtWidgets.QOpenGLWidget(self.frame)
         self.openGLWidget.setGeometry(QtCore.QRect(0, 0, 1101, 481))
         self.openGLWidget.setObjectName("openGLWidget")
         self.line = QtWidgets.QFrame(self.frame)
@@ -156,3 +163,6 @@ if __name__ == "__main__":
     atexit.register(onClose)
     sys.exit(app.exec_())
 
+def updateChuckVars():
+    #todo tomorrow
+    pass

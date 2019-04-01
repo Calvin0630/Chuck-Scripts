@@ -1,11 +1,12 @@
 import wx
+import CustomGLController
 import glglue.sample
 import glglue.wxglcanvas
 class Frame(wx.Frame):
     def __init__(self, parent, **kwargs):
         super(Frame, self).__init__(parent, **kwargs)
         # setup opengl widget
-        self.controller=glglue.sample.SampleController()
+        self.controller=CustomGLController.CustomGLController()
         self.glwidget=glglue.wxglcanvas.Widget(self, self.controller)
         # packing
         sizer=wx.BoxSizer(wx.HORIZONTAL)

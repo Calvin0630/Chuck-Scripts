@@ -1,7 +1,7 @@
 SynthVolume 0.7
 attack 0.1
 delay 0.1
-sustain 1
+sustain 0.99
 release 0.1
 reverbActive False
 reverbMix 0

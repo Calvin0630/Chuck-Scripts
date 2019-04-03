@@ -10,9 +10,10 @@ import threading
 
 
 class ChuckManager :
-    def __init__(self) :
+    def __init__(self, parentWidget) :
+        self.parentWidget = parentWidget
         self.number = 0
-        self.settingsThread = threading.Thread(target=self.writeToSettings, args=[])
+        self.settingsThread = threading.Thread(target=self.writeToSettings, args=[],daemon=True)
         self.chuckVars = {
             'SynthVolume' : 0.7,
             'attack' : 0.1,
@@ -28,6 +29,7 @@ class ChuckManager :
         os.system('start chuck -l')
         os.system('chuck + Main.ck:70:.5:69')
         self.settingsFilePath = os.getcwd()+'\\settings.txt'
+        self.initUISliders()
         #a boolean that tells the setting thread when it should exit
         self.settingsThreadExitCondition = False
         self.settingsThread.start()
@@ -38,14 +40,37 @@ class ChuckManager :
             if (self.settingsThreadExitCondition) :
                 self.settingsFile.close()
                 break
-            #print(str(self.number))
+            #update the settings first
+            self.updateChuckVars()
+            #print('settings: '+str(self.number))
             self.number+=1
             self.settingsFile = open(self.settingsFilePath, 'w')
+            
             for x in self.chuckVars : 
                 self.settingsFile.write(x+' '+str(self.chuckVars[x])+'\n')
+
             self.settingsFile.close()
             
             time.sleep(1)
+    def initUISliders(self) :
+        self.parentWidget.volume_slider.setValue(self.chuckVars['SynthVolume']*100)
+        self.parentWidget.attack_slider.setValue(self.chuckVars['attack']*100)
+        self.parentWidget.delay_slider.setValue(self.chuckVars['delay']*100)
+        self.parentWidget.sustain_slider.setValue(self.chuckVars['sustain']*100)
+        self.parentWidget.release_slider.setValue(self.chuckVars['release']*100)
+
+    def updateChuckVars(self) :
+        #get the values from the UI sliders
+        value = float(self.parentWidget.volume_slider.value())
+        self.chuckVars['SynthVolume'] = value/100
+        value = float(self.parentWidget.attack_slider.value())
+        self.chuckVars['attack'] = value/100
+        value = float(self.parentWidget.delay_slider.value())
+        self.chuckVars['delay'] = value/100
+        value = float(self.parentWidget.sustain_slider.value())
+        self.chuckVars['sustain'] = value/100
+        value = float(self.parentWidget.release_slider.value())
+        self.chuckVars['release'] = value/100
 
     def close(self) :
         self.settingsThreadExitCondition = True

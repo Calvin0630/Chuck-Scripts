@@ -59,6 +59,7 @@ class Ui_MainWindow(object):
         self.volume_slider.setPalette(palette)
         self.volume_slider.setOrientation(QtCore.Qt.Vertical)
         self.volume_slider.setObjectName("volume_slider")
+
         self.attack_slider = QtWidgets.QSlider(self.synth_tab)
         self.attack_slider.setGeometry(QtCore.QRect(60, 10, 22, 160))
         palette = QtGui.QPalette()

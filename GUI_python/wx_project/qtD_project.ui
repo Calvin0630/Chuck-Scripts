@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>929</width>
+    <width>926</width>
     <height>836</height>
    </rect>
   </property>
@@ -40,7 +40,7 @@
         <rect>
          <x>0</x>
          <y>0</y>
-         <width>1101</width>
+         <width>921</width>
          <height>481</height>
         </rect>
        </property>
@@ -120,6 +120,22 @@
            </disabled>
           </palette>
          </property>
+         <property name="styleSheet">
+          <string notr="true">QSlider::groove:vertical {
+background: pink;
+position: absolute; /* absolutely position 4px from the left and right of the widget. setting margins on the widget should work too... */
+left: 4px; right: 4px;
+}
+QSlider::handle:vertical {
+height: 10px;
+background: black;
+margin: 0 -4px; /* expand outside the groove */
+}
+</string>
+         </property>
+         <property name="maximum">
+          <number>100</number>
+         </property>
          <property name="orientation">
           <enum>Qt::Vertical</enum>
          </property>
@@ -169,6 +185,22 @@
             </colorrole>
            </disabled>
           </palette>
+         </property>
+         <property name="styleSheet">
+          <string notr="true">QSlider::groove:vertical {
+background: orange;
+position: absolute; /* absolutely position 4px from the left and right of the widget. setting margins on the widget should work too... */
+left: 4px; right: 4px;
+}
+QSlider::handle:vertical {
+height: 10px;
+background: black;
+margin: 0 -4px; /* expand outside the groove */
+}
+</string>
+         </property>
+         <property name="maximum">
+          <number>100</number>
          </property>
          <property name="orientation">
           <enum>Qt::Vertical</enum>
@@ -220,6 +252,22 @@
            </disabled>
           </palette>
          </property>
+         <property name="styleSheet">
+          <string notr="true">QSlider::groove:vertical {
+background: yellow;
+position: absolute; /* absolutely position 4px from the left and right of the widget. setting margins on the widget should work too... */
+left: 4px; right: 4px;
+}
+QSlider::handle:vertical {
+height: 10px;
+background: black;
+margin: 0 -4px; /* expand outside the groove */
+}
+</string>
+         </property>
+         <property name="maximum">
+          <number>100</number>
+         </property>
          <property name="orientation">
           <enum>Qt::Vertical</enum>
          </property>
@@ -270,6 +318,22 @@
            </disabled>
           </palette>
          </property>
+         <property name="styleSheet">
+          <string notr="true">QSlider::groove:vertical {
+background: green;
+position: absolute; /* absolutely position 4px from the left and right of the widget. setting margins on the widget should work too... */
+left: 4px; right: 4px;
+}
+QSlider::handle:vertical {
+height: 10px;
+background: black;
+margin: 0 -4px; /* expand outside the groove */
+}
+</string>
+         </property>
+         <property name="maximum">
+          <number>100</number>
+         </property>
          <property name="orientation">
           <enum>Qt::Vertical</enum>
          </property>
@@ -282,6 +346,55 @@
            <width>22</width>
            <height>160</height>
           </rect>
+         </property>
+         <property name="styleSheet">
+          <string notr="true">QScrollBar:vertical {
+    border: 2px solid grey;
+    background: #32CC99;
+    width: 15px;
+    margin: 22px 0 22px 0;
+}
+QScrollBar::handle:vertical {
+    background: white;
+    min-height: 20px;
+}
+QScrollBar::add-line:vertical {
+    border: 2px solid grey;
+    background: #32CC99;
+    height: 20px;
+    subcontrol-position: bottom;
+    subcontrol-origin: margin;
+}
+
+QScrollBar::sub-line:vertical {
+    border: 2px solid grey;
+    background: #32CC99;
+    height: 20px;
+    subcontrol-position: top;
+    subcontrol-origin: margin;
+}
+QScrollBar::up-arrow:vertical, QScrollBar::down-arrow:vertical {
+    border: 2px solid grey;
+    width: 3px;
+    height: 3px;
+    background: white;
+}
+
+QScrollBar::add-page:vertical, QScrollBar::sub-page:vertical {
+    background: none;
+}
+QSlider::groove:vertical {
+background: blue;
+position: absolute; /* absolutely position 4px from the left and right of the widget. setting margins on the widget should work too... */
+left: 4px; right: 4px;
+}
+QSlider::handle:vertical {
+height: 10px;
+background: black;
+margin: 0 -4px; /* expand outside the groove */
+}
+
+</string>
          </property>
          <property name="maximum">
           <number>100</number>
@@ -360,6 +473,142 @@
          <property name="text">
           <string>Release</string>
          </property>
+        </widget>
+        <widget class="QTabWidget" name="effects_notebook">
+         <property name="geometry">
+          <rect>
+           <x>500</x>
+           <y>0</y>
+           <width>411</width>
+           <height>151</height>
+          </rect>
+         </property>
+         <property name="layoutDirection">
+          <enum>Qt::LeftToRight</enum>
+         </property>
+         <property name="autoFillBackground">
+          <bool>true</bool>
+         </property>
+         <property name="tabPosition">
+          <enum>QTabWidget::South</enum>
+         </property>
+         <property name="currentIndex">
+          <number>1</number>
+         </property>
+         <widget class="QWidget" name="reverb_tab">
+          <attribute name="title">
+           <string>Reverb</string>
+          </attribute>
+          <widget class="QPushButton" name="reverb_bypass_Button">
+           <property name="geometry">
+            <rect>
+             <x>10</x>
+             <y>10</y>
+             <width>71</width>
+             <height>61</height>
+            </rect>
+           </property>
+           <property name="text">
+            <string>Bypass</string>
+           </property>
+          </widget>
+          <widget class="QLabel" name="reverb_mix_label">
+           <property name="geometry">
+            <rect>
+             <x>100</x>
+             <y>80</y>
+             <width>55</width>
+             <height>16</height>
+            </rect>
+           </property>
+           <property name="text">
+            <string>Mix</string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignCenter</set>
+           </property>
+          </widget>
+          <widget class="QDial" name="reverb_mix_dial">
+           <property name="geometry">
+            <rect>
+             <x>100</x>
+             <y>10</y>
+             <width>50</width>
+             <height>64</height>
+            </rect>
+           </property>
+           <property name="minimum">
+            <number>0</number>
+           </property>
+           <property name="maximum">
+            <number>100</number>
+           </property>
+          </widget>
+         </widget>
+         <widget class="QWidget" name="delay_tab">
+          <attribute name="title">
+           <string>Delay</string>
+          </attribute>
+          <widget class="QPushButton" name="delay_bypass_button">
+           <property name="geometry">
+            <rect>
+             <x>10</x>
+             <y>10</y>
+             <width>71</width>
+             <height>61</height>
+            </rect>
+           </property>
+           <property name="text">
+            <string>Bypass</string>
+           </property>
+          </widget>
+          <widget class="QDial" name="delay_max_dial">
+           <property name="geometry">
+            <rect>
+             <x>100</x>
+             <y>10</y>
+             <width>50</width>
+             <height>64</height>
+            </rect>
+           </property>
+          </widget>
+          <widget class="QDial" name="delay_delay_dial">
+           <property name="geometry">
+            <rect>
+             <x>160</x>
+             <y>10</y>
+             <width>50</width>
+             <height>64</height>
+            </rect>
+           </property>
+          </widget>
+          <widget class="QLabel" name="label">
+           <property name="geometry">
+            <rect>
+             <x>90</x>
+             <y>80</y>
+             <width>71</width>
+             <height>16</height>
+            </rect>
+           </property>
+           <property name="text">
+            <string>Buffer Size</string>
+           </property>
+          </widget>
+          <widget class="QLabel" name="label_2">
+           <property name="geometry">
+            <rect>
+             <x>170</x>
+             <y>80</y>
+             <width>55</width>
+             <height>16</height>
+            </rect>
+           </property>
+           <property name="text">
+            <string>Time Delay</string>
+           </property>
+          </widget>
+         </widget>
         </widget>
        </widget>
        <widget class="QWidget" name="sampler_tab">

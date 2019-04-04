@@ -49,7 +49,7 @@ class MyGLWidget(QtOpenGL.QGLWidget):
         GL.glMatrixMode(GL.GL_MODELVIEW)
 
     def paintGL(self):
-        print('drawing')
+        #print('drawing')
         GL.glClear(GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT)
         now = time.time() - self.startTime
         GL.glLoadIdentity()

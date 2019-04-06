@@ -89,7 +89,7 @@ class ChuckManager :
         self.parentWidget.release_slider.setValue(self.chuckVars['release']*100)
         self.parentWidget.lfo_rate_dial.setValue(self.chuckVars['lfoRate']*100)
         self.parentWidget.lfo_depth_dial.setValue(self.chuckVars['lfoDepth']*100)
-        self.parentWidget.delay_max_dial.setValue(self.chuckVars['delayMax']*100)
+        self.parentWidget.delay_max_dial.setValue(self.chuckVars['delayBufSize']*100)
         self.parentWidget.delay_delay_dial.setValue(self.chuckVars['delayTime']*100)
         self.parentWidget.reverb_mix_dial.setValue(self.chuckVars['reverbMix']*100)
         self.parentWidget.chorus_modFreq_dial.setValue(self.chuckVars['chorusModFreq']*100)

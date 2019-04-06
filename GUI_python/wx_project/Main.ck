@@ -92,7 +92,7 @@ else if (me.args()==0) {
     <<<"Using default arguments","">>>;
     70=>bpm;
     60/(bpm $ float)=>beat;
-    0.5=>volume;
+    0.7=>volume;
     55=>rootNote;
 }
 else {
@@ -168,7 +168,8 @@ private class MidiOscillator {
         EffectsChain effectsChain;
         phaseOne =>gain;
         //effectsChain.init(phaseOne,gain);
-        //
+        EffectsChain effects;
+        effects.init(phaseOne, gain);
         gain=>output;
         volume => gain.gain;
         if (volume==0)<<<"VOLUME IS ZERO","">>>;
@@ -204,18 +205,6 @@ private class MidiOscillator {
 
         .2::second=>now;
         setADSR();
-    }
-    //im using a float as a boolean cause im dumb
-    fun void setReverbActive(int f) {
-        if (f!=reverbActive) {
-            if (f==0) {
-                <<<"disconnecting"," reverb">>>;
-            }
-            else if (f==1) {
-                <<<"connecting"," reverb">>>;
-            }
-        }
-        f=>reverbActive;
     }
     fun void setReverbMix(float f) {
         //f=>reverb.mix;
@@ -347,140 +336,50 @@ private class MidiOscillator {
 
 private class EffectsChain {
     /*
-    LIST OF EFFECT UGENS AND THEIR ATTRIBUTES
+    LIST OF EFFECTS 
+    lfo
+        lfoActive 
+        lfoShape
+        lfoRate
+    delay
+        delayActive 
+        delayBufSize
+        delayTime
+    reverb 
+        reverbActive
+        reverbMix
+    chorus 
+        chorusActive
+        chorusModFreq
+        chorusModDepth
+        chorusMix
+    eq
+        eqLow
+        eqMidLow
+        eqMid
+        eqHighMid
+        eqHigh
     */
-    UGen effects[8];
-    PRCRev reverb@=> effects["reverb"];
-    Delay delay@=> effects["delay"];
-    Gain gain@=> effects["gain"];
-    Phasor phasor@=> effects["phasor"];
-    Chorus chorus@=> effects["chorus"];
-    PitShift pitShift@=> effects["pitShift"];
-    LPF lowPass@=> effects["LPF"];
-    HPF highPass@=> effects["HPF"];
-    UGen input, output;
-    //stores the indices of active EffectsChain
-    //0: effect that is after input
-    //last element: effect before to output
-    IntArray activeEffects;
-    fun void init(UGen input_, UGen output_) {
-        input_@=>input;
-        output_@=>output;
-        input=>output;
+    UGen in, out;
+    IntArray activeEffects[];
+    int effectIndexArray[5];
+    0=>effectIndexArray["lfo"];
 
-        /*
-        //reverb
-        Effect e;
-        e.init("reverb");
-        //delay
-        Effect e;
-        e.init("delay");
-        //phasor
-        Effect e;
-        e.init("phasor");
-        //chorus
-        Effect e;
-        e.init("chorus");
-
-        //pitShift
-        Effect e;
-        e.init("pitShift");
-
-        //LPF
-        Effect e;
-        e.init("LPF");
-
-        //HPF
-        Effect e;
-        e.init("HPF");
-        */
+    fun void init(UGen in_, UGen out_) {
+        in_=> in;
+        out_=> out;
+        //in=> out;
     }
-    fun void add(string effectName){
-        /*
-        //if the effect with that name is already in the effects chain return
-        if (if (activeEffects.contains)) {
-            <<<"the effects chain already contains an effect with that name. returning...","">>>;
-            return;
+    fun void activateEffect(string name) {
+        if (name == "lfo") {
+            
         }
-        //unhook the relevent effects
-        if (effects.cap()==0) {
-            input=<output;
-        }
-        else {
-            effects@=>UGen tmp[];
-        }
-        */
-    }
-
-    fun void remove(string name) {
 
     }
-    //since chuck has a wierd thing against booleans, this function returns 1 if the effect is found. Otherwise 0
-    fun int contains(string name) {
-        for (0=>int i;i<effects.cap();i++) {
-            //if (effects[i].name == name) return 1;
-        }
-        //if it didnt find the loop w/ that name:
-        return 0;
-    }
 
-    fun void SetEffectVariable(string effectName, string effectVariable, float effectValue) {
-
-    }
 
 }
-private class Effect{
-    string name;
-    UGen generator;
-    //before and after are the ugen that lead into and recieve output from the effect;
-    UGen before, after;
-    fun void init(string name_) {
-        if (name =="reverb") {
-            name_=>name;
-            PRCRev r ;
-            0.2=>r.mix;
-            r@=> generator;
-        }
-        else if (name =="delay") {
-            name_=>name;
-            Delay d;
-            d@=>generator;
-        }
-        else if (name =="phasor") {
-            name_=>name;
-            Phasor p;
-            p@=>generator;
-        }
-        else if (name =="chorus") {
-            name_=>name;
-            Chorus c;
-            c@=>generator;
-        }
-        else if (name =="pitShift") {
-            name_=>name;
-            PitShift p;
-            p@=>generator;
-        }
-        else if (name =="LPF") {
-            name_=>name;
-            LPF f;
-            f@=>generator;
-        }
-        else if (name =="HPF") {
-            name_=>name;
-            HPF h;
-            h@=>generator;
-        }
-        else {
-            <<<"Didnt recognize that effect name","">>>;
-            return;
-        }
-        name_=>name;
-    }
-    fun void setEffectParam() {
 
-    }
-}
 //a class to parse settings.txt to update volume, lfoDepth, etc.
 private class SettingsReader {
     MidiOscillator synth;
@@ -542,22 +441,22 @@ private class SettingsReader {
                     Std.atof(variableValue)=>synth.release;
                 }
                 else if (variableName=="reverbActive") {
-                    synth.setReverbActive(Std.atoi(variableValue));
+                    //synth.setReverbActive(Std.atoi(variableValue));
                 }
                 else if (variableName=="reverbMix") {
-                    synth.setReverbMix(Std.atof(variableValue));
+                    //synth.setReverbMix(Std.atof(variableValue));
                 }
                 else if (variableName=="delayActive") {
-                    synth.setDelayActive(Std.atoi(variableValue));
+                    //synth.setDelayActive(Std.atoi(variableValue));
                 }
                 else if (variableName=="delayTime") {
-                    synth.setDelayTime(Std.atof(variableValue));
+                    //synth.setDelayTime(Std.atof(variableValue));
                 }
                 else if (variableName=="delayMax") {
-                    synth.setDelayMax(Std.atof(variableValue));
+                    //synth.setDelayMax(Std.atof(variableValue));
                 }
                 else if (variableName=="synthRootNote") {
-                    synth.setRootNote(Std.atoi(variableValue));
+                    //synth.setRootNote(Std.atoi(variableValue));
                 }
             }
             .1::second=>now;

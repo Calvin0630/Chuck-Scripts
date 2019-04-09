@@ -114,6 +114,7 @@ Gain input=>Gain finalVolume=>dac;
 volume=>finalVolume.gain;
 MidiOscillator mOsc;
 Sampler sam;
+Recorder recorder;
 //initialize settingReader first so settings get read first
 SettingsReader reader;
 reader.init(mOsc, sam);
@@ -121,6 +122,7 @@ reader.init(mOsc, sam);
 
 mOsc.init(input, bpm, volume, rootNote);
 sam.init(input, bpm, volume, rootNote);
+recorder.init();
 Main main;
 spork~main.exitOnEsc();
 
@@ -361,13 +363,18 @@ private class EffectsChain {
         eqHigh
     */
     UGen in, out;
-    IntArray activeEffects[];
+    IntArray activeEffects;
+
     int effectIndexArray[5];
     0=>effectIndexArray["lfo"];
+    1=>effectIndexArray["delay"];
+    2=>effectIndexArray["reverb"];
+    3=>effectIndexArray["chorus"];
+    4=>effectIndexArray["eq"];
 
     fun void init(UGen in_, UGen out_) {
-        in_=> in;
-        out_=> out;
+        in_ @=> in;
+        out_ @=> out;
         //in=> out;
     }
     fun void activateEffect(string name) {
@@ -380,6 +387,86 @@ private class EffectsChain {
 
 }
 
+private class Recorder {
+    //the id of the shred that is currently recording. 
+    //if there is no shred recording it is -1
+    -1=>int recordShredID;
+    RandomWordGenerator randomWord;
+    fun void init() {
+        spork~listenForEvents();
+    }
+    fun void listenForEvents() {
+        
+        // which keyboard
+        0 => int device;
+        // HID
+        Hid hi;
+        HidMsg msg;
+        // open keyboard (get device number from command line)
+        if( !hi.openKeyboard( device ) ) me.exit();
+        // infinite event loop
+        while( true )
+        {
+            
+            // wait for event
+            hi => now;
+
+            // get message
+            while( hi.recv( msg ) )
+            {
+                // if the button is pressed down
+                if( msg.isButtonDown() )
+                {
+                    //<<< msg.which,"">>>;
+                    //if tab was pressed
+                    if (msg.which== 15) {
+                        if (recordShredID==-1) {
+                            //start a new record shred
+                            <<<"tab","">>>;
+                            //spork~startRecording() @=> Shred offspring;
+                            (randomWord.next()+randomWord.next()+randomWord.next())=>string fileName;
+                            Machine.add("record.ck:"+fileName)=>recordShredID;
+                        }
+                        else {
+                            //close the current record shred
+                            Machine.remove(recordShredID);
+                            //reset id
+                            -1=>recordShredID;
+                        }
+                    }
+
+                    80::ms => now;
+                }
+                else //its been released
+                {
+                    
+                }
+            }
+        }
+
+    }
+
+    //this function is called when the user presses tab and there is no shred currently recording
+    fun void startRecording() {
+        dac => Gain g => WvOut w => blackhole;
+        "chuck-session" => w.autoPrefix;
+        //recording folder
+        "C:\\Users\\Calvin\\Documents\\Chuck-Scripts\\Recordings\\"=> string folder;
+        // this is the output file name
+        (randomWord.next()+randomWord.next()+randomWord.next())=>string fileName;
+        folder + fileName => w.wavFilename;
+
+        // print it out
+        <<<"writing to file: ", w.filename()>>>;
+
+        // any gain you want for the output
+        .5 => g.gain;
+
+        // temporary workaround to automatically close file on remove-shred
+        null @=> w;
+
+    }
+}
 //a class to parse settings.txt to update volume, lfoDepth, etc.
 private class SettingsReader {
     MidiOscillator synth;
@@ -706,6 +793,13 @@ private class Sampler {
     }
 }
 
+private class RandomWordGenerator {
+    ["1.", "Eventually", "as", "my", "whole", "world", "comes", "down", "around", "me", "show", "me", "no", "pity", "as", "i", "ease", "into", "a", "suicidal", "laughter", "with", "the", "setting", "sun,", "my", "father's", "gun", "is", "whispering", "and", "as", "my", "family", "dies", "from", "cancer", "i", "am", "teary-eyed", "and", "weak", "i'm", "not", "weary", "of", "disasters", "the", "end", "is", "numb,", "for", "everyone,", "eventually", "and", "as", "my", "friendships", "are", "decaying", "and", "we're", "all", "waking", "from", "the", "dream", "this", "dying", "day", "just", "ain't", "worth", "saving", "so", "i", "hide", "away,", "in", "my", "poison", "brain,", "trying", "to", "sleep", "2.", "Loss", "Memory", "how", "do", "i", "wake", "up?", "how", "do", "i", "get", "free?", "tethered", "to", "an", "anchor", "of", "loss", "memory", "dreaming", "so", "long", "dreaming", "so", "lonely", "i", "get", "a", "phone", "call,", "no", "one's", "on", "the", "line", "i", "take", "in", "their", "silence", "and", "say", "my", "goodbyes", "dreaming", "so", "long", "dreaming", "so", "lonely", "3.", "Phillip", "02:14", "i", "woke", "up", "so", "tired", "drag", "me", "through", "the", "light", "i've", "been", "alone", "for", "so", "long", "hello", "sad", "world", "take", "me", "in,", "let", "me", "know", "i've", "been", "alone", "for", "so", "long", "i'm", "through", "begging", "off", "an", "eternity", "of", "loss", "i've", "been", "alone", "for", "so", "long", "so", "long", "4.", "Tether", "03:28", "i'm", "the", "fucked", "up", "kid", "in", "school", "dead", "in", "the", "eyes", "of", "the", "rules", "i", "got", "sent", "home", "for", "throwing", "up", "my", "friends", "think", "being", "sick", "is", "cool", "and", "my", "dad", "beat", "up", "my", "mom", "because", "she's", "an", "alcoholic", "but", "he's", "an", "alcoholic", "too", "through", "the", "looking", "glass", "of", "abuse", "i", "want", "to", "sleep", "next", "to", "you", "after", "school", "before", "my", "mom", "calls", "to", "see", "when", "i'm", "coming", "home", "i", "can", "finally", "see", "where", "the", "tether", "ends", "mortally", "coiled", "around", "nothingness", "i'm", "the", "fucked", "up", "kid", "in", "school", "maybe", "i'll", "join", "the", "army", "no", "one", "will", "ever", "know", "me", "truly", "my", "rage", "has", "silenced", "a", "cry", "for", "help", "my", "mom's", "dealer", "put", "a", "gun", "to", "my", "head", "for", "a", "laugh,", "for", "his", "friends", "and", "in", "that", "moment", "i", "knew", "i", "could", "kill", "my", "mother's", "prison", "is", "herself", "i", "want", "to", "sleep", "next", "to", "you", "after", "school", "before", "my", "mom", "calls", "to", "see", "when", "i'm", "coming", "home", "i", "can", "finally", "see", "where", "the", "tether", "ends", "mortally", "coiled", "around", "nothingness", "5.", "Thunder", "02:38", "can", "you", "face", "me?", "i", "already", "know", "the", "answer", "if", "it's", "over,", "let's", "go", "our", "separate", "ways", "when", "the", "thunder", "calls", "to", "me", "then", "i'll", "come", "over", "i", "am", "waiting", "with", "an", "open", "mind", "i", "am", "drawn", "to", "the", "mirror", "in", "a", "dull", "revulsion", "i", "forgive", "you", "but", "i", "do", "not", "know", "why", "6.", "Ambrosia", "in", "the", "Bitter", "World", "02:35", "ambrosia", "in", "the", "bitter", "world", "i", "cling", "to", "your", "light", "to", "keep", "from", "sinking", "down", "the", "clouds", "rip", "open", "and", "the", "rain", "reaches", "out", "to", "the", "people", "who", "just", "want", "to", "drown", "and", "now", "my", "heart", "aches", "but", "it", "keeps", "pounding", "to", "crush", "my", "little", "world", "and", "leave", "me", "dreaming", "in", "endless", "silence,", "only", "of", "you", "ambrosia", "i", "was", "once", "a", "little", "girl,", "i", "was", "twisted", "into", "what", "i", "am", "now", "my", "heart", "is", "open", "but", "i", "don't", "know", "how", "to", "reach", "out", "and", "be", "a", "person", "so", "i", "up", "and", "drown", "and", "now", "my", "heart", "aches", "but", "it", "keeps", "pounding", "to", "crush", "my", "little", "world", "and", "leave", "me", "dreaming", "in", "endless", "silence,", "only", "of", "you", "ambrosia", "7.", "Burden", "03:04", "when", "you", "get", "off", "work", "come", "by", "my", "house,", "and", "lay", "your", "burden", "down", "may", "the", "world", "the", "keep", "spinning", "until", "it", "spirals", "out", "lay", "your", "burden", "down", "my", "mom's", "gone", "to", "california", "they", "got", "a", "treatment", "center", "there", "my", "mom", "had", "a", "fucked", "up", "childhood", "that's", "the", "burden", "that", "we", "both", "bear", "lay", "your", "burden", "down", "i", "quit", "drinking,", "but", "i", "still", "smoke,", "lay", "your", "burden", "down", "carried", "down", "a", "highway", "with", "nowhere", "else", "to", "go", "lay", "your", "burden", "down", "my", "mom's", "gone", "to", "california", "they", "got", "a", "treatment", "center", "there", "my", "mom", "had", "a", "fucked", "up", "childhood", "that's", "the", "burden", "that", "we", "both", "bear", "lay", "your", "burden", "down", "8.", "Running", "Wide", "Open", "02:43", "traffic", "lights", "turning", "blue", "everyone", "that", "we", "burn", "through", "only", "me", "and", "you,", "queen", "of", "booze", "ain't", "no", "furniture", "in", "our", "house", "no", "screaming", "and", "fighting", "anymore", "the", "living", "room", "turns", "blue", "we're", "both", "sleeping", "on", "the", "floor", "i", "want", "to", "be", "an", "engine", "running", "wide", "open", "running", "wide", "open", "until", "i", "can't", "run", "no", "more", "living", "with", "one", "eye", "closed", "and", "one", "eye", "on", "the", "cage", "door", "everyday", "is", "the", "day", "that", "i'll", "die", "and", "be", "afraid", "no", "more", "when", "dad", "found", "out", "about", "where", "we", "were", "hiding", "out", "he", "came", "down", "like", "a", "sea", "of", "rage,", "crashing", "onto", "the", "shore", "i", "want", "to", "be", "an", "engine", "running", "wide", "open", "running", "wide", "open", "until", "i", "can't", "run", "no", "more", "i", "let", "the", "years", "go", "by,", "i", "let", "no", "one", "know", "what's", "inside", "my", "broken", "heart", "keeps", "a", "beat", "just", "fine", "i", "don't", "want", "to", "die", "no", "more", "i", "see", "my", "future", "and", "my", "past", "all", "at", "once", "in", "a", "lightning", "flash", "all", "you", "can", "do", "is", "laugh", "until", "you", "just", "can't", "no", "more", "i", "want", "to", "be", "an", "engine", "running", "wide", "open", "running", "wide", "open", "until", "i", "can't", "run", "no", "more", "i", "want", "to", "be", "an", "engine", "running", "wide", "open", "running", "wide", "open", "until", "i", "can't", "run", "no", "more", "9.", "Window", "02:41", "closing", "my", "eyes", "when", "i", "drive", "back", "in", "my", "hometown,", "past", "every", "bar", "i've", "been", "thrown", "out", "i", "can't", "make", "it", "to", "class", "so", "i'm", "drunk", "in", "my", "car", "i", "can't", "roll", "my", "window", "up", "the", "glass", "is", "stuck", "in", "the", "door", "at", "home", "there's", "blood", "on", "my", "bed", "and", "no", "running", "water", "there", "is", "a", "room", "i", "don't", "go", "in", "i", "see", "myself", "through", "the", "door", "me", "and", "my", "mom", "used", "to", "hide", "there", "crying", "our", "prayers", "through", "a", "window", "a", "fig", "tree", "covered", "in", "water", "holds", "the", "moonlight", "like", "a", "prison", "Sad", "World", "rot", "me", "around", "your", "sword,", "paint", "me", "wet", "i", "don't", "want", "to", "dry", "out", "just", "yet", "rot", "me", "alcoholic", "womb,", "i", "want", "to", "burn", "my", "way", "through", "this", "world", "consumed", "with", "you", "i've", "got", "a", "bad", "idea", "let's", "lose", "our", "minds", "in", "love", "with", "bad", "ideas", "so", "long", "sad", "world,", "goodbye", "peeling", "back", "the", "skin,", "i", "want", "to", "see", "the", "mask", "you", "wear", "within,", "beneath", "your", "eyes", "gnawing", "at", "your", "mind", "i", "want", "to", "wither", "away", "in", "your", "love", "until", "i", "die", "i've", "got", "a", "bad", "idea", "let's", "lose", "our", "minds", "in", "love", "with", "bad", "ideas", "so", "long", "sad", "world,", "goodbye"]
+        @=> string words[];
+    fun string next() {
+        return words[Math.random2(0, words.cap()-1)];
+    }
+}
 private class IntArray {
     /*
     functions:

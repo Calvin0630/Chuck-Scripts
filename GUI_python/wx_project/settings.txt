@@ -1,8 +1,8 @@
 SynthVolume 0.1
-attack 0.64
-delay 0.52
-sustain 1.0
-release 1.0
+attack 0.1
+delay 0.1
+sustain 0.71
+release 0.1
 lfoActive False
 lfoShape 0.1
 lfoRate 0.1
@@ -12,7 +12,7 @@ delayBufSize 0.1
 delayTime 0.1
 reverbActive False
 reverbMix 0.1
-chorusActive False
+chorusActive True
 chorusModFreq 0.1
 chorusModDepth 0.1
 chorusMix 0.1

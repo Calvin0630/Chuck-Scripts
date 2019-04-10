@@ -17,7 +17,7 @@ class MyGLWidget(QtOpenGL.QGLWidget):
         QtOpenGL.QGLWidget.__init__(self, parent)
         self.startTime = time.time()
         self.setMinimumSize(100, 100)
-        self.initGeometry()
+        self.initCube()
         self.timer = QtCore.QTimer()
         self.timer.timeout.connect(self.update)
         #self.doubleBuffer()
@@ -53,8 +53,8 @@ class MyGLWidget(QtOpenGL.QGLWidget):
         GL.glClear(GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT)
         now = time.time() - self.startTime
         GL.glLoadIdentity()
-        GL.glTranslate(0.0, 0.0, -50.0)
-        GL.glScale(20.0, 20.0, 20.0)
+        GL.glTranslate(0.0, 0.0, -5.0)
+        GL.glScale(2.0, 2.0, 2.0)
         GL.glRotate(1000*math.sin(now/10), 0, 1, 0)
         GL.glRotate(1000*math.cos(now/10), 1, 0, 0)
         GL.glRotate(100*math.tan(now/10), 0, 0, 1)
@@ -65,11 +65,28 @@ class MyGLWidget(QtOpenGL.QGLWidget):
         GL.glVertexPointerf(self.cubeVtxArray)
         GL.glColorPointerf(self.cubeClrArray)
         GL.glDrawElementsui(GL.GL_QUADS, self.cubeIdxArray)
+
+        GL.glLoadIdentity()
+        GL.glBegin(GL.GL_LINES)
+        GL.glColor3f(0,1,0)
+
+        #draw the grid
+        for x in range(50) :
+            #print(str((x/2)-12.5))
+            #horizontal
+            GL.glVertex3f(25,-1,((x/2)-12.5))
+            GL.glVertex3f(-25,-1,((x/2)-12.5))
+            #forward
+            GL.glVertex3f(((x/2)-12.5),-1,12.5)
+            GL.glVertex3f(((x/2)-12.5),-1,-12.5)
+
+        GL.glEnd()
+        self.drawData()
         GL.glFlush()
         #time.sleep(1)
         #self.paintGL()
 
-    def initGeometry(self):
+    def initCube(self) :
         self.cubeVtxArray = array(
                 [[0.0, 0.0, 0.0],
                  [1.0, 0.0, 0.0],
@@ -95,7 +112,16 @@ class MyGLWidget(QtOpenGL.QGLWidget):
                 [1.0, 0.0, 1.0],
                 [1.0, 1.0, 1.0],
                 [0.0, 1.0, 1.0 ]]
-        def spin(self):
-            self.yRotDeg = (self.yRotDeg  + 1) % 360.0
-            self.parent.statusBar().showMessage('rotation %f' % self.yRotDeg)
-            self.updateGL()
+    def drawData(self):
+        GL.glLoadIdentity()
+        GL.glColor3f(1,0,0)
+        GL.glBegin(GL.GL_QUADS)
+        GL.glVertex3f(10,-1,10)
+        GL.glVertex3f(10,-1,-10)
+        GL.glVertex3f(-10,-1,-10)
+        GL.glVertex3f(-10,-1,10)
+        GL.glEnd()
+    def spin(self):
+        self.yRotDeg = (self.yRotDeg  + 1) % 360.0
+        self.parent.statusBar().showMessage('rotation %f' % self.yRotDeg)
+        self.updateGL()

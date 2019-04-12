@@ -362,28 +362,39 @@ private class EffectsChain {
         eqHighMid
         eqHigh
     */
-    UGen in, out;
+    //
+    Gain in, out;
+    //active effects stores a list of ints that represents the active elements in the patch
+    //0 - Input of effects loop
+    //1 - lfo
+    //2 - Delay
+    //3 - Reverb
+    //4 - chorus
+    //5 - EQ
+    //6 - Output of effects loop
+    //eg if just reverb and chorus were active activeEffects would look like: 0, 3, 4, 6
+    //0 and 6 will always be in activeEffects to avoid edge cases
     IntArray activeEffects;
+    //init lfo 
+    Gain LFO_In, LFO_Out;
+    LFO_Out.op(3);
+    SinOsc LFO_Osc;
+    LFO_Osc=>LFO_Out;
+    //init delay 
 
-    int effectIndexArray[5];
-    0=>effectIndexArray["lfo"];
-    1=>effectIndexArray["delay"];
-    2=>effectIndexArray["reverb"];
-    3=>effectIndexArray["chorus"];
-    4=>effectIndexArray["eq"];
 
     fun void init(UGen in_, UGen out_) {
         in_ @=> in;
         out_ @=> out;
-        //in=> out;
-    }
-    fun void activateEffect(string name) {
-        if (name == "lfo") {
-            
-        }
+        in=> out;
 
     }
-
+    fun void connect(UGen a, UGen b) {
+        a=> b;
+    }
+    fun void disconnect(UGen a, UGen b) {
+        a=<b;
+    }
 
 }
 

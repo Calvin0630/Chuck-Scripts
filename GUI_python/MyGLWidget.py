@@ -81,7 +81,7 @@ class MyGLWidget(QtOpenGL.QGLWidget):
             GL.glVertex3f(((x/2)-12.5),-1,-12.5)
 
         GL.glEnd()
-        self.drawData()
+        #self.drawData()
         GL.glFlush()
         #time.sleep(1)
         #self.paintGL()

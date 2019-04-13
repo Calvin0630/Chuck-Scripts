@@ -376,16 +376,42 @@ private class EffectsChain {
     //0 and 6 will always be in activeEffects to avoid edge cases
     IntArray activeEffects;
     //init lfo 
-    Gain LFO_In, LFO_Out;
-    LFO_Out.op(3);
-    SinOsc LFO_Osc;
-    LFO_Osc=>LFO_Out;
+    Gain lfoIn, lfoOut;
+    lfoOut.op(3);
+    SinOsc lfoOsc;
+    lfoOsc=>lfoOut;
     //init delay 
+    Gain delayIn=>Delay delay=>Gain delayOut;
+    //init reverb
+    Gain reverbIn=>PRCRev reverb=>Gain reverbOut;
+    //init chorus
+    Gain chorusIn=>Chorus chorus=>Gain chorusOut;
+    // init EQ
+    //eq has 5 different frequecy ranges connected in parallel
+    Gain eqIn=>LPF lpfLowEq=>Gain eqLow=> Gain eqOut;
+    75=>lpfLowEq.freq;
+
+    eqIn=>LPF lpfMidLowEq=>HPF hpfMidLowEq=>Gain eqMidLow=> eqOut;
+    75=>hpfMidLowEq.freq;
+    100=> lpfMidLowEq.freq;
+
+    eqIn=>LPF lpfMidEq=>HPF hpfMidEq=>Gain eqMid=> eqOut;
+    100=>hpfMidEq.freq;
+    2500=> lpfMidEq.freq;
+
+    eqIn=>LPF lpfHighMidEq=>HPF hpfHighMidEq=>Gain eqHighMid=> eqOut;
+    2500=>hpfHighMidEq.freq;
+    7500=> lpfHighMidEq.freq;
+
+    eqIn=>LPF lpfHighEq=>HPF hpfHighEq=>Gain eqHigh=> eqOut;
+    7500=>hpfHighEq.freq;
+    20000=> lpfHighEq.freq;
 
 
-    fun void init(UGen in_, UGen out_) {
+    fun void init(Gain in_, Gain out_) {
         in_ @=> in;
         out_ @=> out;
+
         in=> out;
 
     }

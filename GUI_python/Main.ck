@@ -372,56 +372,271 @@ private class EffectsChain {
     //4 - chorus
     //5 - EQ
     //6 - Output of effects loop
-    //eg if just reverb and chorus were active activeEffects would look like: 0, 3, 4, 6
+    //eg if just reverb and chorus were active activeEffects would look like: 0,3,4,6
     //0 and 6 will always be in activeEffects to avoid edge cases
+    //0 and 6 represent input and output Gain
     IntArray activeEffects;
     //init lfo 
-    Gain lfoIn, lfoOut;
-    lfoOut.op(3);
-    SinOsc lfoOsc;
-    lfoOsc=>lfoOut;
+    LFO lfo;
     //init delay 
-    Gain delayIn=>Delay delay=>Gain delayOut;
+    MyDelay delay;
     //init reverb
-    Gain reverbIn=>PRCRev reverb=>Gain reverbOut;
+    Reverb reverb;
     //init chorus
-    Gain chorusIn=>Chorus chorus=>Gain chorusOut;
+    MyChorus chorus;
     // init EQ
-    //eq has 5 different frequecy ranges connected in parallel
-    Gain eqIn=>LPF lpfLowEq=>Gain eqLow=> Gain eqOut;
-    75=>lpfLowEq.freq;
-
-    eqIn=>LPF lpfMidLowEq=>HPF hpfMidLowEq=>Gain eqMidLow=> eqOut;
-    75=>hpfMidLowEq.freq;
-    100=> lpfMidLowEq.freq;
-
-    eqIn=>LPF lpfMidEq=>HPF hpfMidEq=>Gain eqMid=> eqOut;
-    100=>hpfMidEq.freq;
-    2500=> lpfMidEq.freq;
-
-    eqIn=>LPF lpfHighMidEq=>HPF hpfHighMidEq=>Gain eqHighMid=> eqOut;
-    2500=>hpfHighMidEq.freq;
-    7500=> lpfHighMidEq.freq;
-
-    eqIn=>LPF lpfHighEq=>HPF hpfHighEq=>Gain eqHigh=> eqOut;
-    7500=>hpfHighEq.freq;
-    20000=> lpfHighEq.freq;
+    EQ eq;
+    //the chain of Gains that represent the in/out of each of the elements in the chain
+    ["lfo", "delay", "reverb", "chorus", "eq"]
+        @=> string effectNames[];
+    
+    /*a list of all the gain objects in the chain in sequential order
+    activeEffects map to chainIndex in the following diagram
+    					activeEffect  chainIndex
+        in			        0-----------0
+        lfo.in				1-----------1
+        lfo.out				1-----------2
+        delay.in			2-----------3
+        delay.out			2-----------4
+        reverb.in			3-----------5
+        reverb.out			3-----------6
+        chorus.in			4-----------7
+        chorus.out			4-----------8
+        eq.in				5-----------9
+        eq.out				5-----------10
+        out					6-----------11*/
+    [in, lfo.in, lfo.out, delay.in, delay.out, reverb.in, reverb.out, chorus.in, chorus.out, eq.in, eq.out, out]
+        @=>Gain chain[];
 
 
     fun void init(Gain in_, Gain out_) {
         in_ @=> in;
         out_ @=> out;
-
+        activeEffects.add([0,6]);
         in=> out;
 
     }
-    fun void connect(UGen a, UGen b) {
-        a=> b;
+    //activeStr is either "True" or "False"
+    fun void setLfoActive(string activeStr) {
+        //the index in activeEffects that represents the lfo
+        1=> int currentEffect;
+        if (activeStr == "True") {
+            //connect the effect
+            activeEffects.add(currentEffect);
+            activeEffects.indexOf(currentEffect) =>int  index;
+            //get the value in activeEffects of the effect before and after LFO
+            activeEffects.get(index -1) => int formerEffectIndex;
+            activeEffects.get(index +1) => int latterEffectIndex;
+            disconnect(formerEffectIndex, latterEffectIndex);
+            connect(formerEffectIndex, currentEffect);
+            connect(currentEffect, latterEffectIndex);
+        }
+        else if(activeStr == "False") {
+            //disconnect the effect
+            activeEffects.indexOf(currentEffect) =>int  index;
+            //get the value in activeEffects of the effect before and after LFO
+            activeEffects.get(index -1) => int formerEffectIndex;
+            activeEffects.get(index +1) => int latterEffectIndex;
+            disconnect(formerEffectIndex, currentEffect);
+            disconnect(currentEffect, latterEffectIndex);
+            connect(formerEffectIndex, latterEffectIndex);
+            activeEffects.remove(currentEffect);
+
+        }
+        else {
+            <<<"EffectsChain.SetLfoActive() did not recognize that string","">>>;
+        }
     }
-    fun void disconnect(UGen a, UGen b) {
-        a=<b;
+    //activeStr is either "True" or "False"
+    fun void setDelayActive(string activeStr) {
+        //the index in activeEffects that represents the delay
+        2=> int currentEffect;
+        if (activeStr == "True") {
+            //connect the effect
+            activeEffects.add(currentEffect);
+            activeEffects.indexOf(currentEffect) =>int  index;
+            //get the value in activeEffects of the effect before and after delay
+            activeEffects.get(index -1) => int formerEffectIndex;
+            activeEffects.get(index +1) => int latterEffectIndex;
+            disconnect(formerEffectIndex, latterEffectIndex);
+            connect(formerEffectIndex, currentEffect);
+            connect(currentEffect, latterEffectIndex);
+        }
+        else if(activeStr == "False") {
+            //disconnect the effect
+            activeEffects.indexOf(currentEffect) =>int  index;
+            //get the value in activeEffects of the effect before and after delay
+            activeEffects.get(index -1) => int formerEffectIndex;
+            activeEffects.get(index +1) => int latterEffectIndex;
+            disconnect(formerEffectIndex, currentEffect);
+            disconnect(currentEffect, latterEffectIndex);
+            connect(formerEffectIndex, latterEffectIndex);
+            activeEffects.remove(currentEffect);
+
+        }
+        else {
+            <<<"EffectsChain.SetLfoActive() did not recognize that string","">>>;
+        }
+    }
+    //activeStr is either "True" or "False"
+    fun void setReverbActive(string activeStr) {
+        //the index in activeEffects that represents the delay
+        3=> int currentEffect;
+        if (activeStr == "True") {
+            //connect the effect
+            activeEffects.add(currentEffect);
+            activeEffects.indexOf(currentEffect) =>int  index;
+            //get the value in activeEffects of the effect before and after reverb
+            activeEffects.get(index -1) => int formerEffectIndex;
+            activeEffects.get(index +1) => int latterEffectIndex;
+            disconnect(formerEffectIndex, latterEffectIndex);
+            connect(formerEffectIndex, currentEffect);
+            connect(currentEffect, latterEffectIndex);
+        }
+        else if(activeStr == "False") {
+            //disconnect the effect
+            activeEffects.indexOf(currentEffect) =>int  index;
+            //get the value in activeEffects of the effect before and after reverb
+            activeEffects.get(index -1) => int formerEffectIndex;
+            activeEffects.get(index +1) => int latterEffectIndex;
+            disconnect(formerEffectIndex, currentEffect);
+            disconnect(currentEffect, latterEffectIndex);
+            connect(formerEffectIndex, latterEffectIndex);
+            activeEffects.remove(currentEffect);
+
+        }
+        else {
+            <<<"EffectsChain.SetLfoActive() did not recognize that string","">>>;
+        }
+    }
+    //activeStr is either "True" or "False"
+    fun void setChorusActive(string activeStr) {
+        //the index in activeEffects that represents the chorus
+        4=> int currentEffect;
+        if (activeStr == "True") {
+            //connect the effect
+            activeEffects.add(currentEffect);
+            activeEffects.indexOf(currentEffect) =>int  index;
+            //get the value in activeEffects of the effect before and after chorus
+            activeEffects.get(index -1) => int formerEffectIndex;
+            activeEffects.get(index +1) => int latterEffectIndex;
+            disconnect(formerEffectIndex, latterEffectIndex);
+            connect(formerEffectIndex, currentEffect);
+            connect(currentEffect, latterEffectIndex);
+        }
+        else if(activeStr == "False") {
+            //disconnect the effect
+            activeEffects.indexOf(currentEffect) =>int  index;
+            //get the value in activeEffects of the effect before and after chorus
+            activeEffects.get(index -1) => int formerEffectIndex;
+            activeEffects.get(index +1) => int latterEffectIndex;
+            disconnect(formerEffectIndex, currentEffect);
+            disconnect(currentEffect, latterEffectIndex);
+            connect(formerEffectIndex, latterEffectIndex);
+            activeEffects.remove(currentEffect);
+
+        }
+        else {
+            <<<"EffectsChain.SetLfoActive() did not recognize that string","">>>;
+        }
+    }
+    //activeStr is either "True" or "False"
+    fun void setEQActive(string activeStr) {
+        //the index in activeEffects that represents the eq
+        5=> int currentEffect;
+        if (activeStr == "True") {
+            //connect the effect
+            activeEffects.add(currentEffect);
+            activeEffects.indexOf(currentEffect) =>int  index;
+            //get the value in activeEffects of the effect before and after eq
+            activeEffects.get(index -1) => int formerEffectIndex;
+            activeEffects.get(index +1) => int latterEffectIndex;
+            disconnect(formerEffectIndex, latterEffectIndex);
+            connect(formerEffectIndex, currentEffect);
+            connect(currentEffect, latterEffectIndex);
+        }
+        else if(activeStr == "False") {
+            //disconnect the effect
+            activeEffects.indexOf(currentEffect) =>int  index;
+            //get the value in activeEffects of the effect before and after eq
+            activeEffects.get(index -1) => int formerEffectIndex;
+            activeEffects.get(index +1) => int latterEffectIndex;
+            disconnect(formerEffectIndex, currentEffect);
+            disconnect(currentEffect, latterEffectIndex);
+            connect(formerEffectIndex, latterEffectIndex);
+            activeEffects.remove(currentEffect);
+
+        }
+        else {
+            <<<"EffectsChain.SetLfoActive() did not recognize that string","">>>;
+        }
+    }
+    //takes two numbers from the activeEffects[] and disconnects their Gains in the chain array
+    //also a => b (a is connected to b)
+    fun void disconnect(int a, int b) {
+        activeEffectsToChainIndex(a, "out")=>int chainIndexA;
+        activeEffectsToChainIndex(b, "in") => int chainIndexB;
+        chain[chainIndexA]=< chain[chainIndexB];
+    }
+    //takes two numbers from the activeEffects[] and connects their Gains in the chain array
+    fun void connect(int a, int b) {
+        activeEffectsToChainIndex(a, "out")=>int chainIndexA;
+        activeEffectsToChainIndex(b, "in") => int chainIndexB;
+        chain[chainIndexA]=> chain[chainIndexB];
+    }
+    //this function takes the index from active effects and a string that is either "in or "out" 
+    //the functionreturns the index of the respective Gain object in chain
+    fun int activeEffectsToChainIndex(int a, string inOut) {
+        a*2=>int result;
+        if (inOut=="in") result-1 => result;
+        else if (inOut=="out") ;
+        else <<<"wierd option didnt recognize. in EffectsChain.activeEffectsToChainIndex()","">>>;
+        return result;
     }
 
+}
+
+//note: I was gonna have them all extend from one class to simplify common functionality, but chuck's extensio system is horrible.
+//lfo delay, reverb,chorus, eq
+private class LFO {
+    Gain in, out;
+    out.op(3);
+    SinOsc lfoOsc;
+    lfoOsc=>out;
+    in => out;
+}
+private class MyDelay  {
+    Gain in, out;
+    in => Delay delay => out;
+}
+private class Reverb  {
+    Gain in, out;
+    in => PRCRev reverb => out;
+}
+private class MyChorus  {
+    Gain in, out;
+    in => Chorus chorus => out;
+}
+private class EQ  {
+    Gain in, out;
+    //eq has 5 different frequecy ranges connected in parallel
+    in=>LPF lpfLowEq=>Gain eqLow=> out;
+    75=>lpfLowEq.freq;
+
+    in=>LPF lpfMidLowEq=>HPF hpfMidLowEq=>Gain eqMidLow=> out;
+    75=>hpfMidLowEq.freq;
+    100=> lpfMidLowEq.freq;
+
+    in=>LPF lpfMidEq=>HPF hpfMidEq=>Gain eqMid=> out;
+    100=>hpfMidEq.freq;
+    2500=> lpfMidEq.freq;
+
+    in=>LPF lpfHighMidEq=>HPF hpfHighMidEq=>Gain eqHighMid=> out;
+    2500=>hpfHighMidEq.freq;
+    7500=> lpfHighMidEq.freq;
+
+    in=>HPF hpfHighEq=>Gain eqHigh=> out;
+    7500=>hpfHighEq.freq;
 }
 
 private class Recorder {

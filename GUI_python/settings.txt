@@ -1,7 +1,7 @@
 SynthVolume 0.1
 attack 0.1
 delay 0.1
-sustain 0.1
+sustain 0.7
 release 0.1
 lfoActive False
 lfoShape 0.1

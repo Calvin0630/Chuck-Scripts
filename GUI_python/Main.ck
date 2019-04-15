@@ -414,7 +414,39 @@ private class EffectsChain {
         out_ @=> out;
         activeEffects.add([0,6]);
         in=> out;
-
+        setLfoActive("True");
+        spork~debug();
+    }
+    //a function that listens to key presses to do debug stuff
+    fun void debug() {
+        
+        // which keyboard
+        0 => int device;
+        // HID
+        Hid hi;
+        HidMsg msg;
+        // open keyboard (get device number from command line)
+        if( !hi.openKeyboard( device ) ) me.exit();
+        // infinite event loop
+        while( true ) {
+            // wait for event
+            hi => now;
+            // get message
+            while( hi.recv( msg ) ){
+                // if the button is pressed down
+                if( msg.isButtonDown() ) {
+                    //<<< "down:", msg.which, "(code)", msg.key, "(usb key)", msg.ascii, "(ascii)" >>>;
+                    //A
+                    if (msg.which==30) {
+                         <<<"activeEffects:","">>>;
+                         activeEffects.print();
+                    }
+                }
+                else {
+                    //its been released
+                }
+            }
+        }
     }
     //activeStr is either "True" or "False"
     fun void setLfoActive(string activeStr) {
@@ -422,8 +454,11 @@ private class EffectsChain {
         1=> int currentEffect;
         if (activeStr == "True") {
             //connect the effect
-            activeEffects.add(currentEffect);
+            activeEffects.print();
+            activeEffects.add(currentEffect, 1);
             activeEffects.indexOf(currentEffect) =>int  index;
+            activeEffects.print();
+            <<<"index: ",index>>>;
             //get the value in activeEffects of the effect before and after LFO
             activeEffects.get(index -1) => int formerEffectIndex;
             activeEffects.get(index +1) => int latterEffectIndex;
@@ -586,6 +621,21 @@ private class EffectsChain {
     }
     //this function takes the index from active effects and a string that is either "in or "out" 
     //the functionreturns the index of the respective Gain object in chain
+    /*a list of all the gain objects in the chain in sequential order
+    activeEffects map to chainIndex in the following diagram
+    					activeEffect  chainIndex
+        in			        0-----------0
+        lfo.in				1-----------1
+        lfo.out				1-----------2
+        delay.in			2-----------3
+        delay.out			2-----------4
+        reverb.in			3-----------5
+        reverb.out			3-----------6
+        chorus.in			4-----------7
+        chorus.out			4-----------8
+        eq.in				5-----------9
+        eq.out				5-----------10
+        out					6-----------11*/
     fun int activeEffectsToChainIndex(int a, string inOut) {
         a*2=>int result;
         if (inOut=="in") result-1 => result;
@@ -645,7 +695,7 @@ private class Recorder {
     -1=>int recordShredID;
     RandomWordGenerator randomWord;
     fun void init() {
-        spork~listenForEvents();
+        //spork~listenForEvents();
     }
     fun void listenForEvents() {
         
@@ -1092,6 +1142,39 @@ private class IntArray {
             }
             newElements@=>elements;
         }
+    }
+    //add a single int at an index
+    //ie 0 would be the start (new) size - 1 would be the end
+    fun void add(int element, int index) {
+        //if its empty
+        if (elements==null) {
+            [element]@=> elements;
+        }
+        if (index>elements.cap()) {
+            <<<"index error IntArray.add(element, index)","">>>;
+            return;
+        }
+        else { //creates a new array and appends the new element
+            elements.cap()+1=>int newArraySize;
+            int newElements[newArraySize];
+            for (0=>int i;i<newArraySize;i++) {
+                //if its at the end
+                if (i==newArraySize-1) {
+                    //append element
+                    element=>newElements[i];
+                }
+                else {
+                    elements[i]=>newElements[i];
+                }
+            }
+            newElements@=>elements;
+            //switch the last element with the element at index
+            
+            elements[index]=>int tmp;
+            elements[elements.cap()-1]=>elements[index];
+            tmp=> elements[elements.cap()-1];
+        }
+        
     }
     //removes a list of numbers
     fun void remove(int removeThis[]) {

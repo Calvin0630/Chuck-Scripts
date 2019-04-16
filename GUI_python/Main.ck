@@ -314,7 +314,7 @@ private class MidiOscillator {
             preAdsr[rootNote+notes[i]].keyOn();
         }
         //if (activeNotes.size()>0)finalEnvelope.keyOn();
-        activeNotes.print();
+        //activeNotes.print();
         (1/(activeNotes.size()$float))=>audioSource.gain;
     }
 
@@ -326,7 +326,7 @@ private class MidiOscillator {
         if (activeNotes.size() == 0) {
             //finalEnvelope.keyOff();
         }
-        activeNotes.print();
+        //activeNotes.print();
         if (activeNotes.size()>1) (1/(activeNotes.size()+1)$float)=>audioSource.gain;
         else 1=>audioSource.gain;
     }
@@ -440,6 +440,16 @@ private class EffectsChain {
                     if (msg.which==30) {
                          <<<"activeEffects:","">>>;
                          activeEffects.print();
+                    }
+                    //S
+                    else if (msg.which==31) {
+                         <<<"setLfoActive(False);","">>>;
+                         setLfoActive("False");
+                    }
+                    //D
+                    else if (msg.which==32) {
+                         <<<"setLfoActive(True);","">>>;
+                         setLfoActive("True");
                     }
                 }
                 else {

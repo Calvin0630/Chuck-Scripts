@@ -92,7 +92,7 @@ else if (me.args()==0) {
     <<<"Using default arguments","">>>;
     70=>bpm;
     60/(bpm $ float)=>beat;
-    0.7=>volume;
+    0.5=>volume;
     55=>rootNote;
 }
 else {
@@ -155,7 +155,7 @@ private class MidiOscillator {
     int reverbActive, delayActive;
     //a list of all the active notes
     IntArray activeNotes;
-
+    EffectsChain effectsChain;
 
     fun void init(UGen output, int bpm_, float volume_, int rootNote_) {
 
@@ -165,13 +165,9 @@ private class MidiOscillator {
         rootNote_ => rootNote;
         //audioSource=>phaseOne=>finalEnvelope=>gain=>output;
         audioSource=>phaseOne;
-        //phaseOne goes into effectsChain
+        //phaseOne =>gain;
         //initialize effectsChain
-        EffectsChain effectsChain;
-        phaseOne =>gain;
-        //effectsChain.init(phaseOne,gain);
-        EffectsChain effects;
-        effects.init(phaseOne, gain);
+        effectsChain.init(phaseOne, gain);
         gain=>output;
         volume => gain.gain;
         if (volume==0)<<<"VOLUME IS ZERO","">>>;
@@ -314,7 +310,7 @@ private class MidiOscillator {
             preAdsr[rootNote+notes[i]].keyOn();
         }
         //if (activeNotes.size()>0)finalEnvelope.keyOn();
-        //activeNotes.print();
+        activeNotes.print();
         (1/(activeNotes.size()$float))=>audioSource.gain;
     }
 
@@ -326,7 +322,7 @@ private class MidiOscillator {
         if (activeNotes.size() == 0) {
             //finalEnvelope.keyOff();
         }
-        //activeNotes.print();
+        activeNotes.print();
         if (activeNotes.size()>1) (1/(activeNotes.size()+1)$float)=>audioSource.gain;
         else 1=>audioSource.gain;
     }
@@ -414,7 +410,6 @@ private class EffectsChain {
         out_ @=> out;
         activeEffects.add([0,6]);
         in=> out;
-        setLfoActive("True");
         spork~debug();
     }
     //a function that listens to key presses to do debug stuff
@@ -463,6 +458,10 @@ private class EffectsChain {
         //the index in activeEffects that represents the lfo
         1=> int currentEffect;
         if (activeStr == "True") {
+            if (lfo.active==1) {
+                <<<"the lfo is already on","">>>;
+                return;
+            }
             //connect the effect
             activeEffects.print();
             activeEffects.add(currentEffect, 1);
@@ -475,8 +474,13 @@ private class EffectsChain {
             disconnect(formerEffectIndex, latterEffectIndex);
             connect(formerEffectIndex, currentEffect);
             connect(currentEffect, latterEffectIndex);
+            1=>lfo.active;
         }
         else if(activeStr == "False") {
+            if (lfo.active==0) {
+                <<<"the lfo is already off","">>>;
+                return;
+            }
             //disconnect the effect
             activeEffects.indexOf(currentEffect) =>int  index;
             //get the value in activeEffects of the effect before and after LFO
@@ -486,6 +490,7 @@ private class EffectsChain {
             disconnect(currentEffect, latterEffectIndex);
             connect(formerEffectIndex, latterEffectIndex);
             activeEffects.remove(currentEffect);
+            0=>lfo.active;
 
         }
         else {
@@ -590,6 +595,7 @@ private class EffectsChain {
         //the index in activeEffects that represents the eq
         5=> int currentEffect;
         if (activeStr == "True") {
+            
             //connect the effect
             activeEffects.add(currentEffect);
             activeEffects.indexOf(currentEffect) =>int  index;
@@ -601,6 +607,7 @@ private class EffectsChain {
             connect(currentEffect, latterEffectIndex);
         }
         else if(activeStr == "False") {
+            
             //disconnect the effect
             activeEffects.indexOf(currentEffect) =>int  index;
             //get the value in activeEffects of the effect before and after eq
@@ -650,7 +657,7 @@ private class EffectsChain {
         a*2=>int result;
         if (inOut=="in") result-1 => result;
         else if (inOut=="out") ;
-        else <<<"wierd option didnt recognize. in EffectsChain.activeEffectsToChainIndex()","">>>;
+        else <<<"wierd option. didnt recognize in EffectsChain.activeEffectsToChainIndex()","">>>;
         return result;
     }
 
@@ -659,25 +666,44 @@ private class EffectsChain {
 //note: I was gonna have them all extend from one class to simplify common functionality, but chuck's extensio system is horrible.
 //lfo delay, reverb,chorus, eq
 private class LFO {
+    0=> int active;
     Gain in, out;
     out.op(3);
-    SinOsc lfoOsc;
+    TriOsc lfoOsc;
     lfoOsc=>out;
-    in => out;
+    1=>lfoOsc.gain;
+    1=>lfoOsc.freq;
+    in => out=>blackhole;
+    //init();
+    fun void init() {
+        lfoOsc=>blackhole;
+        lfoOsc=> out;
+    }
+    spork~debug();
+    fun void debug() {
+        while (true) {
+            <<<lfoOsc.last(),"">>>;
+            125::ms=> now;
+        }
+    }
 }
 private class MyDelay  {
+    0=> int active;
     Gain in, out;
     in => Delay delay => out;
 }
 private class Reverb  {
+    0=> int active;
     Gain in, out;
     in => PRCRev reverb => out;
 }
 private class MyChorus  {
+    0=> int active;
     Gain in, out;
     in => Chorus chorus => out;
 }
 private class EQ  {
+    0=> int active;
     Gain in, out;
     //eq has 5 different frequecy ranges connected in parallel
     in=>LPF lpfLowEq=>Gain eqLow=> out;
@@ -698,6 +724,7 @@ private class EQ  {
     in=>HPF hpfHighEq=>Gain eqHigh=> out;
     7500=>hpfHighEq.freq;
 }
+
 
 private class Recorder {
     //the id of the shred that is currently recording. 
@@ -878,7 +905,8 @@ private class Sampler {
 
     fun void init(UGen output, int bpm_, float volume_, int rootNote_) {
         gain => output;
-        "C:\\Users\\Calvin\\Documents\\Chuck-Scripts\\Samples\\" => samplesFolder;
+        me.sourceDir()+"../Samples/" => samplesFolder;
+        //"C:\\Users\\Calvin\\Documents\\Chuck-Scripts\\Samples\\" => samplesFolder;
         bpm_ =>bpm;
         60/(bpm_ $ float)=>beat;
         volume_ => volume;

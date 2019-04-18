@@ -401,15 +401,17 @@ private class EffectsChain {
         eq.in				5-----------9
         eq.out				5-----------10
         out					6-----------11*/
-    [in, lfo.in, lfo.out, delay.in, delay.out, reverb.in, reverb.out, chorus.in, chorus.out, eq.in, eq.out, out]
-        @=>Gain chain[];
+    Gain chain[];
 
 
     fun void init(Gain in_, Gain out_) {
         in_ @=> in;
         out_ @=> out;
+        [in, lfo.in, lfo.out, delay.in, delay.out, reverb.in, reverb.out, chorus.in, chorus.out, eq.in, eq.out, out]
+        @=>chain;
         activeEffects.add([0,6]);
-        in=> out;
+        //conect the first element in chain to the last
+        chain[0] => chain[chain.cap()-1];
         spork~debug();
     }
     //a function that listens to key presses to do debug stuff
@@ -445,6 +447,11 @@ private class EffectsChain {
                     else if (msg.which==32) {
                          <<<"setLfoActive(True);","">>>;
                          setLfoActive("True");
+                    }
+                    //F
+                    else if (msg.which==33) {
+                         <<<"setLfoShape(Square);","">>>;
+                         lfo.setLfoShape("Square");
                     }
                 }
                 else {
@@ -628,12 +635,16 @@ private class EffectsChain {
     fun void disconnect(int a, int b) {
         activeEffectsToChainIndex(a, "out")=>int chainIndexA;
         activeEffectsToChainIndex(b, "in") => int chainIndexB;
+        <<<"disconnecting ",a, " from ",b>>>;
+       <<<"chain[",chainIndexA,"] =< chain[",chainIndexB,"]">>>;
         chain[chainIndexA]=< chain[chainIndexB];
     }
     //takes two numbers from the activeEffects[] and connects their Gains in the chain array
     fun void connect(int a, int b) {
         activeEffectsToChainIndex(a, "out")=>int chainIndexA;
         activeEffectsToChainIndex(b, "in") => int chainIndexB;
+       <<<"connecting ",a, " to ",b>>>;
+       <<<"chain[",chainIndexA,"] => chain[",chainIndexB,"]">>>;
         chain[chainIndexA]=> chain[chainIndexB];
     }
     //this function takes the index from active effects and a string that is either "in or "out" 
@@ -666,24 +677,101 @@ private class EffectsChain {
 //note: I was gonna have them all extend from one class to simplify common functionality, but chuck's extensio system is horrible.
 //lfo delay, reverb,chorus, eq
 private class LFO {
+    //the setup of the lfo
+    //in                                    => inputGain(1-lfoDepth)        =>      out
+    //                                                                            /
+    //lfoOsc    =>      modulatedChannel     => modulatedGain(lfoDepth)      =>
+    //in        =>    /    
     0=> int active;
-    Gain in, out;
-    out.op(3);
-    TriOsc lfoOsc;
-    lfoOsc=>out;
-    1=>lfoOsc.gain;
-    1=>lfoOsc.freq;
-    in => out=>blackhole;
-    //init();
-    fun void init() {
-        lfoOsc=>blackhole;
-        lfoOsc=> out;
+    float lfoDepth;
+    float lfoFreq;
+    Gain in =>Gain inputGain =>Gain out;
+    0.2=>inputGain.gain;
+    in => Gain modulatedChannel=> Gain modulatedGain=> out;
+    modulatedChannel.op(3);
+    Gain lfoOscGain => modulatedChannel;
+    1=>modulatedGain.gain;
+    //chuck is kinda weird so to have a bunch of types of oscillators(sqre, sin saw) I need to create an array of osc' connected to gains, and set the gain to set the type of oscillator
+    // all the different oscs are connected in parallel to an array of gain objects. the gains are then connected to lfoOscGain and through the system
+    //setting the gains determins the shape of the lfo
+    SqrOsc a;
+    SinOsc b;
+    TriOsc c;
+    SawOsc d;
+    PulseOsc e;
+    Noise n;
+    //[SqrOsc a, SinOsc b, TriOsc c, SawOsc d, PulseOsc e, Noise n] @=> Osc oscillators[];
+    [a, b, c, d, e, n] @=> UGen oscillators[];
+    setLfoFreq(1);
+    Gain oscGains[oscillators.cap()];
+    for (0=>int i;i<oscillators.cap();i++) {
+        1=>oscillators[i].gain;
+        oscillators[i]=>oscGains[i] =>lfoOscGain;
+        0=>oscGains[i].gain;
     }
-    spork~debug();
-    fun void debug() {
-        while (true) {
-            <<<lfoOsc.last(),"">>>;
-            125::ms=> now;
+    1=>oscGains[1].gain;
+    
+    
+    fun void setLfoDepth(float lfoDepth_) {
+        //check that its from 0-1
+        if (lfoDepth_<0 || lfoDepth_ >1) {
+            <<<"invalid arg for lfoDepth. expected a number from [0-1], but got ", lfoDepth_>>>;
+            return;
+        }
+        lfoDepth_=>lfoDepth;
+        (1-lfoDepth) =>inputGain.gain;
+        lfoDepth => modulatedGain.gain;
+    }
+    fun void setLfoFreq(float freq) {
+        freq => lfoFreq;
+        //freq=>lfoOsc.freq;
+        freq=>a.freq;
+        freq=>b.freq;
+        freq=>c.freq;
+        freq=>d.freq;
+        freq=>e.freq;
+    }
+    //sets the lfo shape options are "Square", "Sine", "Tri", "Saw", "Pulse" "Noise"
+    fun void setLfoShape (string name) {
+        if (name =="Square") {
+            //set all the other gains to zero, except the saw
+            for (0=>int i;i<oscGains.cap();i++) {
+                0=>oscGains[i].gain;
+                if (i==0) 1=>oscGains[i].gain;
+            }
+        }
+        else if (name =="Sine") {
+            for (0=>int i;i<oscGains.cap();i++) {
+                0=>oscGains[i].gain;
+                if (i==1) 1=>oscGains[i].gain;
+            }
+        }
+        else if (name =="Tri") {
+            for (0=>int i;i<oscGains.cap();i++) {
+                0=>oscGains[i].gain;
+                if (i==2) 1=>oscGains[i].gain;
+            }
+        }
+        else if (name =="Saw") {
+            for (0=>int i;i<oscGains.cap();i++) {
+                0=>oscGains[i].gain;
+                if (i==3) 1=>oscGains[i].gain;
+            }
+        }
+        else if (name =="Pulse") {
+            for (0=>int i;i<oscGains.cap();i++) {
+                0=>oscGains[i].gain;
+                if (i==4) 1=>oscGains[i].gain;
+            }
+        }
+        else if (name =="Noise") {
+            for (0=>int i;i<oscGains.cap();i++) {
+                0=>oscGains[i].gain;
+                if (i==5) 1=>oscGains[i].gain;
+            }
+        }
+        else {
+            <<<"didnt recognize that option"," LFO.setLfoShape()">>>;
         }
     }
 }

@@ -331,7 +331,7 @@ private class MidiOscillator {
         duration::second=>now;
     }
 }
-
+//see readme for details
 private class EffectsChain {
     /*
     LIST OF EFFECTS 
@@ -429,6 +429,7 @@ private class EffectsChain {
             // wait for event
             hi => now;
             // get message
+            [0,0,0,0,0]@=>int effectsStatus[];
             while( hi.recv( msg ) ){
                 // if the button is pressed down
                 if( msg.isButtonDown() ) {
@@ -440,18 +441,58 @@ private class EffectsChain {
                     }
                     //S
                     else if (msg.which==31) {
-                         <<<"setLfoActive(False);","">>>;
-                         setLfoActive("False");
+                         <<<"toggle lfo","">>>;
+                         if(lfo.active == 0) {
+                             setLfoActive("True");
+                         }
+                         else if(lfo.active==1) {
+                             setLfoActive("False");
+                         }
+                         <<<"Lfo.active:", lfo.active>>>;
                     }
                     //D
                     else if (msg.which==32) {
-                         <<<"setLfoActive(True);","">>>;
-                         setLfoActive("True");
+                         <<<"toggle delay","">>>;
+                         if(delay.active == 0) {
+                             setDelayActive("True");
+                         }
+                         else if(delay.active==1) {
+                             setDelayActive("False");
+                         }
+                         <<<"Delay.active:", delay.active>>>;
                     }
                     //F
                     else if (msg.which==33) {
-                         <<<"setLfoShape(Square);","">>>;
-                         lfo.setLfoShape("Square");
+                         <<<"toggle reverb","">>>;
+                         if(reverb.active == 0) {
+                             setReverbActive("True");
+                         }
+                         else if(reverb.active==1) {
+                             setReverbActive("False");
+                         }
+                         <<<"Reverb.active:", reverb.active>>>;
+                    }
+                    //G
+                    else if (msg.which==34) {
+                         <<<"toggle chorus","">>>;
+                         if(chorus.active == 0) {
+                             setChorusActive("True");
+                         }
+                         else if(chorus.active==1) {
+                             setChorusActive("False");
+                         }
+                         <<<"Chorus.active:", chorus.active>>>;
+                    }
+                    //H
+                    else if (msg.which==35) {
+                         <<<"toggle eq","">>>;
+                         if(eq.active == 0) {
+                             setEqActive("True");
+                         }
+                         else if(eq.active==1) {
+                             setEqActive("False");
+                         }
+                         <<<"Eq.active:", eq.active>>>;
                     }
                 }
                 else {
@@ -471,7 +512,9 @@ private class EffectsChain {
             }
             //connect the effect
             activeEffects.print();
-            activeEffects.add(currentEffect, 1);
+            //add it to the second last element of
+            <<<"activeEffects.size() ",activeEffects.size()>>>;
+            activeEffects.add(currentEffect, activeEffects.size()-1);
             activeEffects.indexOf(currentEffect) =>int  index;
             activeEffects.print();
             <<<"index: ",index>>>;
@@ -509,26 +552,39 @@ private class EffectsChain {
         //the index in activeEffects that represents the delay
         2=> int currentEffect;
         if (activeStr == "True") {
+            if (delay.active==1) {
+                <<<"delay is already on","">>>;
+                return;
+            }
             //connect the effect
-            activeEffects.add(currentEffect);
+            activeEffects.print();
+            activeEffects.add(currentEffect, activeEffects.size()-1);
             activeEffects.indexOf(currentEffect) =>int  index;
-            //get the value in activeEffects of the effect before and after delay
+            activeEffects.print();
+            <<<"index: ",index>>>;
+            //get the value in activeEffects of the effect before and after LFO
             activeEffects.get(index -1) => int formerEffectIndex;
             activeEffects.get(index +1) => int latterEffectIndex;
             disconnect(formerEffectIndex, latterEffectIndex);
             connect(formerEffectIndex, currentEffect);
             connect(currentEffect, latterEffectIndex);
+            1=>delay.active;
         }
         else if(activeStr == "False") {
+            if (delay.active==0) {
+                <<<"the delay is already off","">>>;
+                return;
+            }
             //disconnect the effect
             activeEffects.indexOf(currentEffect) =>int  index;
-            //get the value in activeEffects of the effect before and after delay
+            //get the value in activeEffects of the effect before and after LFO
             activeEffects.get(index -1) => int formerEffectIndex;
             activeEffects.get(index +1) => int latterEffectIndex;
             disconnect(formerEffectIndex, currentEffect);
             disconnect(currentEffect, latterEffectIndex);
             connect(formerEffectIndex, latterEffectIndex);
             activeEffects.remove(currentEffect);
+            0=>delay.active;
 
         }
         else {
@@ -537,29 +593,42 @@ private class EffectsChain {
     }
     //activeStr is either "True" or "False"
     fun void setReverbActive(string activeStr) {
-        //the index in activeEffects that represents the delay
+        //the index in activeEffects that represents the reverb
         3=> int currentEffect;
         if (activeStr == "True") {
+            if (reverb.active==1) {
+                <<<"reverb is already on","">>>;
+                return;
+            }
             //connect the effect
-            activeEffects.add(currentEffect);
+            activeEffects.print();
+            activeEffects.add(currentEffect, activeEffects.size()-1);
             activeEffects.indexOf(currentEffect) =>int  index;
-            //get the value in activeEffects of the effect before and after reverb
+            activeEffects.print();
+            <<<"index: ",index>>>;
+            //get the value in activeEffects of the effect before and after LFO
             activeEffects.get(index -1) => int formerEffectIndex;
             activeEffects.get(index +1) => int latterEffectIndex;
             disconnect(formerEffectIndex, latterEffectIndex);
             connect(formerEffectIndex, currentEffect);
             connect(currentEffect, latterEffectIndex);
+            1=>reverb.active;
         }
         else if(activeStr == "False") {
+            if (reverb.active==0) {
+                <<<"the reverb is already off","">>>;
+                return;
+            }
             //disconnect the effect
             activeEffects.indexOf(currentEffect) =>int  index;
-            //get the value in activeEffects of the effect before and after reverb
+            //get the value in activeEffects of the effect before and after LFO
             activeEffects.get(index -1) => int formerEffectIndex;
             activeEffects.get(index +1) => int latterEffectIndex;
             disconnect(formerEffectIndex, currentEffect);
             disconnect(currentEffect, latterEffectIndex);
             connect(formerEffectIndex, latterEffectIndex);
             activeEffects.remove(currentEffect);
+            0=>reverb.active;
 
         }
         else {
@@ -571,26 +640,39 @@ private class EffectsChain {
         //the index in activeEffects that represents the chorus
         4=> int currentEffect;
         if (activeStr == "True") {
+            if (chorus.active==1) {
+                <<<"chorus is already on","">>>;
+                return;
+            }
             //connect the effect
-            activeEffects.add(currentEffect);
+            activeEffects.print();
+            activeEffects.add(currentEffect, activeEffects.size()-1);
             activeEffects.indexOf(currentEffect) =>int  index;
-            //get the value in activeEffects of the effect before and after chorus
+            activeEffects.print();
+            <<<"index: ",index>>>;
+            //get the value in activeEffects of the effect before and after LFO
             activeEffects.get(index -1) => int formerEffectIndex;
             activeEffects.get(index +1) => int latterEffectIndex;
             disconnect(formerEffectIndex, latterEffectIndex);
             connect(formerEffectIndex, currentEffect);
             connect(currentEffect, latterEffectIndex);
+            1=>chorus.active;
         }
         else if(activeStr == "False") {
+            if (chorus.active==0) {
+                <<<"the chorus is already off","">>>;
+                return;
+            }
             //disconnect the effect
             activeEffects.indexOf(currentEffect) =>int  index;
-            //get the value in activeEffects of the effect before and after chorus
+            //get the value in activeEffects of the effect before and after LFO
             activeEffects.get(index -1) => int formerEffectIndex;
             activeEffects.get(index +1) => int latterEffectIndex;
             disconnect(formerEffectIndex, currentEffect);
             disconnect(currentEffect, latterEffectIndex);
             connect(formerEffectIndex, latterEffectIndex);
             activeEffects.remove(currentEffect);
+            0=>chorus.active;
 
         }
         else {
@@ -598,32 +680,43 @@ private class EffectsChain {
         }
     }
     //activeStr is either "True" or "False"
-    fun void setEQActive(string activeStr) {
+    fun void setEqActive(string activeStr) {
         //the index in activeEffects that represents the eq
         5=> int currentEffect;
         if (activeStr == "True") {
-            
+            if (eq.active==1) {
+                <<<"eq is already on","">>>;
+                return;
+            }
             //connect the effect
-            activeEffects.add(currentEffect);
+            activeEffects.print();
+            activeEffects.add(currentEffect, activeEffects.size()-1);
             activeEffects.indexOf(currentEffect) =>int  index;
-            //get the value in activeEffects of the effect before and after eq
+            activeEffects.print();
+            <<<"index: ",index>>>;
+            //get the value in activeEffects of the effect before and after LFO
             activeEffects.get(index -1) => int formerEffectIndex;
             activeEffects.get(index +1) => int latterEffectIndex;
             disconnect(formerEffectIndex, latterEffectIndex);
             connect(formerEffectIndex, currentEffect);
             connect(currentEffect, latterEffectIndex);
+            1=>eq.active;
         }
         else if(activeStr == "False") {
-            
+            if (eq.active==0) {
+                <<<"the eq is already off","">>>;
+                return;
+            }
             //disconnect the effect
             activeEffects.indexOf(currentEffect) =>int  index;
-            //get the value in activeEffects of the effect before and after eq
+            //get the value in activeEffects of the effect before and after LFO
             activeEffects.get(index -1) => int formerEffectIndex;
             activeEffects.get(index +1) => int latterEffectIndex;
             disconnect(formerEffectIndex, currentEffect);
             disconnect(currentEffect, latterEffectIndex);
             connect(formerEffectIndex, latterEffectIndex);
             activeEffects.remove(currentEffect);
+            0=>eq.active;
 
         }
         else {
@@ -702,7 +795,7 @@ private class LFO {
     Noise n;
     //[SqrOsc a, SinOsc b, TriOsc c, SawOsc d, PulseOsc e, Noise n] @=> Osc oscillators[];
     [a, b, c, d, e, n] @=> UGen oscillators[];
-    setLfoFreq(1);
+    setLfoRate(1);
     Gain oscGains[oscillators.cap()];
     for (0=>int i;i<oscillators.cap();i++) {
         1=>oscillators[i].gain;
@@ -722,7 +815,7 @@ private class LFO {
         (1-lfoDepth) =>inputGain.gain;
         lfoDepth => modulatedGain.gain;
     }
-    fun void setLfoFreq(float freq) {
+    fun void setLfoRate(float freq) {
         freq => lfoFreq;
         //freq=>lfoOsc.freq;
         freq=>a.freq;

@@ -872,16 +872,31 @@ private class MyDelay  {
     0=> int active;
     Gain in, out;
     in => Delay delay => out;
+    fun void setDelayBufSize() {
+
+    }
+    fun void setDelayTime() {
+
+    }
 }
 private class Reverb  {
     0=> int active;
     Gain in, out;
     in => PRCRev reverb => out;
+        fun void setReverbMix() {
+
+    }
 }
 private class MyChorus  {
     0=> int active;
     Gain in, out;
     in => Chorus chorus => out;
+    fun void setChorusModFreq() {
+
+    }
+    fun void setChorusModDepth() {
+
+    }
 }
 private class EQ  {
     0=> int active;
@@ -904,6 +919,21 @@ private class EQ  {
 
     in=>HPF hpfHighEq=>Gain eqHigh=> out;
     7500=>hpfHighEq.freq;
+    fun void setEqLow() {
+
+    }
+    fun void setEqMidLow() {
+
+    }
+    fun void setEqMid() {
+
+    }
+    fun void setEqHighMid() {
+
+    }
+    fun void setEqHigh() {
+
+    }
 }
 
 

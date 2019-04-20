@@ -411,6 +411,8 @@ private class EffectsChain {
         @=>chain;
         activeEffects.add([0,6]);
         //conect the first element in chain to the last
+        //could havce also written
+        //connect(1,6);
         chain[0] => chain[chain.cap()-1];
         spork~debug();
     }
@@ -507,7 +509,6 @@ private class EffectsChain {
         1=> int currentEffect;
         if (activeStr == "True") {
             if (lfo.active==1) {
-                <<<"the lfo is already on","">>>;
                 return;
             }
             //connect the effect
@@ -528,7 +529,6 @@ private class EffectsChain {
         }
         else if(activeStr == "False") {
             if (lfo.active==0) {
-                <<<"the lfo is already off","">>>;
                 return;
             }
             //disconnect the effect
@@ -553,7 +553,6 @@ private class EffectsChain {
         2=> int currentEffect;
         if (activeStr == "True") {
             if (delay.active==1) {
-                <<<"delay is already on","">>>;
                 return;
             }
             //connect the effect
@@ -572,7 +571,6 @@ private class EffectsChain {
         }
         else if(activeStr == "False") {
             if (delay.active==0) {
-                <<<"the delay is already off","">>>;
                 return;
             }
             //disconnect the effect
@@ -597,7 +595,6 @@ private class EffectsChain {
         3=> int currentEffect;
         if (activeStr == "True") {
             if (reverb.active==1) {
-                <<<"reverb is already on","">>>;
                 return;
             }
             //connect the effect
@@ -616,7 +613,6 @@ private class EffectsChain {
         }
         else if(activeStr == "False") {
             if (reverb.active==0) {
-                <<<"the reverb is already off","">>>;
                 return;
             }
             //disconnect the effect
@@ -641,7 +637,6 @@ private class EffectsChain {
         4=> int currentEffect;
         if (activeStr == "True") {
             if (chorus.active==1) {
-                <<<"chorus is already on","">>>;
                 return;
             }
             //connect the effect
@@ -660,7 +655,6 @@ private class EffectsChain {
         }
         else if(activeStr == "False") {
             if (chorus.active==0) {
-                <<<"the chorus is already off","">>>;
                 return;
             }
             //disconnect the effect
@@ -685,7 +679,6 @@ private class EffectsChain {
         5=> int currentEffect;
         if (activeStr == "True") {
             if (eq.active==1) {
-                <<<"eq is already on","">>>;
                 return;
             }
             //connect the effect
@@ -704,7 +697,6 @@ private class EffectsChain {
         }
         else if(activeStr == "False") {
             if (eq.active==0) {
-                <<<"the eq is already off","">>>;
                 return;
             }
             //disconnect the effect
@@ -728,16 +720,16 @@ private class EffectsChain {
     fun void disconnect(int a, int b) {
         activeEffectsToChainIndex(a, "out")=>int chainIndexA;
         activeEffectsToChainIndex(b, "in") => int chainIndexB;
-        <<<"disconnecting ",a, " from ",b>>>;
-       <<<"chain[",chainIndexA,"] =< chain[",chainIndexB,"]">>>;
+        //<<<"disconnecting ",a, " from ",b>>>;
+       //<<<"chain[",chainIndexA,"] =< chain[",chainIndexB,"]">>>;
         chain[chainIndexA]=< chain[chainIndexB];
     }
     //takes two numbers from the activeEffects[] and connects their Gains in the chain array
     fun void connect(int a, int b) {
         activeEffectsToChainIndex(a, "out")=>int chainIndexA;
         activeEffectsToChainIndex(b, "in") => int chainIndexB;
-       <<<"connecting ",a, " to ",b>>>;
-       <<<"chain[",chainIndexA,"] => chain[",chainIndexB,"]">>>;
+       //<<<"connecting ",a, " to ",b>>>;
+       //<<<"chain[",chainIndexA,"] => chain[",chainIndexB,"]">>>;
         chain[chainIndexA]=> chain[chainIndexB];
     }
     //this function takes the index from active effects and a string that is either "in or "out" 
@@ -872,30 +864,33 @@ private class MyDelay  {
     0=> int active;
     Gain in, out;
     in => Delay delay => out;
-    fun void setDelayBufSize() {
-
+    fun void setDelayBufSize(float var) {
+        var::second => delay.max;
     }
-    fun void setDelayTime() {
-
+    fun void setDelayTime(float var) {
+        var::second => delay.delay;
     }
 }
 private class Reverb  {
     0=> int active;
     Gain in, out;
     in => PRCRev reverb => out;
-        fun void setReverbMix() {
-
+        fun void setReverbMix(float var) {
+            var => reverb.mix;
     }
 }
 private class MyChorus  {
     0=> int active;
     Gain in, out;
     in => Chorus chorus => out;
-    fun void setChorusModFreq() {
-
+    fun void setChorusMix(float var) {
+        var=> chorus.mix;
     }
-    fun void setChorusModDepth() {
-
+    fun void setChorusModFreq(float var) {
+        var=> chorus.modFreq;
+    }
+    fun void setChorusModDepth(float var) {
+        var=> chorus.modDepth;
     }
 }
 private class EQ  {
@@ -919,20 +914,21 @@ private class EQ  {
 
     in=>HPF hpfHighEq=>Gain eqHigh=> out;
     7500=>hpfHighEq.freq;
-    fun void setEqLow() {
 
+    fun void setEqLow(float var) {
+        var=> eqLow.gain;
     }
-    fun void setEqMidLow() {
-
+    fun void setEqMidLow(float var) {
+        var=> eqMidLow.gain;
     }
-    fun void setEqMid() {
-
+    fun void setEqMid(float var) {
+        var=> eqMid.gain;
     }
-    fun void setEqHighMid() {
-
+    fun void setEqHighMid(float var) {
+        var=> eqHighMid.gain;
     }
-    fun void setEqHigh() {
-
+    fun void setEqHigh(float var) {
+        var=> eqHigh.gain;
     }
 }
 
@@ -1094,6 +1090,63 @@ private class SettingsReader {
                 }
                 else if (variableName=="synthRootNote") {
                     //synth.setRootNote(Std.atoi(variableValue));
+                }
+                else if (variableName=="lfoActive") {
+                    synth.effectsChain.setLfoActive(variableValue);
+                }
+                else if (variableName=="lfoShape") {
+                    synth.effectsChain.lfo.setLfoShape(variableValue);
+                }
+                else if (variableName=="lfoRate") {
+                    synth.effectsChain.lfo.setLfoRate(Std.atof(variableValue));
+                }
+                else if (variableName=="lfoDepth") {
+                    synth.effectsChain.lfo.setLfoDepth(Std.atof(variableValue));
+                }
+                else if (variableName=="delayActive") {
+                    synth.effectsChain.setDelayActive(variableValue);
+                }
+                else if (variableName=="delayBufSize") {
+                    synth.effectsChain.delay.setDelayBufSize(Std.atof(variableValue));
+                }
+                else if (variableName=="delayTime") {
+                    synth.effectsChain.delay.setDelayTime(Std.atof(variableValue));
+                }
+                else if (variableName=="reverbActive") {
+                    synth.effectsChain.setReverbActive(variableValue);
+                }
+                else if (variableName=="reverbMix") {
+                    synth.effectsChain.reverb.setReverbMix(Std.atof(variableValue));
+                }
+                else if (variableName=="chorusActive") {
+                    synth.effectsChain.setChorusActive(variableValue);
+                }
+                else if (variableName=="chorusModFreq") {
+                    synth.effectsChain.chorus.setChorusModFreq(Std.atof(variableValue));
+                }
+                else if (variableName=="chorusModDepth") {
+                    synth.effectsChain.chorus.setChorusModDepth(Std.atof(variableValue));
+                }
+                else if (variableName=="chorusMix") {
+                    synth.effectsChain.chorus.setChorusMix(Std.atof(variableValue));
+                }
+                else if (variableName=="eqActive") {
+                    synth.effectsChain.setEqActive(variableValue);
+                }
+                else if (variableName=="eqLow") {
+                    synth.effectsChain.eq.setEqLow(Std.atof(variableValue));
+                }
+                else if (variableName=="eqMidLow") {
+                    synth.effectsChain.eq.setEqMidLow(Std.atof(variableValue));
+                }
+                else if (variableName=="eqMid") {
+                    synth.effectsChain.eq.setEqMid(Std.atof(variableValue));
+                }
+                else if (variableName=="eqHighMid") {
+                    synth.effectsChain.eq.setEqHighMid(Std.atof(variableValue));
+                }
+                else if (variableName=="eqHigh") {
+                    synth.effectsChain.eq.setEqHigh(Std.atof(variableValue));
                 }
             }
             .1::second=>now;

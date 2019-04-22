@@ -36,7 +36,7 @@ class ChuckManager :
             'sustain':  0.1,
             'release':  0.1,
             'lfoActive':  False,
-            'lfoShape':  0.1,
+            'lfoShape':  "",
             'lfoRate':  0.1,
             'lfoDepth':  0.1,
             'delayActive':  False,
@@ -139,6 +139,13 @@ class ChuckManager :
         self.chuckVars['eqHighMid'] = value/100
         value = float(self.parentWidget.eq_high_dial.value())
         self.chuckVars['eqHigh'] = value/100
+        #get the lfo shape from the buttons
+        name =''
+        for x in self.parentWidget.lfo_shape_buttons :
+            if x.isChecked():
+                name = x.text()
+        self.chuckVars['lfoShape'] = name
+        #print(self.parentWidget.)
 
     def setChuckVars(self, name, value):
         self.chuckVars[name] = value

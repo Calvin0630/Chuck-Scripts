@@ -239,17 +239,47 @@ class Ui_MainWindow(object):
         self.lfo_active_Button = QtWidgets.QPushButton(self.lfo_tab)
         self.lfo_active_Button.setGeometry(QtCore.QRect(10, 10, 71, 61))
         self.lfo_active_Button.setObjectName("lfo_active_Button")
-        self.lfo_shape_triangle_Button = QtWidgets.QRadioButton(self.lfo_tab)
-        self.lfo_shape_triangle_Button.setGeometry(QtCore.QRect(100, 20, 95, 20))
-        self.lfo_shape_triangle_Button.setObjectName("lfo_shape_triangle_Button")
+        #a list for the lfo shape buttons
+        #"Square", "Sine", "Tri", "Saw", "Pulse" "Noise"
+        self.lfo_shape_buttons = list()
+
         self.lfo_shape_square_Button = QtWidgets.QRadioButton(self.lfo_tab)
-        self.lfo_shape_square_Button.setGeometry(QtCore.QRect(100, 40, 95, 20))
+        self.lfo_shape_square_Button.setGeometry(QtCore.QRect(100, 0, 95, 20))
         self.lfo_shape_square_Button.setObjectName("lfo_shape_square_Button")
+        #add the button to the list
+        self.lfo_shape_buttons.append(self.lfo_shape_square_Button)
+
+        self.lfo_shape_sine_Button = QtWidgets.QRadioButton(self.lfo_tab)
+        self.lfo_shape_sine_Button.setGeometry(QtCore.QRect(100, 20, 95, 20))
+        self.lfo_shape_sine_Button.setObjectName("lfo_shape_sine_Button")
+        #add the button to the list
+        self.lfo_shape_buttons.append(self.lfo_shape_sine_Button)
+
+        self.lfo_shape_triangle_Button = QtWidgets.QRadioButton(self.lfo_tab)
+        self.lfo_shape_triangle_Button.setGeometry(QtCore.QRect(100, 40, 95, 20))
+        self.lfo_shape_triangle_Button.setObjectName("lfo_shape_triangle_Button")
+        #add the button to the list
+        self.lfo_shape_buttons.append(self.lfo_shape_triangle_Button)
+
         self.lfo_shape_saw_Button = QtWidgets.QRadioButton(self.lfo_tab)
         self.lfo_shape_saw_Button.setGeometry(QtCore.QRect(100, 60, 95, 20))
         self.lfo_shape_saw_Button.setObjectName("lfo_shape_saw_Button")
+        #add the button to the list
+        self.lfo_shape_buttons.append(self.lfo_shape_saw_Button)
+
+        self.lfo_shape_pulse_Button = QtWidgets.QRadioButton(self.lfo_tab)
+        self.lfo_shape_pulse_Button.setGeometry(QtCore.QRect(100, 80, 95, 20))
+        self.lfo_shape_pulse_Button.setObjectName("lfo_shape_pulse_Button")
+        #add the button to the list
+        self.lfo_shape_buttons.append(self.lfo_shape_pulse_Button)
+
+        self.lfo_shape_noise_Button = QtWidgets.QRadioButton(self.lfo_tab)
+        self.lfo_shape_noise_Button.setGeometry(QtCore.QRect(100, 100, 95, 20))
+        self.lfo_shape_noise_Button.setObjectName("lfo_shape_noise_Button")
+        #add the button to the list
+        self.lfo_shape_buttons.append(self.lfo_shape_noise_Button)
         self.lfo_shape_label = QtWidgets.QLabel(self.lfo_tab)
-        self.lfo_shape_label.setGeometry(QtCore.QRect(100, 0, 71, 21))
+        self.lfo_shape_label.setGeometry(QtCore.QRect(40, 80, 71, 21))
         font = QtGui.QFont()
         font.setPointSize(9)
         self.lfo_shape_label.setFont(font)
@@ -422,9 +452,12 @@ class Ui_MainWindow(object):
         self.sustain_label.setText(_translate("MainWindow", "Sustain"))
         self.release_label.setText(_translate("MainWindow", "Release"))
         self.lfo_active_Button.setText(_translate("MainWindow", "Active"))
-        self.lfo_shape_triangle_Button.setText(_translate("MainWindow", "Triangle"))
         self.lfo_shape_square_Button.setText(_translate("MainWindow", "Square"))
+        self.lfo_shape_sine_Button.setText(_translate("MainWindow", "Sine"))
+        self.lfo_shape_triangle_Button.setText(_translate("MainWindow", "Tri"))
         self.lfo_shape_saw_Button.setText(_translate("MainWindow", "Saw"))
+        self.lfo_shape_pulse_Button.setText(_translate("MainWindow", "Pulse"))
+        self.lfo_shape_noise_Button.setText(_translate("MainWindow", "Noise"))
         self.lfo_shape_label.setText(_translate("MainWindow", "Shape:"))
         self.label_3.setText(_translate("MainWindow", "Rate"))
         self.label_4.setText(_translate("MainWindow", "Depth"))

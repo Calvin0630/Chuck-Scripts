@@ -770,6 +770,7 @@ private class LFO {
     0=> int active;
     float lfoDepth;
     float lfoFreq;
+    string lfoShape;
     Gain in =>Gain inputGain =>Gain out;
     0.2=>inputGain.gain;
     in => Gain modulatedChannel=> Gain modulatedGain=> out;
@@ -818,45 +819,55 @@ private class LFO {
     }
     //sets the lfo shape options are "Square", "Sine", "Tri", "Saw", "Pulse" "Noise"
     fun void setLfoShape (string name) {
+        if (name ==lfoShape) {
+            //no change
+            return;
+        }
         if (name =="Square") {
             //set all the other gains to zero, except the saw
             for (0=>int i;i<oscGains.cap();i++) {
                 0=>oscGains[i].gain;
                 if (i==0) 1=>oscGains[i].gain;
             }
+            name => lfoShape;
         }
         else if (name =="Sine") {
             for (0=>int i;i<oscGains.cap();i++) {
                 0=>oscGains[i].gain;
                 if (i==1) 1=>oscGains[i].gain;
             }
+            name => lfoShape;
         }
         else if (name =="Tri") {
             for (0=>int i;i<oscGains.cap();i++) {
                 0=>oscGains[i].gain;
                 if (i==2) 1=>oscGains[i].gain;
             }
+            name => lfoShape;
         }
         else if (name =="Saw") {
             for (0=>int i;i<oscGains.cap();i++) {
                 0=>oscGains[i].gain;
                 if (i==3) 1=>oscGains[i].gain;
             }
+            name => lfoShape;
         }
         else if (name =="Pulse") {
             for (0=>int i;i<oscGains.cap();i++) {
                 0=>oscGains[i].gain;
                 if (i==4) 1=>oscGains[i].gain;
             }
+            name => lfoShape;
         }
         else if (name =="Noise") {
             for (0=>int i;i<oscGains.cap();i++) {
                 0=>oscGains[i].gain;
                 if (i==5) 1=>oscGains[i].gain;
             }
+            name => lfoShape;
         }
         else {
-            <<<"didnt recognize that option"," LFO.setLfoShape()">>>;
+            //<<<"didnt recognize that option"," LFO.setLfoShape()">>>;
         }
     }
 }

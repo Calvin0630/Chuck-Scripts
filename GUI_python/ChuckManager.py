@@ -118,7 +118,7 @@ class ChuckManager :
         value = float(self.parentWidget.lfo_depth_dial.value())
         self.chuckVars['lfoDepth'] = value/100
         value = float(self.parentWidget.delay_max_dial.value())
-        self.chuckVars['delayMax'] = value/100
+        self.chuckVars['delayBufSize'] = value/100
         value = float(self.parentWidget.delay_delay_dial.value())
         self.chuckVars['delayTime'] = value/100
         value = float(self.parentWidget.reverb_mix_dial.value())

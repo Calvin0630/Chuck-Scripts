@@ -511,7 +511,7 @@ margin: 0 -4px; /* expand outside the groove */
           <enum>QTabWidget::Triangular</enum>
          </property>
          <property name="currentIndex">
-          <number>3</number>
+          <number>4</number>
          </property>
          <property name="usesScrollButtons">
           <bool>false</bool>
@@ -599,6 +599,9 @@ margin: 0 -4px; /* expand outside the groove */
              <height>64</height>
             </rect>
            </property>
+           <property name="maximum">
+            <number>9999</number>
+           </property>
           </widget>
           <widget class="QDial" name="lfo_depth_dial">
            <property name="geometry">
@@ -672,6 +675,9 @@ margin: 0 -4px; /* expand outside the groove */
              <height>64</height>
             </rect>
            </property>
+           <property name="maximum">
+            <number>9999</number>
+           </property>
           </widget>
           <widget class="QDial" name="delay_delay_dial">
            <property name="geometry">
@@ -681,6 +687,9 @@ margin: 0 -4px; /* expand outside the groove */
              <width>50</width>
              <height>64</height>
             </rect>
+           </property>
+           <property name="maximum">
+            <number>9999</number>
            </property>
           </widget>
           <widget class="QLabel" name="label">
@@ -785,6 +794,9 @@ margin: 0 -4px; /* expand outside the groove */
              <width>50</width>
              <height>64</height>
             </rect>
+           </property>
+           <property name="maximum">
+            <number>9999</number>
            </property>
           </widget>
           <widget class="QDial" name="chorus_modDepth_dial">

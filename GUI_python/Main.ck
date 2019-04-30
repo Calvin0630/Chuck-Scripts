@@ -441,6 +441,7 @@ private class EffectsChain {
                          <<<"activeEffects:","">>>;
                          activeEffects.print();
                     }
+                    /*
                     //S
                     else if (msg.which==31) {
                          <<<"toggle lfo","">>>;
@@ -496,6 +497,7 @@ private class EffectsChain {
                          }
                          <<<"Eq.active:", eq.active>>>;
                     }
+                    */
                 }
                 else {
                     //its been released
@@ -507,10 +509,8 @@ private class EffectsChain {
     fun void setLfoActive(string activeStr) {
         //the index in activeEffects that represents the lfo
         1=> int currentEffect;
-        if (activeStr == "True") {
-            if (lfo.active==1) {
-                return;
-            }
+        if (lfo.active==0 && activeStr == "True" ) {
+            
             //connect the effect
             activeEffects.print();
             //add it to the second last element of
@@ -527,10 +527,7 @@ private class EffectsChain {
             connect(currentEffect, latterEffectIndex);
             1=>lfo.active;
         }
-        else if(activeStr == "False") {
-            if (lfo.active==0) {
-                return;
-            }
+        else if(lfo.active==1 && activeStr == "False") {
             //disconnect the effect
             activeEffects.indexOf(currentEffect) =>int  index;
             //get the value in activeEffects of the effect before and after LFO
@@ -544,17 +541,14 @@ private class EffectsChain {
 
         }
         else {
-            <<<"EffectsChain.SetLfoActive() did not recognize that string","">>>;
+            //<<<"EffectsChain.SetLfoActive() did not recognize that string","">>>;
         }
     }
     //activeStr is either "True" or "False"
     fun void setDelayActive(string activeStr) {
         //the index in activeEffects that represents the delay
         2=> int currentEffect;
-        if (activeStr == "True") {
-            if (delay.active==1) {
-                return;
-            }
+        if (delay.active==0 && activeStr == "True") {
             //connect the effect
             activeEffects.print();
             activeEffects.add(currentEffect, activeEffects.size()-1);
@@ -569,10 +563,8 @@ private class EffectsChain {
             connect(currentEffect, latterEffectIndex);
             1=>delay.active;
         }
-        else if(activeStr == "False") {
-            if (delay.active==0) {
-                return;
-            }
+        else if(delay.active==1 && activeStr == "False") {
+            
             //disconnect the effect
             activeEffects.indexOf(currentEffect) =>int  index;
             //get the value in activeEffects of the effect before and after LFO
@@ -586,17 +578,16 @@ private class EffectsChain {
 
         }
         else {
-            <<<"EffectsChain.SetLfoActive() did not recognize that string","">>>;
+            //<<<"EffectsChain.SetLfoActive() did not recognize that string","">>>;
         }
+        return;
     }
     //activeStr is either "True" or "False"
     fun void setReverbActive(string activeStr) {
         //the index in activeEffects that represents the reverb
         3=> int currentEffect;
-        if (activeStr == "True") {
-            if (reverb.active==1) {
-                return;
-            }
+        if (reverb.active==0 && activeStr == "True") {
+            
             //connect the effect
             activeEffects.print();
             activeEffects.add(currentEffect, activeEffects.size()-1);
@@ -611,10 +602,7 @@ private class EffectsChain {
             connect(currentEffect, latterEffectIndex);
             1=>reverb.active;
         }
-        else if(activeStr == "False") {
-            if (reverb.active==0) {
-                return;
-            }
+        else if(reverb.active ==1 && activeStr == "False") {
             //disconnect the effect
             activeEffects.indexOf(currentEffect) =>int  index;
             //get the value in activeEffects of the effect before and after LFO
@@ -628,17 +616,14 @@ private class EffectsChain {
 
         }
         else {
-            <<<"EffectsChain.SetLfoActive() did not recognize that string","">>>;
+            //<<<"EffectsChain.SetLfoActive() did not recognize that string","">>>;
         }
     }
     //activeStr is either "True" or "False"
     fun void setChorusActive(string activeStr) {
         //the index in activeEffects that represents the chorus
         4=> int currentEffect;
-        if (activeStr == "True") {
-            if (chorus.active==1) {
-                return;
-            }
+        if (chorus.active==0 && activeStr == "True") {
             //connect the effect
             activeEffects.print();
             activeEffects.add(currentEffect, activeEffects.size()-1);
@@ -653,10 +638,8 @@ private class EffectsChain {
             connect(currentEffect, latterEffectIndex);
             1=>chorus.active;
         }
-        else if(activeStr == "False") {
-            if (chorus.active==0) {
-                return;
-            }
+        else if(chorus.active==1 && activeStr == "False") {
+            
             //disconnect the effect
             activeEffects.indexOf(currentEffect) =>int  index;
             //get the value in activeEffects of the effect before and after LFO
@@ -670,17 +653,14 @@ private class EffectsChain {
 
         }
         else {
-            <<<"EffectsChain.SetLfoActive() did not recognize that string","">>>;
+            //<<<"EffectsChain.SetLfoActive() did not recognize that string","">>>;
         }
     }
     //activeStr is either "True" or "False"
     fun void setEqActive(string activeStr) {
         //the index in activeEffects that represents the eq
         5=> int currentEffect;
-        if (activeStr == "True") {
-            if (eq.active==1) {
-                return;
-            }
+        if (eq.active==0 && activeStr == "True") {
             //connect the effect
             activeEffects.print();
             activeEffects.add(currentEffect, activeEffects.size()-1);
@@ -695,10 +675,7 @@ private class EffectsChain {
             connect(currentEffect, latterEffectIndex);
             1=>eq.active;
         }
-        else if(activeStr == "False") {
-            if (eq.active==0) {
-                return;
-            }
+        else if(eq.active==1 && activeStr == "False") {
             //disconnect the effect
             activeEffects.indexOf(currentEffect) =>int  index;
             //get the value in activeEffects of the effect before and after LFO
@@ -712,7 +689,7 @@ private class EffectsChain {
 
         }
         else {
-            <<<"EffectsChain.SetLfoActive() did not recognize that string","">>>;
+            //<<<"EffectsChain.SetLfoActive() did not recognize that string","">>>;
         }
     }
     //takes two numbers from the activeEffects[] and disconnects their Gains in the chain array
@@ -1066,7 +1043,15 @@ private class SettingsReader {
                 if (line.length()==0) continue;
                 line.trim();
                 line.find(" ")=>int spaceIndex;
+                if (spaceIndex == line.length()) {
+                    <<<"line ",line>>>;
+                    <<<"spaceIndex == line.length">>>;
+                    <<<"The is probably no variableValue to the right of the line">>>;
+                    continue;
+                }
+                
                 line.substring(0,spaceIndex)=>string variableName;
+                
                 //takes a substring from the spaceIndex+1 to end
                 line.substring(spaceIndex+1)=>string variableValue;
                 if (variableName=="SynthVolume") {
@@ -1083,24 +1068,6 @@ private class SettingsReader {
                 }
                 else if (variableName=="release") {
                     Std.atof(variableValue)=>synth.release;
-                }
-                else if (variableName=="reverbActive") {
-                    //synth.setReverbActive(Std.atoi(variableValue));
-                }
-                else if (variableName=="reverbMix") {
-                    //synth.setReverbMix(Std.atof(variableValue));
-                }
-                else if (variableName=="delayActive") {
-                    //synth.setDelayActive(Std.atoi(variableValue));
-                }
-                else if (variableName=="delayTime") {
-                    //synth.setDelayTime(Std.atof(variableValue));
-                }
-                else if (variableName=="delayMax") {
-                    //synth.setDelayMax(Std.atof(variableValue));
-                }
-                else if (variableName=="synthRootNote") {
-                    //synth.setRootNote(Std.atoi(variableValue));
                 }
                 else if (variableName=="lfoActive") {
                     synth.effectsChain.setLfoActive(variableValue);

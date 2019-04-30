@@ -10,8 +10,11 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 import atexit
 import ChuckManager
 
+#import GLController
+#import MyQGL
 import MyGLWidget
 import types
+
 
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
@@ -277,9 +280,6 @@ class Ui_MainWindow(object):
         self.lfo_shape_noise_Button.setObjectName("lfo_shape_noise_Button")
         #add the button to the list
         self.lfo_shape_buttons.append(self.lfo_shape_noise_Button)
-
-
-
         self.lfo_shape_label = QtWidgets.QLabel(self.lfo_tab)
         self.lfo_shape_label.setGeometry(QtCore.QRect(40, 80, 71, 21))
         font = QtGui.QFont()
@@ -288,7 +288,6 @@ class Ui_MainWindow(object):
         self.lfo_shape_label.setObjectName("lfo_shape_label")
         self.lfo_rate_dial = QtWidgets.QDial(self.lfo_tab)
         self.lfo_rate_dial.setGeometry(QtCore.QRect(190, 10, 50, 64))
-        self.lfo_rate_dial.setMaximum(9999)
         self.lfo_rate_dial.setObjectName("lfo_rate_dial")
         self.lfo_depth_dial = QtWidgets.QDial(self.lfo_tab)
         self.lfo_depth_dial.setGeometry(QtCore.QRect(250, 10, 50, 64))
@@ -310,11 +309,9 @@ class Ui_MainWindow(object):
         self.delay_active_button.setObjectName("delay_active_button")
         self.delay_max_dial = QtWidgets.QDial(self.delay_tab)
         self.delay_max_dial.setGeometry(QtCore.QRect(100, 10, 50, 64))
-        self.delay_max_dial.setMaximum(99)
         self.delay_max_dial.setObjectName("delay_max_dial")
         self.delay_delay_dial = QtWidgets.QDial(self.delay_tab)
         self.delay_delay_dial.setGeometry(QtCore.QRect(160, 10, 50, 64))
-        self.delay_delay_dial.setMaximum(99)
         self.delay_delay_dial.setObjectName("delay_delay_dial")
         self.label = QtWidgets.QLabel(self.delay_tab)
         self.label.setGeometry(QtCore.QRect(90, 80, 71, 16))
@@ -345,7 +342,6 @@ class Ui_MainWindow(object):
         self.chorus_active_Button.setObjectName("chorus_active_Button")
         self.chorus_modFreq_dial = QtWidgets.QDial(self.Chorus)
         self.chorus_modFreq_dial.setGeometry(QtCore.QRect(110, 10, 50, 64))
-        self.chorus_modFreq_dial.setMaximum(9999)
         self.chorus_modFreq_dial.setObjectName("chorus_modFreq_dial")
         self.chorus_modDepth_dial = QtWidgets.QDial(self.Chorus)
         self.chorus_modDepth_dial.setGeometry(QtCore.QRect(190, 10, 50, 64))
@@ -413,7 +409,8 @@ class Ui_MainWindow(object):
         self.listView = QtWidgets.QListWidget(self.synth_tab)
         self.listView.setGeometry(QtCore.QRect(390, 60, 101, 192))
         self.listView.setObjectName("listView")
-        self.listView.addItems(['EMPTY'])
+        self.listView.addItems(['UwU', 'OwO'])
+        
 
         self.active_effects_label = QtWidgets.QLabel(self.synth_tab)
         self.active_effects_label.setGeometry(QtCore.QRect(370, 20, 111, 31))
@@ -445,7 +442,7 @@ class Ui_MainWindow(object):
 
         self.retranslateUi(MainWindow)
         self.tabWidget.setCurrentIndex(0)
-        self.effects_notebook.setCurrentIndex(4)
+        self.effects_notebook.setCurrentIndex(3)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
     def retranslateUi(self, MainWindow):
@@ -491,9 +488,6 @@ class Ui_MainWindow(object):
         self.label_11.setText(_translate("MainWindow", "Output"))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.synth_tab), _translate("MainWindow", "Synth"))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.sampler_tab), _translate("MainWindow", "Sampler pre alpha"))
-
-
-
 
 def onClose() :
     chuck.close()

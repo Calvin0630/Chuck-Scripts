@@ -92,7 +92,7 @@ else if (me.args()==0) {
     <<<"Using default arguments","">>>;
     70=>bpm;
     60/(bpm $ float)=>beat;
-    0.5=>volume;
+    0.3=>volume;
     55=>rootNote;
 }
 else {

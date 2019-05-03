@@ -1,9 +1,9 @@
 SinOsc sina => Gain gain =>dac;
-SinOsc sinb=>gain;
+SinOsc sinb;//=>gain;
 gain.op(3);
 1=>sinb.gain;
 1=>sinb.freq;
-1=>sina.gain;
+0.5=>sina.gain;
 440=>sina.freq;
 while(true) {
     <<<"running and","">>>;

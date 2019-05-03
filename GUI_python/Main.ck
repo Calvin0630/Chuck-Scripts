@@ -151,8 +151,10 @@ private class MidiOscillator {
     NRev reverbEffect;
     Delay delayEffect;
     Gain gain;
-    float attack, delay, sustain, release;
-    int reverbActive, delayActive;
+    0=>float attack;
+    0=>float  delay;
+    0.7=>float sustain;
+    0.5=>float release;
     //a list of all the active notes
     IntArray activeNotes;
     EffectsChain effectsChain;
@@ -220,17 +222,6 @@ private class MidiOscillator {
             }
         }
     }
-
-    fun void setDelayActive(int active) {
-        if (delayActive==1){
-
-        }
-        else if (delayActive==0) {
-
-        }
-    }
-    fun void setDelayTime(float delayTime){}
-    fun void setDelayMax(float delayMax){}
     //a function for debugging
     fun void listenForEvents() {
         // which keyboard
@@ -885,38 +876,53 @@ private class EQ  {
     0=> int active;
     Gain in, out;
     //eq has 5 different frequecy ranges connected in parallel
-    in=>LPF lpfLowEq=>Gain eqLow=> out;
+    in=>LPF lpfLowEq=>Gain eqLow=> Gain finalGain => out;
     75=>lpfLowEq.freq;
 
-    in=>LPF lpfMidLowEq=>HPF hpfMidLowEq=>Gain eqMidLow=> out;
+    in=>LPF lpfMidLowEq=>HPF hpfMidLowEq=>Gain eqMidLow=> finalGain => out;
     75=>hpfMidLowEq.freq;
     100=> lpfMidLowEq.freq;
 
-    in=>LPF lpfMidEq=>HPF hpfMidEq=>Gain eqMid=> out;
+    in=>LPF lpfMidEq=>HPF hpfMidEq=>Gain eqMid=> finalGain => out;
     100=>hpfMidEq.freq;
     2500=> lpfMidEq.freq;
 
-    in=>LPF lpfHighMidEq=>HPF hpfHighMidEq=>Gain eqHighMid=> out;
+    in=>LPF lpfHighMidEq=>HPF hpfHighMidEq=>Gain eqHighMid=> finalGain => out;
     2500=>hpfHighMidEq.freq;
     7500=> lpfHighMidEq.freq;
 
-    in=>HPF hpfHighEq=>Gain eqHigh=> out;
+    in=>HPF hpfHighEq=>Gain eqHigh=> finalGain => out;
     7500=>hpfHighEq.freq;
-
+    1=>finalGain.gain;
     fun void setEqLow(float var) {
         var=> eqLow.gain;
+        //normalize the gain so that the net effect on the volume is 0
+        (eqLow.gain()+eqMidLow.gain()+eqMid.gain()+eqHighMid.gain()+eqHigh.gain())/5=>float averageGain;
+        1/averageGain => finalGain.gain;
     }
     fun void setEqMidLow(float var) {
         var=> eqMidLow.gain;
+        //normalize the gain so that the net effect on the volume is 0
+        (eqLow.gain()+eqMidLow.gain()+eqMid.gain()+eqHighMid.gain()+eqHigh.gain())/5=>float averageGain;
+        1/averageGain => finalGain.gain;
     }
     fun void setEqMid(float var) {
         var=> eqMid.gain;
+        //normalize the gain so that the net effect on the volume is 0
+        (eqLow.gain()+eqMidLow.gain()+eqMid.gain()+eqHighMid.gain()+eqHigh.gain())/5=>float averageGain;
+        1/averageGain => finalGain.gain;
     }
     fun void setEqHighMid(float var) {
         var=> eqHighMid.gain;
+        //normalize the gain so that the net effect on the volume is 0
+        (eqLow.gain()+eqMidLow.gain()+eqMid.gain()+eqHighMid.gain()+eqHigh.gain())/5=>float averageGain;
+        1/averageGain => finalGain.gain;
     }
     fun void setEqHigh(float var) {
         var=> eqHigh.gain;
+        //normalize the gain so that the net effect on the volume is 0
+        (eqLow.gain()+eqMidLow.gain()+eqMid.gain()+eqHighMid.gain()+eqHigh.gain())/5=>float averageGain;
+        1/averageGain => finalGain.gain;
     }
 }
 
@@ -1035,7 +1041,6 @@ private class SettingsReader {
                 cherr <= "can't open file: " <= filename <= " for reading..." <= IO.newline();
                 me.exit();
             }
-
             // loop until end
             while( fio.more() ) {
                 //reads the line and separates it into a string for the variable name and value.

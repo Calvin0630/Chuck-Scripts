@@ -1,17 +1,13 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'qtD_project.ui'
+# Form implementation generated from reading ui file 'C:/Users/Calvin/Documents/Chuck-Scripts/GUI_python/qtD_project.ui'
 #
 # Created by: PyQt5 UI code generator 5.12.1
 #
 # WARNING! All changes made in this file will be lost!
 
 from PyQt5 import QtCore, QtGui, QtWidgets
-import atexit
-import ChuckManager
 
-import MyGLWidget
-import types
 
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
@@ -26,10 +22,8 @@ class Ui_MainWindow(object):
         self.frame.setFrameShape(QtWidgets.QFrame.StyledPanel)
         self.frame.setFrameShadow(QtWidgets.QFrame.Raised)
         self.frame.setObjectName("frame")
-        #set up GL widget
-        self.openGLWidget = MyGLWidget.MyGLWidget(parent=self.frame)
-
-        self.openGLWidget.setGeometry(QtCore.QRect(0, 0, 931, 481))
+        self.openGLWidget = QtWidgets.QOpenGLWidget(self.frame)
+        self.openGLWidget.setGeometry(QtCore.QRect(0, 0, 921, 481))
         self.openGLWidget.setObjectName("openGLWidget")
         self.line = QtWidgets.QFrame(self.frame)
         self.line.setGeometry(QtCore.QRect(-20, 480, 971, 20))
@@ -66,7 +60,6 @@ class Ui_MainWindow(object):
 "}\n"
 "")
         self.volume_slider.setMaximum(100)
-        self.volume_slider.setValue(60)
         self.volume_slider.setOrientation(QtCore.Qt.Vertical)
         self.volume_slider.setObjectName("volume_slider")
         self.attack_slider = QtWidgets.QSlider(self.synth_tab)
@@ -225,7 +218,7 @@ class Ui_MainWindow(object):
         self.release_label.setAlignment(QtCore.Qt.AlignCenter)
         self.release_label.setObjectName("release_label")
         self.effects_notebook = QtWidgets.QTabWidget(self.synth_tab)
-        self.effects_notebook.setGeometry(QtCore.QRect(520, 10, 391, 151))
+        self.effects_notebook.setGeometry(QtCore.QRect(520, 0, 391, 151))
         self.effects_notebook.setLayoutDirection(QtCore.Qt.LeftToRight)
         self.effects_notebook.setAutoFillBackground(True)
         self.effects_notebook.setTabPosition(QtWidgets.QTabWidget.South)
@@ -237,52 +230,17 @@ class Ui_MainWindow(object):
         self.lfo_active_Button = QtWidgets.QPushButton(self.lfo_tab)
         self.lfo_active_Button.setGeometry(QtCore.QRect(10, 10, 71, 61))
         self.lfo_active_Button.setObjectName("lfo_active_Button")
-        #a list for the lfo shape buttons
-        #"Square", "Sine", "Tri", "Saw", "Pulse" "Noise"
-        self.lfo_shape_buttons = list()
-
-        self.lfo_shape_square_Button = QtWidgets.QRadioButton(self.lfo_tab)
-        self.lfo_shape_square_Button.setGeometry(QtCore.QRect(100, 0, 95, 20))
-        self.lfo_shape_square_Button.setObjectName("lfo_shape_square_Button")
-        #add the button to the list
-        self.lfo_shape_buttons.append(self.lfo_shape_square_Button)
-
-        self.lfo_shape_sine_Button = QtWidgets.QRadioButton(self.lfo_tab)
-        self.lfo_shape_sine_Button.setGeometry(QtCore.QRect(100, 20, 95, 20))
-        self.lfo_shape_sine_Button.setObjectName("lfo_shape_sine_Button")
-        #add the button to the list
-        self.lfo_shape_buttons.append(self.lfo_shape_sine_Button)
-
         self.lfo_shape_triangle_Button = QtWidgets.QRadioButton(self.lfo_tab)
-        self.lfo_shape_triangle_Button.setGeometry(QtCore.QRect(100, 40, 95, 20))
+        self.lfo_shape_triangle_Button.setGeometry(QtCore.QRect(100, 20, 95, 20))
         self.lfo_shape_triangle_Button.setObjectName("lfo_shape_triangle_Button")
-        #set it as the default
-        self.lfo_shape_triangle_Button.setChecked(True)
-        #add the button to the list
-        self.lfo_shape_buttons.append(self.lfo_shape_triangle_Button)
-
+        self.lfo_shape_square_Button = QtWidgets.QRadioButton(self.lfo_tab)
+        self.lfo_shape_square_Button.setGeometry(QtCore.QRect(100, 40, 95, 20))
+        self.lfo_shape_square_Button.setObjectName("lfo_shape_square_Button")
         self.lfo_shape_saw_Button = QtWidgets.QRadioButton(self.lfo_tab)
         self.lfo_shape_saw_Button.setGeometry(QtCore.QRect(100, 60, 95, 20))
         self.lfo_shape_saw_Button.setObjectName("lfo_shape_saw_Button")
-        #add the button to the list
-        self.lfo_shape_buttons.append(self.lfo_shape_saw_Button)
-
-        self.lfo_shape_pulse_Button = QtWidgets.QRadioButton(self.lfo_tab)
-        self.lfo_shape_pulse_Button.setGeometry(QtCore.QRect(100, 80, 95, 20))
-        self.lfo_shape_pulse_Button.setObjectName("lfo_shape_pulse_Button")
-        #add the button to the list
-        self.lfo_shape_buttons.append(self.lfo_shape_pulse_Button)
-
-        self.lfo_shape_noise_Button = QtWidgets.QRadioButton(self.lfo_tab)
-        self.lfo_shape_noise_Button.setGeometry(QtCore.QRect(100, 100, 95, 20))
-        self.lfo_shape_noise_Button.setObjectName("lfo_shape_noise_Button")
-        #add the button to the list
-        self.lfo_shape_buttons.append(self.lfo_shape_noise_Button)
-
-
-
         self.lfo_shape_label = QtWidgets.QLabel(self.lfo_tab)
-        self.lfo_shape_label.setGeometry(QtCore.QRect(40, 80, 71, 21))
+        self.lfo_shape_label.setGeometry(QtCore.QRect(100, 0, 71, 21))
         font = QtGui.QFont()
         font.setPointSize(9)
         self.lfo_shape_label.setFont(font)
@@ -467,11 +425,9 @@ class Ui_MainWindow(object):
         self.eq_high_value_label.setAlignment(QtCore.Qt.AlignCenter)
         self.eq_high_value_label.setObjectName("eq_high_value_label")
         self.effects_notebook.addTab(self.eq_tab, "")
-        self.listView = QtWidgets.QListWidget(self.synth_tab)
+        self.listView = QtWidgets.QListView(self.synth_tab)
         self.listView.setGeometry(QtCore.QRect(390, 60, 101, 111))
         self.listView.setObjectName("listView")
-        self.listView.addItems(['EMPTY'])
-
         self.active_effects_label = QtWidgets.QLabel(self.synth_tab)
         self.active_effects_label.setGeometry(QtCore.QRect(370, 20, 111, 31))
         font = QtGui.QFont()
@@ -487,7 +443,7 @@ class Ui_MainWindow(object):
         self.label_10.setFont(font)
         self.label_10.setObjectName("label_10")
         self.label_11 = QtWidgets.QLabel(self.synth_tab)
-        self.label_11.setGeometry(QtCore.QRect(320, 230, 55, 16))
+        self.label_11.setGeometry(QtCore.QRect(320, 150, 55, 16))
         font = QtGui.QFont()
         font.setFamily("Verdana")
         font.setPointSize(9)
@@ -496,13 +452,34 @@ class Ui_MainWindow(object):
         self.tabWidget.addTab(self.synth_tab, "")
         self.sampler_tab = QtWidgets.QWidget()
         self.sampler_tab.setObjectName("sampler_tab")
+        self.sampler_listView = QtWidgets.QListView(self.sampler_tab)
+        self.sampler_listView.setGeometry(QtCore.QRect(20, 10, 271, 291))
+        self.sampler_listView.setObjectName("sampler_listView")
+        self.pushButton = QtWidgets.QPushButton(self.sampler_tab)
+        self.pushButton.setGeometry(QtCore.QRect(860, 10, 51, 51))
+        self.pushButton.setText("")
+        icon = QtGui.QIcon()
+        icon.addPixmap(QtGui.QPixmap("Images/play_unpressed.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        icon.addPixmap(QtGui.QPixmap("Images/play_pressed.png"), QtGui.QIcon.Normal, QtGui.QIcon.On)
+        self.pushButton.setIcon(icon)
+        self.pushButton.setIconSize(QtCore.QSize(51, 51))
+        self.pushButton.setObjectName("pushButton")
+        self.pushButton_2 = QtWidgets.QPushButton(self.sampler_tab)
+        self.pushButton_2.setGeometry(QtCore.QRect(860, 80, 51, 51))
+        self.pushButton_2.setText("")
+        icon1 = QtGui.QIcon()
+        icon1.addPixmap(QtGui.QPixmap("Images/loop_unpressed.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        icon1.addPixmap(QtGui.QPixmap("Images/loop_pressed.png"), QtGui.QIcon.Normal, QtGui.QIcon.On)
+        self.pushButton_2.setIcon(icon1)
+        self.pushButton_2.setIconSize(QtCore.QSize(51, 51))
+        self.pushButton_2.setObjectName("pushButton_2")
         self.tabWidget.addTab(self.sampler_tab, "")
         self.verticalLayout.addWidget(self.frame)
         MainWindow.setCentralWidget(self.centralwidget)
 
         self.retranslateUi(MainWindow)
         self.tabWidget.setCurrentIndex(0)
-        self.effects_notebook.setCurrentIndex(4)
+        self.effects_notebook.setCurrentIndex(0)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
     def retranslateUi(self, MainWindow):
@@ -514,12 +491,9 @@ class Ui_MainWindow(object):
         self.sustain_label.setText(_translate("MainWindow", "Sustain"))
         self.release_label.setText(_translate("MainWindow", "Release"))
         self.lfo_active_Button.setText(_translate("MainWindow", "Active"))
+        self.lfo_shape_triangle_Button.setText(_translate("MainWindow", "Triangle"))
         self.lfo_shape_square_Button.setText(_translate("MainWindow", "Square"))
-        self.lfo_shape_sine_Button.setText(_translate("MainWindow", "Sine"))
-        self.lfo_shape_triangle_Button.setText(_translate("MainWindow", "Tri"))
         self.lfo_shape_saw_Button.setText(_translate("MainWindow", "Saw"))
-        self.lfo_shape_pulse_Button.setText(_translate("MainWindow", "Pulse"))
-        self.lfo_shape_noise_Button.setText(_translate("MainWindow", "Noise"))
         self.lfo_shape_label.setText(_translate("MainWindow", "Shape:"))
         self.label_3.setText(_translate("MainWindow", "Rate"))
         self.label_4.setText(_translate("MainWindow", "Depth"))
@@ -565,22 +539,11 @@ class Ui_MainWindow(object):
 
 
 
-def onClose() :
-    chuck.close()
-    ui.openGLWidget.timer.stop()
-    print('bye!')
-
 if __name__ == "__main__":
-    global chuck, ui
     import sys
-    atexit.register(onClose)
     app = QtWidgets.QApplication(sys.argv)
     MainWindow = QtWidgets.QMainWindow()
     ui = Ui_MainWindow()
     ui.setupUi(MainWindow)
-    #set up chuck
-    #chuck must be initialized second because It sets up some of the UI
-    chuck = ChuckManager.ChuckManager(ui)
-    print('main show')
     MainWindow.show()
     sys.exit(app.exec_())

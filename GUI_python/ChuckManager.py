@@ -59,6 +59,7 @@ class ChuckManager :
         os.system('chuck + Main.ck:70:.5:69')
         self.settingsFilePath = os.getcwd()+'\\settings.txt'
         self.initUISliders()
+        self.initUIDialLabels()
         #a boolean that tells the setting thread when it should exit
         self.settingsThreadExitCondition = False
         self.settingsThread.start()
@@ -101,6 +102,44 @@ class ChuckManager :
         self.parentWidget.eq_high_mid_dial.setValue(self.chuckVars['eqHighMid']*100)
         self.parentWidget.eq_high_dial.setValue(self.chuckVars['eqHigh']*100)
 
+    #sets up the dictionary of dials and connects them to the update function
+    def initUIDialLabels(self) :
+        self.dialLabels = {
+            'lfoRate':  self.parentWidget.lfo_rate_value_label,
+            'lfoDepth':  self.parentWidget.lfo_depth_value_label,
+            'delayBufSize':  self.parentWidget.delay_buf_value_label,
+            'delayTime':  self.parentWidget.delay_time_value_label,
+            'reverbMix':  self.parentWidget.reverb_mix_value_label,
+            'chorusModFreq':  self.parentWidget.chorus_modFreq_value_label,
+            'chorusModDepth':  self.parentWidget.chorus_modDepth_value_label,
+            'chorusMix':  self.parentWidget.chorus_mix_value_label,
+            'eqLow':  self.parentWidget.eq_low_value_label ,
+            'eqMidLow':  self.parentWidget.eq_midLow_value_label,
+            'eqMid':  self.parentWidget.eq_mid_value_label,
+            'eqHighMid':  self.parentWidget.eq_highMid_value_label,
+            'eqHigh':  self.parentWidget.eq_high_value_label 
+        }
+        #connect them to their dials
+        self.parentWidget.lfo_rate_dial.valueChanged.connect(self.updateDialLabels)
+        self.parentWidget.lfo_depth_dial.valueChanged.connect(self.updateDialLabels)
+        self.parentWidget.delay_max_dial.valueChanged.connect(self.updateDialLabels)
+        self.parentWidget.delay_delay_dial.valueChanged.connect(self.updateDialLabels)
+        self.parentWidget.reverb_mix_dial.valueChanged.connect(self.updateDialLabels)
+        self.parentWidget.chorus_modFreq_dial.valueChanged.connect(self.updateDialLabels)
+        self.parentWidget.chorus_modDepth_dial.valueChanged.connect(self.updateDialLabels)
+        self.parentWidget.chorus_mix_dial.valueChanged.connect(self.updateDialLabels)
+        self.parentWidget.eq_low_dial.valueChanged.connect(self.updateDialLabels)
+        self.parentWidget.eq_mid_low_dial.valueChanged.connect(self.updateDialLabels)
+        self.parentWidget.eq_mid_dial.valueChanged.connect(self.updateDialLabels)
+        self.parentWidget.eq_high_mid_dial.valueChanged.connect(self.updateDialLabels)
+        self.parentWidget.eq_high_dial.valueChanged.connect(self.updateDialLabels)
+
+    #this function is called when any of the dials change value
+    def updateDialLabels(self) :
+        for x in self.dialLabels :
+            print(x)
+            self.dialLabels[x].setText(str(self.chuckVars[x]))
+    # this function is called in the write to settings loop.
     def updateChuckVars(self) :
         #get the values from the UI sliders
         value = float(self.parentWidget.volume_slider.value())
@@ -162,4 +201,3 @@ class ChuckManager :
     def close(self) :
         self.settingsThreadExitCondition = True
         os.system('chuck --kill')
-

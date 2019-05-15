@@ -493,7 +493,7 @@ margin: 0 -4px; /* expand outside the groove */
          <property name="geometry">
           <rect>
            <x>520</x>
-           <y>10</y>
+           <y>0</y>
            <width>391</width>
            <height>151</height>
           </rect>
@@ -511,7 +511,7 @@ margin: 0 -4px; /* expand outside the groove */
           <enum>QTabWidget::Triangular</enum>
          </property>
          <property name="currentIndex">
-          <number>4</number>
+          <number>0</number>
          </property>
          <property name="usesScrollButtons">
           <bool>false</bool>
@@ -593,8 +593,8 @@ margin: 0 -4px; /* expand outside the groove */
           <widget class="QDial" name="lfo_rate_dial">
            <property name="geometry">
             <rect>
-             <x>190</x>
-             <y>10</y>
+             <x>200</x>
+             <y>30</y>
              <width>50</width>
              <height>64</height>
             </rect>
@@ -607,7 +607,7 @@ margin: 0 -4px; /* expand outside the groove */
            <property name="geometry">
             <rect>
              <x>250</x>
-             <y>10</y>
+             <y>30</y>
              <width>50</width>
              <height>64</height>
             </rect>
@@ -620,7 +620,7 @@ margin: 0 -4px; /* expand outside the groove */
            <property name="geometry">
             <rect>
              <x>190</x>
-             <y>70</y>
+             <y>100</y>
              <width>55</width>
              <height>16</height>
             </rect>
@@ -636,13 +636,58 @@ margin: 0 -4px; /* expand outside the groove */
            <property name="geometry">
             <rect>
              <x>250</x>
-             <y>70</y>
+             <y>100</y>
              <width>55</width>
              <height>16</height>
             </rect>
            </property>
            <property name="text">
             <string>Depth</string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignCenter</set>
+           </property>
+          </widget>
+          <widget class="QLabel" name="lfo_rate_label">
+           <property name="geometry">
+            <rect>
+             <x>200</x>
+             <y>0</y>
+             <width>41</width>
+             <height>16</height>
+            </rect>
+           </property>
+           <property name="text">
+            <string/>
+           </property>
+          </widget>
+          <widget class="QLabel" name="lfo_rate_value_label">
+           <property name="geometry">
+            <rect>
+             <x>200</x>
+             <y>10</y>
+             <width>51</width>
+             <height>21</height>
+            </rect>
+           </property>
+           <property name="text">
+            <string>0</string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignCenter</set>
+           </property>
+          </widget>
+          <widget class="QLabel" name="lfo_depth_value_label">
+           <property name="geometry">
+            <rect>
+             <x>250</x>
+             <y>10</y>
+             <width>51</width>
+             <height>21</height>
+            </rect>
+           </property>
+           <property name="text">
+            <string>0</string>
            </property>
            <property name="alignment">
             <set>Qt::AlignCenter</set>
@@ -670,7 +715,7 @@ margin: 0 -4px; /* expand outside the groove */
            <property name="geometry">
             <rect>
              <x>100</x>
-             <y>10</y>
+             <y>30</y>
              <width>50</width>
              <height>64</height>
             </rect>
@@ -682,8 +727,8 @@ margin: 0 -4px; /* expand outside the groove */
           <widget class="QDial" name="delay_delay_dial">
            <property name="geometry">
             <rect>
-             <x>160</x>
-             <y>10</y>
+             <x>180</x>
+             <y>30</y>
              <width>50</width>
              <height>64</height>
             </rect>
@@ -696,7 +741,7 @@ margin: 0 -4px; /* expand outside the groove */
            <property name="geometry">
             <rect>
              <x>90</x>
-             <y>80</y>
+             <y>100</y>
              <width>71</width>
              <height>16</height>
             </rect>
@@ -708,14 +753,46 @@ margin: 0 -4px; /* expand outside the groove */
           <widget class="QLabel" name="label_2">
            <property name="geometry">
             <rect>
-             <x>160</x>
-             <y>80</y>
+             <x>170</x>
+             <y>100</y>
              <width>71</width>
              <height>16</height>
             </rect>
            </property>
            <property name="text">
             <string>Time Delay</string>
+           </property>
+          </widget>
+          <widget class="QLabel" name="delay_buf_value_label">
+           <property name="geometry">
+            <rect>
+             <x>100</x>
+             <y>10</y>
+             <width>51</width>
+             <height>21</height>
+            </rect>
+           </property>
+           <property name="text">
+            <string>0</string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignCenter</set>
+           </property>
+          </widget>
+          <widget class="QLabel" name="delay_time_value_label">
+           <property name="geometry">
+            <rect>
+             <x>180</x>
+             <y>10</y>
+             <width>51</width>
+             <height>21</height>
+            </rect>
+           </property>
+           <property name="text">
+            <string>0</string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignCenter</set>
            </property>
           </widget>
          </widget>
@@ -740,7 +817,7 @@ margin: 0 -4px; /* expand outside the groove */
            <property name="geometry">
             <rect>
              <x>100</x>
-             <y>80</y>
+             <y>100</y>
              <width>55</width>
              <height>16</height>
             </rect>
@@ -756,7 +833,7 @@ margin: 0 -4px; /* expand outside the groove */
            <property name="geometry">
             <rect>
              <x>100</x>
-             <y>10</y>
+             <y>30</y>
              <width>50</width>
              <height>64</height>
             </rect>
@@ -766,6 +843,22 @@ margin: 0 -4px; /* expand outside the groove */
            </property>
            <property name="maximum">
             <number>100</number>
+           </property>
+          </widget>
+          <widget class="QLabel" name="reverb_mix_value_label">
+           <property name="geometry">
+            <rect>
+             <x>100</x>
+             <y>10</y>
+             <width>51</width>
+             <height>21</height>
+            </rect>
+           </property>
+           <property name="text">
+            <string>0</string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignCenter</set>
            </property>
           </widget>
          </widget>
@@ -790,7 +883,7 @@ margin: 0 -4px; /* expand outside the groove */
            <property name="geometry">
             <rect>
              <x>110</x>
-             <y>10</y>
+             <y>20</y>
              <width>50</width>
              <height>64</height>
             </rect>
@@ -803,7 +896,7 @@ margin: 0 -4px; /* expand outside the groove */
            <property name="geometry">
             <rect>
              <x>190</x>
-             <y>10</y>
+             <y>20</y>
              <width>50</width>
              <height>64</height>
             </rect>
@@ -812,8 +905,8 @@ margin: 0 -4px; /* expand outside the groove */
           <widget class="QDial" name="chorus_mix_dial">
            <property name="geometry">
             <rect>
-             <x>280</x>
-             <y>10</y>
+             <x>270</x>
+             <y>20</y>
              <width>50</width>
              <height>64</height>
             </rect>
@@ -823,7 +916,7 @@ margin: 0 -4px; /* expand outside the groove */
            <property name="geometry">
             <rect>
              <x>100</x>
-             <y>70</y>
+             <y>80</y>
              <width>71</width>
              <height>41</height>
             </rect>
@@ -842,7 +935,7 @@ margin: 0 -4px; /* expand outside the groove */
            <property name="geometry">
             <rect>
              <x>190</x>
-             <y>80</y>
+             <y>90</y>
              <width>61</width>
              <height>31</height>
             </rect>
@@ -860,8 +953,8 @@ margin: 0 -4px; /* expand outside the groove */
           <widget class="QLabel" name="label_14">
            <property name="geometry">
             <rect>
-             <x>280</x>
-             <y>80</y>
+             <x>270</x>
+             <y>90</y>
              <width>55</width>
              <height>16</height>
             </rect>
@@ -874,6 +967,54 @@ margin: 0 -4px; /* expand outside the groove */
            </property>
            <property name="wordWrap">
             <bool>true</bool>
+           </property>
+          </widget>
+          <widget class="QLabel" name="chorus_modFreq_value_label">
+           <property name="geometry">
+            <rect>
+             <x>110</x>
+             <y>10</y>
+             <width>51</width>
+             <height>21</height>
+            </rect>
+           </property>
+           <property name="text">
+            <string>0</string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignCenter</set>
+           </property>
+          </widget>
+          <widget class="QLabel" name="chorus_modDepth_value_label">
+           <property name="geometry">
+            <rect>
+             <x>190</x>
+             <y>10</y>
+             <width>51</width>
+             <height>21</height>
+            </rect>
+           </property>
+           <property name="text">
+            <string>0</string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignCenter</set>
+           </property>
+          </widget>
+          <widget class="QLabel" name="chorus_mix_value_label">
+           <property name="geometry">
+            <rect>
+             <x>270</x>
+             <y>10</y>
+             <width>51</width>
+             <height>21</height>
+            </rect>
+           </property>
+           <property name="text">
+            <string>0</string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignCenter</set>
            </property>
           </widget>
          </widget>
@@ -898,7 +1039,7 @@ margin: 0 -4px; /* expand outside the groove */
            <property name="geometry">
             <rect>
              <x>90</x>
-             <y>10</y>
+             <y>30</y>
              <width>50</width>
              <height>64</height>
             </rect>
@@ -908,7 +1049,7 @@ margin: 0 -4px; /* expand outside the groove */
            <property name="geometry">
             <rect>
              <x>150</x>
-             <y>10</y>
+             <y>30</y>
              <width>50</width>
              <height>64</height>
             </rect>
@@ -917,8 +1058,8 @@ margin: 0 -4px; /* expand outside the groove */
           <widget class="QDial" name="eq_mid_dial">
            <property name="geometry">
             <rect>
-             <x>200</x>
-             <y>10</y>
+             <x>210</x>
+             <y>30</y>
              <width>50</width>
              <height>64</height>
             </rect>
@@ -927,8 +1068,8 @@ margin: 0 -4px; /* expand outside the groove */
           <widget class="QDial" name="eq_high_mid_dial">
            <property name="geometry">
             <rect>
-             <x>260</x>
-             <y>10</y>
+             <x>270</x>
+             <y>30</y>
              <width>50</width>
              <height>64</height>
             </rect>
@@ -937,8 +1078,8 @@ margin: 0 -4px; /* expand outside the groove */
           <widget class="QDial" name="eq_high_dial">
            <property name="geometry">
             <rect>
-             <x>320</x>
-             <y>10</y>
+             <x>330</x>
+             <y>30</y>
              <width>50</width>
              <height>64</height>
             </rect>
@@ -947,10 +1088,10 @@ margin: 0 -4px; /* expand outside the groove */
           <widget class="QLabel" name="label_5">
            <property name="geometry">
             <rect>
-             <x>90</x>
-             <y>70</y>
+             <x>80</x>
+             <y>100</y>
              <width>55</width>
-             <height>51</height>
+             <height>21</height>
             </rect>
            </property>
            <property name="text">
@@ -964,7 +1105,7 @@ margin: 0 -4px; /* expand outside the groove */
            <property name="geometry">
             <rect>
              <x>140</x>
-             <y>70</y>
+             <y>90</y>
              <width>55</width>
              <height>41</height>
             </rect>
@@ -979,10 +1120,10 @@ margin: 0 -4px; /* expand outside the groove */
           <widget class="QLabel" name="label_7">
            <property name="geometry">
             <rect>
-             <x>180</x>
-             <y>70</y>
-             <width>91</width>
-             <height>41</height>
+             <x>220</x>
+             <y>90</y>
+             <width>31</width>
+             <height>31</height>
             </rect>
            </property>
            <property name="text">
@@ -995,8 +1136,8 @@ margin: 0 -4px; /* expand outside the groove */
           <widget class="QLabel" name="label_8">
            <property name="geometry">
             <rect>
-             <x>260</x>
-             <y>80</y>
+             <x>270</x>
+             <y>100</y>
              <width>55</width>
              <height>16</height>
             </rect>
@@ -1011,14 +1152,94 @@ margin: 0 -4px; /* expand outside the groove */
           <widget class="QLabel" name="label_9">
            <property name="geometry">
             <rect>
-             <x>320</x>
-             <y>80</y>
+             <x>330</x>
+             <y>100</y>
              <width>55</width>
              <height>16</height>
             </rect>
            </property>
            <property name="text">
             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;High&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignCenter</set>
+           </property>
+          </widget>
+          <widget class="QLabel" name="eq_low_value_label">
+           <property name="geometry">
+            <rect>
+             <x>90</x>
+             <y>20</y>
+             <width>51</width>
+             <height>21</height>
+            </rect>
+           </property>
+           <property name="text">
+            <string>0</string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignCenter</set>
+           </property>
+          </widget>
+          <widget class="QLabel" name="eq_midLow_value_label">
+           <property name="geometry">
+            <rect>
+             <x>150</x>
+             <y>20</y>
+             <width>51</width>
+             <height>21</height>
+            </rect>
+           </property>
+           <property name="text">
+            <string>0</string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignCenter</set>
+           </property>
+          </widget>
+          <widget class="QLabel" name="eq_mid_value_label">
+           <property name="geometry">
+            <rect>
+             <x>210</x>
+             <y>20</y>
+             <width>51</width>
+             <height>21</height>
+            </rect>
+           </property>
+           <property name="text">
+            <string>0</string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignCenter</set>
+           </property>
+          </widget>
+          <widget class="QLabel" name="eq_highMid_value_label">
+           <property name="geometry">
+            <rect>
+             <x>270</x>
+             <y>20</y>
+             <width>51</width>
+             <height>21</height>
+            </rect>
+           </property>
+           <property name="text">
+            <string>0</string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignCenter</set>
+           </property>
+          </widget>
+          <widget class="QLabel" name="eq_high_value_label">
+           <property name="geometry">
+            <rect>
+             <x>330</x>
+             <y>20</y>
+             <width>51</width>
+             <height>21</height>
+            </rect>
+           </property>
+           <property name="text">
+            <string>0</string>
            </property>
            <property name="alignment">
             <set>Qt::AlignCenter</set>
@@ -1032,7 +1253,7 @@ margin: 0 -4px; /* expand outside the groove */
            <x>390</x>
            <y>60</y>
            <width>101</width>
-           <height>192</height>
+           <height>111</height>
           </rect>
          </property>
         </widget>
@@ -1078,7 +1299,7 @@ margin: 0 -4px; /* expand outside the groove */
          <property name="geometry">
           <rect>
            <x>320</x>
-           <y>230</y>
+           <y>150</y>
            <width>55</width>
            <height>16</height>
           </rect>
@@ -1098,6 +1319,64 @@ margin: 0 -4px; /* expand outside the groove */
         <attribute name="title">
          <string>Sampler pre alpha</string>
         </attribute>
+        <widget class="QListView" name="sampler_listView">
+         <property name="geometry">
+          <rect>
+           <x>20</x>
+           <y>10</y>
+           <width>271</width>
+           <height>291</height>
+          </rect>
+         </property>
+        </widget>
+        <widget class="QPushButton" name="pushButton">
+         <property name="geometry">
+          <rect>
+           <x>860</x>
+           <y>10</y>
+           <width>51</width>
+           <height>51</height>
+          </rect>
+         </property>
+         <property name="text">
+          <string/>
+         </property>
+         <property name="icon">
+          <iconset>
+           <normaloff>Images/play_unpressed.png</normaloff>
+           <normalon>Images/play_pressed.png</normalon>Images/play_unpressed.png</iconset>
+         </property>
+         <property name="iconSize">
+          <size>
+           <width>51</width>
+           <height>51</height>
+          </size>
+         </property>
+        </widget>
+        <widget class="QPushButton" name="pushButton_2">
+         <property name="geometry">
+          <rect>
+           <x>860</x>
+           <y>80</y>
+           <width>51</width>
+           <height>51</height>
+          </rect>
+         </property>
+         <property name="text">
+          <string/>
+         </property>
+         <property name="icon">
+          <iconset>
+           <normaloff>Images/loop_unpressed.png</normaloff>
+           <normalon>Images/loop_pressed.png</normalon>Images/loop_unpressed.png</iconset>
+         </property>
+         <property name="iconSize">
+          <size>
+           <width>51</width>
+           <height>51</height>
+          </size>
+         </property>
+        </widget>
        </widget>
       </widget>
      </widget>

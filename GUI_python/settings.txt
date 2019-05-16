@@ -1,7 +1,7 @@
-SynthVolume 0.65
+SynthVolume 0.31
 attack 0.1
 delay 0.1
-sustain 0.1
+sustain 0.51
 release 0.1
 lfoActive False
 lfoShape Tri
@@ -16,8 +16,8 @@ chorusActive False
 chorusModFreq 0.1
 chorusModDepth 0.1
 chorusMix 0.1
-eqActive True
-eqLow 0.23
+eqActive False
+eqLow 0.1
 eqMidLow 0.1
 eqMid 0.1
 eqHighMid 0.1

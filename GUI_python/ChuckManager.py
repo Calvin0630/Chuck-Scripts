@@ -30,10 +30,10 @@ class ChuckManager :
         self.parentWidget.eq_active_Button.clicked.connect(partial(self.toggleEffectBypass,'eq'))
         self.settingsThread = threading.Thread(target=self.writeToSettings, args=[],daemon=True)
         self.chuckVars = {
-            'SynthVolume':  0.1,
+            'SynthVolume':  0.5,
             'attack':  0.1,
             'delay':  0.1,
-            'sustain':  0.1,
+            'sustain':  0.6,
             'release':  0.1,
             'lfoActive':  False,
             'lfoShape':  "",
@@ -136,8 +136,8 @@ class ChuckManager :
 
     #this function is called when any of the dials change value
     def updateDialLabels(self) :
+        #this loop updates the text of the labels
         for x in self.dialLabels :
-            print(x)
             self.dialLabels[x].setText(str(self.chuckVars[x]))
     # this function is called in the write to settings loop.
     def updateChuckVars(self) :

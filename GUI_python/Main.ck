@@ -160,7 +160,10 @@ private class MidiOscillator {
     EffectsChain effectsChain;
 
     fun void init(UGen output, int bpm_, float volume_, int rootNote_) {
-
+        /*
+        THE PATH FOR THE MIDI OSC ARE AS FOLLOWS
+        osc =>preAdsr => audioSource =>effectsChain => gain => output
+        */
         bpm_ =>bpm;
         60/(bpm_ $ float) => beat;
         volume_ => volume;

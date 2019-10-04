@@ -9,6 +9,8 @@ from numpy import array
 import time
 import math
 import threading
+import Listen_To_Speakers
+import Fourier
 
 class MyGLWidget(QtOpenGL.QGLWidget):
 
@@ -20,6 +22,8 @@ class MyGLWidget(QtOpenGL.QGLWidget):
         self.initCube()
         self.timer = QtCore.QTimer()
         self.timer.timeout.connect(self.update)
+        # the ear listens to the speakers (Stereo Mix)
+        self.ear = Listen_To_Speakers.SWHear()
         #self.doubleBuffer()
         #self.setAutoBufferSwap(True)
         #self.paintingActive(True)
@@ -81,7 +85,20 @@ class MyGLWidget(QtOpenGL.QGLWidget):
             GL.glVertex3f(((x/2)-12.5),-1,-12.5)
 
         GL.glEnd()
+        #draw the sound data
+        data = Fourier.fft_abs(self.ear.stream_read())
+        GL.glBegin(GL.GL_LINES)
+        GL.glColor3f(0,0,1)
+        #width is the world space horizontal length of the drawing
+        width = 2
+        #delta is the space in between lines
+        delta = width/self.ear.chunk
+        for x in range(len(data)) :
+            GL.glVertex3f((delta*x-width/2),0.00001*data[x]-5,-5)
+            GL.glVertex3f((delta*x-width/2),-5,-5)
+        GL.glEnd()
         #self.drawData()
+        
         GL.glFlush()
         #time.sleep(1)
         #self.paintGL()

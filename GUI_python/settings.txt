@@ -1,7 +1,7 @@
-SynthVolume 0.31
+SynthVolume 0.5
 attack 0.1
 delay 0.1
-sustain 0.51
+sustain 0.6
 release 0.1
 lfoActive False
 lfoShape Tri
